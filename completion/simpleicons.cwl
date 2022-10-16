@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2022/08/01 for v7.5.0
+# Matthew Bertucci 2022/08/24 for v7.7.0
 
 #include:ifxetex
 #include:ifluatex
@@ -222,6 +222,7 @@ autodesk
 autohotkey
 automattic
 autoprefixer
+avajs
 avast
 awesomelists
 awesomewm
@@ -291,8 +292,10 @@ bmcsoftware
 bmw
 boehringeringelheim
 boeing
+bookalope
 bookbub
 bookmeter
+bookmyshow
 bookstack
 boost
 boots
@@ -471,6 +474,7 @@ createreactapp
 creativecommons
 credly
 crehana
+criticalrole
 crowdin
 crowdsource
 crunchbase
@@ -655,6 +659,7 @@ express
 expressvpn
 eyeem
 f1
+f5
 facebook
 facebookgaming
 facebooklive
@@ -968,6 +973,7 @@ influxdb
 informatica
 infosys
 ingress
+inkdrop
 inkscape
 insomnia
 instacart
@@ -1065,6 +1071,7 @@ kentico
 keras
 keybase
 keycdn
+keystone
 kfc
 khanacademy
 khronosgroup
@@ -1156,6 +1163,7 @@ lionair
 liquibase
 lit
 litecoin
+litiengine
 livechat
 livejournal
 livewire
@@ -1290,6 +1298,7 @@ monero
 moneygram
 mongodb
 monkeytie
+monogames
 monoprix
 monster
 monzo
@@ -1299,6 +1308,7 @@ moscowmetro
 motorola
 mozilla
 msi
+msibusiness
 mta
 mtr
 mui
@@ -1385,6 +1395,7 @@ obsstudio
 ocaml
 octanerender
 octave
+octoprint
 octopusdeploy
 oculus
 odnoklassniki
@@ -1692,6 +1703,7 @@ retroarch
 retropie
 revealdotjs
 reverbnation
+revoltdotchat
 revolut
 revue
 rewe
@@ -1962,6 +1974,7 @@ symphony
 sympy
 synology
 tableau
+tacobell
 tado
 tails
 tailwindcss
@@ -2026,6 +2039,7 @@ tile
 timescale
 tinder
 tinyletter
+tistory
 tmobile
 tmux
 todoist
@@ -2041,6 +2055,7 @@ toyota
 tplink
 tqdm
 traefikmesh
+traefikproxy
 trainerroad
 trakt
 transferwise
@@ -2143,6 +2158,7 @@ vim
 vimeo
 vimeolivestream
 virgin
+virginmedia
 virtualbox
 virustotal
 visa
@@ -2293,6 +2309,7 @@ zenodo
 zerodha
 zeromq
 zerply
+zettlr
 zhihu
 zig
 zigbee
@@ -2318,3 +2335,4 @@ zyte
 \SIseven#S
 \SIeight#S
 \SInine#S
+\SIten#S

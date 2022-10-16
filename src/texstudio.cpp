@@ -938,7 +938,7 @@ void Texstudio::setupMenus()
 
 	submenu = newManagedMenu(menu, "lineoperations", tr("&Line Operations"));
     newManagedAction(submenu, "deleteLine", tr("Delete &Line"), SLOT(editDeleteLine()), Qt::CTRL | Qt::Key_K);
-    newManagedAction(submenu, "cutLine", tr("C&ut Line"), SLOT(editCutLine()), Qt::SHIFT | Qt::Key_Delete);
+    newManagedAction(submenu, "cutLine", tr("C&ut Line or Selection"), SLOT(editCutLine()), Qt::SHIFT | Qt::Key_Delete);
 #if QT_VERSION>=QT_VERSION_CHECK(6,0,0)
     newManagedAction(submenu, "deleteToEndOfLine", tr("Delete To &End Of Line"), SLOT(editDeleteToEndOfLine()), MAC_OR_DEFAULT(Qt::CTRL | Qt::Key_Delete,  Qt::AltModifier | Qt::Key_K));
 #else
@@ -1713,7 +1713,6 @@ void Texstudio::updateCaption()
 	if (!currentEditorView()) documents.currentDocument = nullptr;
 	else {
 		documents.currentDocument = currentEditorView()->document;
-        //structureTreeView->setExpanded(documents.model->index(documents.currentDocument->baseStructure), true);
 	}
 	if (completer && completer->isVisible()) completer->close();
 	QString title;
@@ -1729,11 +1728,9 @@ void Texstudio::updateCaption()
 		newDocumentLineEnding();
 	}
 	setWindowTitle(title);
-	//updateStructure();
 	updateUndoRedoStatus();
 	cursorPositionChanged();
 	if (documents.singleMode()) {
-		//outputView->resetMessagesAndLog();
 		if (currentEditorView()) completerNeedsUpdate();
 	}
 	QString finame = getCurrentFileName();
@@ -4188,7 +4185,7 @@ void Texstudio::readSettings(bool reread)
     int x = config->value("Geometries/MainwindowX", screen.x() + 10).toInt();
     int y = config->value("Geometries/MainwindowY", screen.y() + 10).toInt() ;
     screen = UtilsUi::getAvailableGeometryAt(QPoint(x, y));
-    if (!screen.contains(x, y)) {
+    if (screen.width()>100 && !screen.contains(x, y)) {
         // top left is not on screen
         x = screen.x() + 10;
         y = screen.y() + 10;
@@ -9476,30 +9473,17 @@ void Texstudio::openExternalFile(QString name, const QString &defaultExt, LatexD
 	if (!doc) return;
 	name.remove('"');  // ignore quotes (http://sourceforge.net/p/texstudio/bugs/1366/)
     QStringList curPaths;
-    if (documents.masterDocument){
-        curPaths << ensureTrailingDirSeparator(documents.masterDocument->getFileInfo().absolutePath());
-    }
-    if (doc->getRootDocument()){
-        curPaths << ensureTrailingDirSeparator(doc->getRootDocument()->getFileInfo().absolutePath());
-    }
-    curPaths << ensureTrailingDirSeparator(doc->getFileInfo().absolutePath());
     if (defaultExt == "bib") {
         curPaths << configManager.additionalBibPaths.split(getPathListSeparator());
     }
     bool loaded = false;
-    for (int i = 0; i < curPaths.count(); i++) {
-        const QString &curPath = ensureTrailingDirSeparator(curPaths.value(i));
-        if ((loaded = load(getAbsoluteFilePath(curPath + name, defaultExt))))
-            break;
-        if ((loaded = load(getAbsoluteFilePath(curPath + name, ""))))
-            break;
-        if ((loaded = load(getAbsoluteFilePath(name, defaultExt))))
-            break;
+    loaded = load(documents.getAbsoluteFilePath(name, defaultExt,curPaths));
+    if(!loaded){
+        loaded = load(documents.getAbsoluteFilePath(name, "",curPaths));
     }
 
 	if (!loaded) {
-		Q_ASSERT(curPaths.count() > 0);
-		QFileInfo fi(getAbsoluteFilePath(curPaths[0] + name, defaultExt));
+        QFileInfo fi(documents.getAbsoluteFilePath(name, defaultExt,curPaths));
 		if (fi.exists()) {
 			UtilsUi::txsCritical(tr("Unable to open file \"%1\".").arg(fi.fileName()));
 		} else {
@@ -9511,7 +9495,6 @@ void Texstudio::openExternalFile(QString name, const QString &defaultExt, LatexD
 				if (!fi.absoluteDir().exists())
 					fi.absoluteDir().mkpath(".");
 				fileNew(fi.absoluteFilePath());
-				qDebug() << doc->getFileName() << lineNr;
 				doc->patchStructure(lineNr, 1);
 			}
 		}
@@ -11452,7 +11435,7 @@ void Texstudio::customMenuStructure(const QPoint &pos){
     }
     if (contextEntry->type == StructureEntry::SE_INCLUDE) {
         QMenu menu;
-        menu.addAction(tr("Open Document"), this, SLOT(openExternalFileFromAction()))->setData(QVariant::fromValue(contextEntry));
+        menu.addAction(tr("Open Document"), this, SLOT(openExternalFileFromAction()))->setData(QVariant::fromValue(contextEntry->title));
         menu.addAction(tr("Go to Definition"), this, SLOT(gotoLineFromAction()))->setData(QVariant::fromValue(contextEntry));
 
         menu.exec(w->mapToGlobal(pos));
@@ -12041,18 +12024,10 @@ void Texstudio::parseStructLocally(StructureEntry* se, QVector<QTreeWidgetItem *
             parseStructLocally(elem,rootVector,todoList,labelList,magicList);
         }
         if(elem->type == StructureEntry::SE_INCLUDE){
-            LatexDocument *doc=elem->document;
-            LatexDocument *rootDoc=doc->getRootDocument();
-            //QString fn=ensureTrailingDirSeparator(rootDoc->getFileInfo().absolutePath())+elem->title;
-            QFileInfo fi(rootDoc->getFileInfo().absolutePath(),elem->title);
-            doc=documents.findDocumentFromName(fi.absoluteFilePath());
-            if(!doc){
-                doc=documents.findDocumentFromName(fi.absoluteFilePath()+".tex");
-            }
             QTreeWidgetItem * item=new QTreeWidgetItem();
             item->setData(0,Qt::UserRole,QVariant::fromValue<StructureEntry *>(elem));
             item->setText(0,elem->title);
-            if(!doc){
+            if(!elem->valid){
                 item->setForeground(0,Qt::red);
             }
             item->setIcon(0,QIcon(":/images/include.png"));

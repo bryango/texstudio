@@ -805,6 +805,11 @@ void LatexEditorView::deleteLines(bool toStart, bool toEnd)
  */
 void LatexEditorView::cutLines()
 {
+    QDocumentCursor cur = editor->cursor();
+    if(cur.hasSelection()){
+        editor->cut();
+        return;
+    }
     QList<QDocumentCursor> cursors = editor->cursors();
     if (cursors.empty()) return;
     // sort cursors by start linenumber
@@ -2188,7 +2193,8 @@ void LatexEditorView::documentContentChanged(int linenr, int count)
 					if (cnt > 1) {
 						dlh->addOverlay(QFormatRange(tk.start, tk.length, referenceMultipleFormat));
 					} else dlh->addOverlay(QFormatRange(tk.start, tk.length, referencePresentFormat));
-					// look for corresponding reeferences and adapt format respectively
+                    // look for corresponding references and adapt format respectively
+                    document->updateRefsLabels(ref);
 					addedOverlayReference = true;
 				}
 				if (tk.type == Token::bibItem && config->inlineCitationChecking) {

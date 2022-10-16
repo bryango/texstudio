@@ -1,14 +1,27 @@
 # nimsticks package
-# Matthew Bertucci 9/30/2021 for v1.1
+# Matthew Bertucci 2022/08/16 for v2.0.1
 
-#include:
+#include:lcg
 #include:tikz
-#include:ifthen
+#include:etoolbox
 
 \drawnimstick
 \nimgame{number list}
-\nimgame[option%keyvals]{number list}
-
-#keyvals:\nimgame
-inline
-#endkeyvals
+\nimgame[inline]{%<number list%>}
+\setnimstickcolour{color}
+\nimstickcolour#*
+\setnimscale{factor}
+\nimstickheight#*
+\nimstickthickness#*
+\nimstickgap#*
+\nimheapgap#*
+\nimheapwobble#*
+\nimheaplift#*
+\nimrandrange#*
+\onenimstick
+\topx#*
+\botx#*
+\lift#*
+\listofgames#S
+\heap#S
+\heapindex#S

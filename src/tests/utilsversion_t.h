@@ -102,17 +102,6 @@ private slots:
 		QEQUAL(Version::stringVersion2Parts(version) == parts, valid);
 	}
 
-	void currentVersion_data() {
-		QTest::addColumn<bool>("valid");
-
-		QTest::newRow("currentVersion") << false;
-	}
-
-	void currentVersion() {
-		QFETCH(bool, valid);
-		QEQUAL(Version::current("4.3.0beta1-24-g5c925a387").Version::isEmpty(), valid);
-	}
-
 	void versionToString_data() {
 		QTest::addColumn<QString>("version");
 		QTest::addColumn<QString>("type");
@@ -210,6 +199,7 @@ private slots:
 		QTest::newRow("valid2.6") << "3.0.1" << "alpha" << 0 << 0 << true;
 		QTest::newRow("valid2.7") << "3.0.1" << "alpha" << -1 << 0 << false;
 		QTest::newRow("valid2.8") << "3.0.1" << "alpha" << 1 << -2 << false;
+		QTest::newRow("valid2.9") << "2.3.1" << "" << 1 << 0 << false;
 	}
 
 	void isValid2() {

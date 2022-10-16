@@ -27,6 +27,9 @@ casechanger=#auto,latex2e,expl3
 datamodel=%<model%>
 #endkeyvals
 
+\BiblatexManualHyperrefOn#*
+\BiblatexManualHyperrefOff#*
+
 ## 3.2 Global Customization ##
 \ExecuteBibliographyOptions{options%keyvals}
 \ExecuteBibliographyOptions[entrytype list]{options%keyvals}
@@ -197,8 +200,8 @@ dataonly#true,false
 \getitemannotation[field][annotation name][item]#*
 \getpartannotation{part}#*
 \getpartannotation[field]{part}#*
-\getitemannotation[field][annotation name]{part}#*
-\getitemannotation[field][annotation name][item]{part}#*
+\getpartannotation[field][annotation name]{part}#*
+\getpartannotation[field][annotation name][item]{part}#*
 \getdateannotation{datetype}#*
 \getdateannotation[annotation name]{datetype}#*
 
@@ -817,9 +820,12 @@ name=%<refcontextname%>
 \psq
 \psqq
 \sqspace#*
+\ppspace#*
 \pnfmt{text}#*
 \RN{integer}
+\RNfont#*
 \Rn{integer}
+\Rnfont#*
 
 #ifOption:natbib
 # from blx-natbib.def
@@ -1331,6 +1337,7 @@ d
 \printdateextra#*
 \printlabeldate#*
 \printlabeldateextra#*
+\printlabeltime#*
 \printorigdate#*
 \printeventdate#*
 \printurldate#*
@@ -1352,6 +1359,9 @@ d
 \DeclareFieldInputHandler{field}{code}#*
 \DeclareListInputHandler{list}{code}#*
 \DeclareNameInputHandler{name}{code}#*
+\NewCount#S
+\NewOption#S
+\NewValue#S
 
 # Formatting Directives
 \DeclareFieldFormat[entrytype, ...]{format}{code}#*
@@ -1601,6 +1611,7 @@ keyword=
 notkeyword=
 field=
 notfield=
+filter=
 #endkeyvals
 \filteror{type}{filters}#*
 
@@ -1647,7 +1658,7 @@ override#true,false
 \thefield{field}#*
 \strfield{field}#*
 \csfield{field}#*
-\usefield{cmd}{field}#*
+\usefield{command}{field}#*
 \thelist{literal list}#*
 \strlist{literal list}#*
 \thefirstlistitem{literal list}#*
@@ -1755,6 +1766,8 @@ override#true,false
 \ifnumerals{string}{true}{false}#*
 \ifpages{string}{true}{false}#*
 \iffieldint{field}{true}{false}#*
+\fieldhascomputableequivalent{field}{true}{false}#*
+\iffieldiscomputable{field}{true}{false}#*
 \iffieldnum{field}{true}{false}#*
 \iffieldnums{field}{true}{false}#*
 \iffieldpages{field}{true}{false}#*
@@ -1773,9 +1786,11 @@ override#true,false
 \iffootnote{true}{false}#*
 \thecitecounter#*
 \themaxcitecounter#*
+\thesavedcitecounter#*
 \theuniquename#*
 \theuniquelist#*
 \theparenlevel#*
+\themaxparens#*
 
 \ifboolexpr{expression}{true}{false}#*
 \ifthenelse{tests}{true}{false}#*
@@ -1885,6 +1900,7 @@ override#true,false
 \DeclarePageCommands{cmds}#*
 \DeclarePageCommands*{cmds}#*
 \NumCheckSetup{code}#*
+\NumcheckSetup{code}#S
 \NumsCheckSetup{code}#*
 \PagesCheckSetup{code}#*
 \DeclareBabelToExplLanguageMapping{babel language}{expl language}#*
@@ -1968,8 +1984,8 @@ override#true,false
 \bibucstring[wrapper]{string key}#*
 \bibuclstring{string key}#*
 \bibuclstring[wrapper]{string key}#*
-\bibuscstring{string key}#*
-\bibuscstring[wrapper]{string key}#*
+\bibucsstring{string key}#*
+\bibucsstring[wrapper]{string key}#*
 \biblcstring{string key}#*
 \biblcstring[wrapper]{string key}#*
 \biblclstring{string key}#*
@@ -2025,6 +2041,24 @@ override#true,false
 
 \labelnumberwidth#*
 \labelalphawidth#*
+\themaxextraalpha#*
+\themaxextradate#*
+\themaxextraname#*
+\themaxextratitle#*
+\themaxextratitleyear#*
+\themaxnames#*
+\theminnames#*
+\themaxitems#*
+\theminitems#*
+\theinstcount#*
+\thecitetotal#*
+\thecitecount#*
+\themulticitetotal#*
+\themulticitecount#*
+\thelisttotal#*
+\thelistcount#*
+\theliststart#*
+\theliststop#*
 \currentlang#*
 \currentfield#*
 \currentlist#*
@@ -2074,6 +2108,11 @@ override#true,false
 \BiblatexLatvianWarningOff#*
 \BiblatexSplitbibDefernumbersWarningOff#*
 \biburlsetup#*
+\blxcitecmd{name}{prenote}{postnote}{citekey%plain}{punct}#*
+\blxciteicmd{name}{prenote}{postnote}{citekey%plain}{punct}#*
+\blxendmcites#*
+\blxmciteicmd{multicitecount}{<name>}{prenote}{postnote}{citekey%plain}{punct}#*
+\blxmcites{multicitetotal}{multiprenote}{multipostnote}#*
 \iffinalcitedelim{true}{false}#*
 \iftextcitepunct{true}{false}#*
 \mkbibindexentry{entry}{text}#*
@@ -2747,6 +2786,23 @@ nonodate#true,false
 \mknoyeardaterangefull{arg1}{arg2}#*
 \mknoyeardaterangetrunc{arg1}{arg2}#*
 \ifrelatedloop{true}{false}#*
+#endif
+
+### biblatex-caspervector v0.3.5 ###
+#ifOption:style=caspervector
+#keyvals:\usepackage/biblatex#c,\ExecuteBibliographyOptions#c
+utf8#true,false
+gbk#true,false
+cparen#true,false
+#endkeyvals
+#endif
+
+#ifOption:style=caspervector-ay
+#keyvals:\usepackage/biblatex#c,\ExecuteBibliographyOptions#c
+utf8#true,false
+gbk#true,false
+cparen#true,false
+#endkeyvals
 #endif
 
 ### biblatex-chem v1.1z ###

@@ -1,10 +1,10 @@
 # ProfLycee package
-# Matthew Bertucci 2022/08/02 for v1.1.8
+# Matthew Bertucci 2022/08/25 for v1.2.3
 
 #include:xcolor
 # xcolor loaded with table and svgnames options
 #include:tikz
-# loads calc, decorations.pathreplacing, decorations.markings, arrows, and arrows.meta tikzlibraries
+# loads calc, decorations, decorations.pathreplacing, decorations.markings, arrows, and arrows.meta tikzlibraries
 #include:tkz-tab
 #include:mathtools
 #include:pgf
@@ -19,7 +19,9 @@
 #include:simplekv
 #include:listofitems
 #include:tabularray
+#include:siunitx
 #include:fontawesome5
+#include:csvsimple-l3
 #include:tcolorbox
 # tcolorbox loaded with most option and minted library loaded by default
 #include:ifluatex
@@ -29,7 +31,12 @@
 #keyvals:\usepackage/ProfLycee#c
 nominted
 build
+csvii
 #endkeyvals
+
+#ifOption:csvii
+#include:csvsimple-legacy
+#endif
 
 \splinetikz
 \splinetikz[options%keyvals]
@@ -86,6 +93,17 @@ labeltitre
 hc=%<hauteur%>
 hr=%<hauteur%>
 #endkeyvals
+
+\begin{envcodepython}{tcolorbox options}#V
+\begin{envcodepython}[largeur]{tcolorbox options}#V
+\begin{envcodepython}*{tcolorbox options}#V
+\begin{envcodepython}*[largeur]{tcolorbox options}#V
+\end{envcodepython}
+
+\envcodepythonfichier{tcolorbox options}{file}#i
+\envcodepythonfichier[largeur]{tcolorbox options}{file}#i
+\envcodepythonfichier*{tcolorbox options}{file}#i
+\envcodepythonfichier*[largeur]{tcolorbox options}{file}#i
 
 \begin{envcodepythontex}#V
 \begin{envcodepythontex}[options%keyvals]#V
@@ -270,6 +288,118 @@ Ox=%<num%>
 Oy=%<num%>
 #endkeyvals
 
+#keyvals:\tikz#c,\begin{tikzpicture}#c,\tikzset#c
+Ox=%<num%>
+Oy=%<num%>
+xmin=%<num%>
+xmax=%<num%>
+ymin=%<num%>
+ymax=%<num%>
+xgrille=%<num%>
+xgrilles=%<num%>
+ygrille=%<num%>
+ygrilles=%<num%>
+xunit=%<num%>
+yunit=%<num%>
+#endkeyvals
+
+\PLgrilletikz
+\PLgrilletikz[options%keyvals]
+\PLgrilletikz[options%keyvals][options grille ppale]#*
+\PLgrilletikz[options%keyvals][options grille ppale][options grille second]
+
+#keyvals:\PLgrilletikz
+affp#true,false
+affs#true,false
+#endkeyvals
+
+\PLaxestikz
+\PLaxestikz[options%keyvals]
+
+#keyvals:\PLaxestikz
+epaisseur=##L
+police=%<font commands%>
+labelx=%<text%>
+labely=%<text%>
+afflabel=#x,y,xy
+poslabelx=%<TikZ pos%>
+poslabely=%<TikZ pos%>
+echellefleche=%<num%>
+typefleche=%<type%>
+#endkeyvals
+
+\PLaxextikz{valeurs}
+\PLaxextikz[options%keyvals]{valeurs}
+\PLaxeytikz{valeurs}
+\PLaxeytikz[options%keyvals]{valeurs}
+
+#keyvals:\PLaxextikz,\PLaxeytikz
+epaisseur=##L
+police=%<font commands%>
+posgrad=%<TikZ pos%>
+hautgrad=##L
+affgrad=#true,false
+afforigine=#true,false
+annee=#true,false
+#endkeyvals
+
+\PLfenetre
+\PLfenetresimple{liste abscisses}{liste ordonnées}
+\PLfenetresimple{liste abscisses}<options axe Oy>{liste ordonnées}
+\PLfenetresimple<options axe Ox>{liste abscisses}{liste ordonnées}
+\PLfenetresimple<options axe Ox>{liste abscisses}<options axe Oy>{liste ordonnées}
+
+\PLorigine
+\PLorigine[options%keyvals]
+
+#keyvals:\PLorigine
+police=%<font commands%>
+pos=%<TikZ pos%>
+decal=##L
+valeur=%<num%>
+#endkeyvals
+
+\PLnuagepts{listeX}{listeY}
+\PLnuagepts[options%keyvals]{listeX}{listeY}
+
+#keyvals:\PLnuagepts
+taille=##L
+couleur=#%color
+style=#o,x,+
+#endkeyvals
+
+\PLnuageptmoy
+\PLnuageptmoy[options%keyvals]
+
+#keyvals:\PLnuageptmoy
+police=%<font commands%>
+taille=##L
+couleur=#%color
+style=#o,x,+
+xg=%<num%>
+yg=%<num%>
+nom=%<text%>
+pos=%<TikZ pos%>
+decal=##L
+affnom=#true,false
+#endkeyvals
+
+\PLcourbe{formule}{domaine}
+\PLcourbe[TikZ clés]{formule}{domaine}
+
+\axexOx#*
+\axeyOy#*
+\xmin#*
+\xmax#*
+\ymin#*
+\ymax#*
+\xgrille#*
+\xgrilles#*
+\ygrille#*
+\ygrilles#*
+\xunit#*
+\yunit#*
+
 \PLconvdecbin{nombre}
 \PLconvdecbin[options%keyvals]{nombre}
 \PLconvdecbin*{nombre}
@@ -301,6 +431,18 @@ zeros#true,false
 #keyvals:\draw#c
 mainlevee
 mainlevee=%<segment-length%> et %<amplitude%>
+#endkeyvals
+
+\PLpixelart{file}#i
+\PLpixelart[options%keyvals]{file}#i
+
+#keyvals:\PLpixelart
+codes=%<chaîne%>
+couleurs={%<couleur1,couleur2,...%>}
+symboles={%<symbol1,symbol2,...%>}
+correction#true,false
+symb#true,false
+style=%<font commands%>
 #endkeyvals
 
 # from table option of xcolor
@@ -483,7 +625,34 @@ Teal#B
 
 # not documented
 \algomathttPL{text%plain}#*
+\axesafflabel#S
+\axesechellefleche#S
+\axesfont#S
+\axeslabelx#S
+\axeslabely#S
+\axesordecal#S
+\axesorfont#S
+\axesorpos#S
+\axesorval#S
+\axesposlabelx#S
+\axesposlabely#S
+\axestypefleche#S
+\axeswidth#S
+\axexfont#S
+\axexposlabel#S
+\axextickwidth#S
+\axextickwidthA#S
+\axextickwidthB#S
+\axexwidth#S
+\axeyfont#S
+\axeyposlabel#S
+\axeytickwidth#S
+\axeytickwidthA#S
+\axeytickwidthB#S
+\axeywidth#S
 \basedepart#S
+\begin{PLstats}#S
+\begin{PLstats}[opt]#S
 \begin{pythont}#S
 \begin{tcpythontexcode}#*
 \begin{tcpythontexcode}[width]#*
@@ -515,11 +684,13 @@ Teal#B
 \cpt#S
 \CSPYlargeur#S
 \denominateur#S
+\end{PLstats}#S
 \end{pythont}#S
 \end{tcpythontexcode}#*
 \end{tcpythontexcodeno}#*
 \epcrochet#S
 \extractcoeff{liste}{numero}#*
+\fctdecx#S
 \fprimea#S
 \fprimeb#S
 \hookcenterpost#S
@@ -527,12 +698,19 @@ Teal#B
 \ifinal#S
 \iinit#S
 \indice#S
+\LCNA#S
 \lcoeffs#S
+\LCPA#S
+\listepointsaffiches#S
 \nbblocs#S
 \nbchiffres#S
 \nbdepart#S
 \nbgrp#S
 \numerateur#S
+\PATchiffres#S
+\PATcouleurs#S
+\PATlettres#S
+\PATtaille#S
 \PaveA#S
 \PaveB#S
 \PaveC#S
@@ -557,6 +735,10 @@ Teal#B
 \PFTetraPf#S
 \PFTetraSommets#S
 \PFTetraThick#S
+\pixchf#S
+\pixcnt#S
+\pixcol#S
+\pixpos#S
 \PLcercleangles#S
 \PLcerclecoleq#S
 \PLcercledecal#S
@@ -569,10 +751,15 @@ Teal#B
 \PLcerclevaleurs#S
 \PLcerclevalsin#S
 \PLcommandeswin#*
-\PLconvblocbinhex{binary integer}#*
 \PLconvblocbinhex[rule thickness]{binary integer}#*
+\PLconvblocbinhex{binary integer}#*
+\PLDm#S
+\PLDM#S
+\PLdomaine#S
 \PLensopt#S
 \PLenssep#S
+\PLnuagepoints[opt]{arg}#S
+\PLnuagepoints{arg}#S
 \PLOSXGreen#*
 \PLOSXLG#*
 \PLOSXOrange#*
@@ -590,6 +777,22 @@ Teal#B
 \PLUbuntuMax#*
 \PLUbuntuMin#*
 \PLUbuntuWhite#*
+\ptmoycouleur#S
+\ptmoycouleurA#S
+\ptmoycouleurB#S
+\ptmoydecal#S
+\ptmoyfont#S
+\ptmoynom#S
+\ptmoypos#S
+\ptmoystyle#S
+\ptmoytaille#S
+\ptmoyx#S
+\ptmoyy#S
+\ptscouleur#S
+\ptscouleurA#S
+\ptscouleurB#S
+\ptsstyle#S
+\ptstaille#S
 \puiss#S
 \RegLinCoeffa#S
 \RegLinCoeffb#S
@@ -648,9 +851,11 @@ Teal#B
 \xa#S
 \xb#S
 \xliste#S
+\XPT#S
 \ya#S
 \yb#S
 \yliste#S
+\YPT#S
 
 PLlinux#B
 PLmgray#B
@@ -663,6 +868,9 @@ PLwinblue#B
 vertcapyt#B
 
 #keyvals:\tcbset,\begin{tcolorbox},\tcbsetforeverylayer,\tcbox,\newtcolorbox,\renewtcolorbox,\newtcbox,\renewtcbox,\tcolorboxenvironment,\tcbsubtitle,\tcbsidebyside,\tcbsubskin,\tcbincludegraphics,\tcbincludepdf,\begin{tcbraster},\begin{tcbitemize},\tcbitem,\begin{tcboxedraster},\begin{tcboxeditemize},\begin{tcblisting},\tcbinputlisting,\newtcblisting,\renewtcblisting,\newtcbinputlisting,\renewtcbinputlisting,\newtcbtheorem,\renewtcbtheorem,\tcboxmath,\tcbhighmath,\usetcboxarray,\consumetcboxarray,\posterbox,\begin{posterboxenv},\tcboxfit,\newtcboxfit,\renewtcboxfit,\DeclareTColorBox,\NewTColorBox,\RenewTColorBox,\ProvideTColorBox,\DeclareTotalTColorBox,\NewTotalTColorBox,\RenewTotalTColorBox,\ProvideTotalTColorBox,\DeclareTCBox,\NewTCBox,\RenewTCBox,\ProvideTCBox,\DeclareTotalTCBox,\NewTotalTCBox,\RenewTotalTCBox,\ProvideTotalTCBox,\DeclareTCBListing,\NewTCBListing,\RenewTCBListing,\ProvideTCBListing,\DeclareTCBInputListing,\NewTCBInputListing,\RenewTCBInputListing,\ProvideTCBInputListing,\DeclareTCBoxFit,\NewTCBoxFit,\RenewTCBoxFit,\ProvideTCBoxFit,\DeclareTotalTCBoxFit,\NewTotalTCBoxFit,\RenewTotalTCBoxFit,\ProvideTotalTCBoxFit,\tcboxverb,\begin{docCommand},\begin{docCommand*},\begin{docCommands},\begin{docEnvironment},\begin{docEnvironment*},\begin{docEnvironments},\begin{docKey},\begin{docKey*},\begin{docKeys},\begin{docPathOperation},\begin{docPathOperation*},\begin{docPathOperations},\docValue,\docValue*,\docAuxCommand,\docAuxCommand*,\docAuxEnvironment,\docAuxEnvironment*,\docAuxKey,\docAuxKey*,\docCounter,\docCounter*,\docLength,\docLength*,\docColor,\docColor*,\begin{dispExample*},\begin{dispListing*},\tcbdocmarginnote
+stylepythonlst
+stylepythonlstnolineos
+stylepythonlstlineos
 stylepythontex
 stylepythonnolineos
 stylepythonlineos
