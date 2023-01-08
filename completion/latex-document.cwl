@@ -3,9 +3,11 @@
 # tbraun/2006-08-03 removed dup inserted by me ...
 # tbraun/2007-02-24 added left/right variants
 # dbitouze/2015-02-21 obsolete font style commands made unusual
-# Matthew Bertucci 2022/07/06 for 2022/07/05 release
+# Matthew Bertucci 2022/11/01 for 2022/11/01 release
+
 #include:latex-dev
 #include:textcomp
+
 \abstractname#*
 \addcontentsline{file}{secunit}{entry}#*
 \Alph{counter}#*
@@ -269,29 +271,32 @@
 \makeindex
 \makelabel#*
 \MakeLowercase{text}#*
+\MakeLowercase[options%keyvals]{text}#*
 \maketitle
 \MakeTitlecase{text}#*
+\MakeTitlecase[options%keyvals]{text}#*
 \MakeUppercase{text}#*
+\MakeUppercase[options%keyvals]{text}#*
 \mapstochar#*m
 \marginpar[left]{right}#*
 \marginpar{right}#*
 \markboth{lefthead}{righthead}#*
 \markright{righthead}#*
-\mathbf{text}#m
+\mathbf{text%plain}#m
 \mathcal{text%plain}#m
 \mathdollar#m
 \mathellipsis#m
 \mathgroup#m
 \mathindent#*
-\mathit{text}#m
-\mathnormal{text}#m
+\mathit{text%plain}#m
+\mathnormal{text%plain}#m
 \mathparagraph#m
 \mathring{o}#m
-\mathrm{text}#m
+\mathrm{text%plain}#m
 \mathsection#m
-\mathsf{text}#m
+\mathsf{text%plain}#m
 \mathsterling#m
-\mathtt{text}#m
+\mathtt{text%plain}#m
 \mathunderscore#m
 \mathversion{version%keyvals}#*
 \mbox{text}
@@ -343,7 +348,7 @@
 \pagestyle{pagestyle%keyvals}
 \paragraph*{title}#L5
 \paragraph[short title]{title}#L5
-\paragraphmark{code}
+\paragraphmark{code}#*
 \paragraph{title}#L5
 \parbox[position][height][inner-pos]{width}{text}
 \parbox[position][height]{width}{text}
@@ -413,16 +418,16 @@
 \subitem
 \subparagraph*{title}#L6
 \subparagraph[short title]{title}#L6
-\subparagraphmark{code}
+\subparagraphmark{code}#*
 \subparagraph{title}#L6
 \subsection{title}#L3
 \subsection*{title}#L3
 \subsection[short title]{title}#L3
-\subsectionmark{code}
+\subsectionmark{code}#*
 \subsubitem
 \subsubsection*{title}#L4
 \subsubsection[short title]{title}#L4
-\subsubsectionmark{code}
+\subsubsectionmark{code}#*
 \subsubsection{title}#L4
 \suppressfloats
 \suppressfloats[placement]
@@ -630,6 +635,11 @@ ieeetr
 plain
 siam
 unsrt
+#endkeyvals
+
+#keyvals:\MakeLowercase#c,\MakeTitlecase#c,\MakeUppercase#c
+locale=%<BCP-47 tag%>
+lang=%<BCP-47 tag%>
 #endkeyvals
 
 #keyvals:\mathversion#c

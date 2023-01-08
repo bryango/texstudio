@@ -1,5 +1,5 @@
 # exam-zh-question package
-# Matthew Bertucci 2022/08/14 for v0.1.17
+# Matthew Bertucci 2022/09/19 for v0.1.20
 
 #include:expl3
 #include:xparse
@@ -23,7 +23,21 @@ question/label=%<label%>
 question/combine-fillin#true,false
 question/combine-fillin-args=%<\fillin 命令的参数%>
 question/hang#true,false
+question/points-prelabel=%<points 前面的内容%>
+question/points-postlabel=%<points 后面的内容%>
 question/label-align=#left,center,right
+problem={%<键值列表%>}
+problem/show-answer#true,false
+problem/points=%<number%>
+problem/show-points=#true,auto,false
+problem/points-separate-par#true,false
+problem/top-sep=##L
+problem/bottom-sep=##L
+problem/index=%<integer%>
+problem/label=%<label%>
+problem/points-prelabel=%<points 前面的内容%>
+problem/points-postlabel=%<points 后面的内容%>
+problem/label-align=#left,center,right
 paren={%<键值列表%>}
 paren/show-answer#true,false
 paren/show-paren#true,false
@@ -40,8 +54,10 @@ fillin/width-type=#fill,normal
 fillin/color=#%color
 fillin/text-color=#%color
 fillin/paren-type=#banjiao,quanjiao
+fillin/depth=##L
 solution={%<键值列表%>}
 solution/show-solution#true,false
+solution/show-answer#true,false
 solution/parbreak#true,false
 solution/show-qed#true,false
 solution/qedsymbol=%<symbol%>
@@ -75,10 +91,15 @@ top-sep=##L
 bottom-sep=##L
 index=%<integer%>
 label=%<label%>
+points-prelabel=%<points 前面的内容%>
+points-postlabel=%<points 后面的内容%>
+label-align=#left,center,right
+#endkeyvals
+
+#keyvals:\begin{question},\questionsetup
 combine-fillin#true,false
 combine-fillin-args=%<\fillin 命令的参数%>
 hang#true,false
-label-align=#left,center,right
 #endkeyvals
 
 \paren
@@ -105,8 +126,11 @@ no-answer-counter-index=%<integer%>
 no-answer-counter-label=%<label%>
 show-answer#true,false
 width=##L
+width-type=#fill,normal
 color=#%color
 text-color=#%color
+paren-type=#banjiao,quanjiao
+depth=##L
 #endkeyvals
 
 \AddFillinCounter{LaTeX command%cmd}{internal command%definition}#d
@@ -117,6 +141,7 @@ text-color=#%color
 
 #keyvals:\begin{solution}
 show-solution#true,false
+show-answer#true,false
 parbreak#true,false
 show-qed#true,false
 qedsymbol=%<symbol%>

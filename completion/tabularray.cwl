@@ -1,5 +1,5 @@
 # tabularray package
-# Matthew Bertucci 2022/07/02 for v2022C
+# Matthew Bertucci 2022/11/02 for v2022D
 
 #include:expl3
 #include:xparse
@@ -12,7 +12,7 @@
 \SetTblrOuter{options%keyvals}
 \SetTblrOuter[envname]{options%keyvals}
 
-#keyvals:\begin{tblr}#c,\SetTblrOuter#c
+#keyvals:\SetTblrOuter#c
 halign=#l,c,r
 valign=#t,m,b
 l
@@ -38,7 +38,7 @@ expand
 \SetTblrInner{options%keyvals}
 \SetTblrInner[envname]{options%keyvals}
 
-#keyvals:\SetTblrInner#c,\begin{+matrix}#c,\begin{+bmatrix}#c,\begin{+Bmatrix}#c,\begin{+pmatrix}#c,\begin{+vmatrix}#c,\begin{+Vmatrix}#c,\begin{+cases}#c
+#keyvals:\SetTblrInner#c,\begin{tblr}#c,\begin{+matrix}#c,\begin{+bmatrix}#c,\begin{+Bmatrix}#c,\begin{+pmatrix}#c,\begin{+vmatrix}#c,\begin{+Vmatrix}#c,\begin{+cases}#c,\begin{booktabs}#c,\begin{longtabs}#c,\begin{talltabs}#c
 colspec={%<col types%>}
 rowspec={%<row types%>}
 width=##L
@@ -76,6 +76,7 @@ hline
 verb
 measure=#vbox
 baseline=#t,T,m,b,B,%<row number%>
+delimiter={%<keyvals%>}
 #endkeyvals
 
 \SetHline{cols}{styles%keyvals}#*
@@ -375,6 +376,9 @@ lastfoot
 foot
 #endkeyvals
 
+\tblrcontfootname#*
+\tblrcontheadname#*
+
 \SetTblrStyle{element}{styles%keyvals}
 
 #keyvals:\SetTblrStyle#c
@@ -413,8 +417,10 @@ booktabs
 counter
 diagbox
 functional
+nameref
 siunitx
 varwidth
+zref
 #endkeyvals
 
 # from amsmath tblrlibrary
@@ -515,3 +521,7 @@ process=%<function%>
 \end{tblrNoHyper}#S
 \pagebreak[number]#*
 \nopagebreak[number]#*
+\lTblrCaptionTl#S
+\lTblrEntryTl#S
+\lTblrLabelTl#S
+\lTblrRefMoreClist#S

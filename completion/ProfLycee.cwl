@@ -1,10 +1,11 @@
 # ProfLycee package
-# Matthew Bertucci 2022/08/25 for v1.2.3
+# Matthew Bertucci 2022/11/21 for v2.0.4
 
 #include:xcolor
 # xcolor loaded with table and svgnames options
 #include:tikz
-# loads calc, decorations, decorations.pathreplacing, decorations.markings, arrows, and arrows.meta tikzlibraries
+# loads calc, decorations, decorations.pathreplacing, decorations.markings, arrows,
+# arrows.meta, babel, shapes.geometric, and decorations.pathmorphing tikzlibraries
 #include:tkz-tab
 #include:mathtools
 #include:pgf
@@ -12,24 +13,25 @@
 #include:ifthen
 #include:xparse
 #include:xkeyval
-#include:xfp
 #include:xstring
 #include:xintexpr
 #include:xintbinhex
 #include:simplekv
 #include:listofitems
 #include:tabularray
+#include:hvlogos
 #include:siunitx
 #include:fontawesome5
 #include:csvsimple-l3
 #include:tcolorbox
 # tcolorbox loaded with most option and minted library loaded by default
-#include:ifluatex
+#include:iftex
+#include:piton
 #include:fancyvrb
 #include:pythontex
 
 #keyvals:\usepackage/ProfLycee#c
-nominted
+nonshellescape
 build
 csvii
 #endkeyvals
@@ -38,233 +40,272 @@ csvii
 #include:csvsimple-legacy
 #endif
 
-\splinetikz
-\splinetikz[options%keyvals]
+## L’outil « SplineTikz » ##
+\SplineTikz{x1/y1/d1§x2/y2/d2§...}
+\SplineTikz[options%keyvals]{x1/y1/d1§x2/y2/d2§...}
 
-#keyvals:\splinetikz
-liste=%<x1/y1/d1§x2/y2/d2§...%>
-width=##L
-couleur=#%color
-coeffs=
-couleurpoints=#%color
-taillepoints=##L
-style={%<TikZ clés%>}
-affpoints#true,false
+#keyvals:\SplineTikz
+Couleur=#%color
+Epaisseur=##L
+Style={%<TikZ clés%>}
+Coeffs=
+CouleurPoints=#%color
+AffPoints#true,false
+TaillePoints=##L
 #endkeyvals
 
-\tangentetikz
-\tangentetikz[options%keyvals]
+## L’outil « TangenteTikz » ##
+\TangenteTikz{x1/y1/d1§x2/y2/d2§...}
+\TangenteTikz[options%keyvals]{x1/y1/d1§x2/y2/d2§...}
 
-#keyvals:\tangentetikz
-liste=%<x1/y1/d1§x2/y2/d2§...%>
-width=##L
-couleur=#%color
+#keyvals:\TangenteTikz
+Point=%<num%>
+Epaisseur=##L
+Couleur=#%color
+Style={%<TikZ clés%>}
 xl=%<num%>
 xr=%<num%>
-style={%<TikZ clés%>}
-point=%<num%>
 #endkeyvals
 
-\paramCF
-\paramCF[options%keyvals]
+## Présentation d’une solution d’équation par balayage ##
+\SolutionTVI{fonction}{valeur}
+\SolutionTVI[options%keyvals]{fonction}{valeur}
+
+#keyvals:\SolutionTVI
+NomFct=%<nom%>
+NomSol=%<nom%>
+va=%<nombre%>
+vb=%<nombre%>
+Precision=%<nombre%>
+Stretch=%<factor%>
+Balayage#true,false
+Calculatrice#true,false
+Majuscule#true,false
+#endkeyvals
+
+## Suites récurrentes simples ##
+\CalculTermeRecurrence{fonction associée}
+\CalculTermeRecurrence[options%keyvals]{fonction associée}
+
+#keyvals:\CalculTermeRecurrence
+No=%<nombre%>
+UNo=%<nombre%>
+Precision=%<nombre%>
+N=%<nombre%>
+#endkeyvals
+
+\SolutionSeuil{fonction associée}{seuil}
+\SolutionSeuil[options%keyvals]{fonction associée}{seuil}
+
+#keyvals:\SolutionSeuil
+NomSuite=%<nom%>
+No=%<nombre%>
+UNo=%<nombre%>
+SolN=%<nombre%>
+Precision=%<nombre%>
+Stretch=%<factor%>
+Balayage#true,false
+Calculatrice#true,false
+Majuscule#true,false
+Sens=%<< ou >%>
+#endkeyvals
+
+## Suites récurrentes et « toile » ##
+\ToileRecurrence[options%keyvals]
+\ToileRecurrence[options%keyvals][options du tracé]
+\ToileRecurrence[options%keyvals][options du tracé][option supplémentaire des termes]
+
+#keyvals:\ToileRecurrence
+Fct=%<fonction%>
+Nom=%<nom%>
+No=%<l’indice initial%>
+Uno=%<la valeur du terme initial%>
+Nb=%<nombre%>
+PosLabel=%<pos%>
+DecalLabel=##L
+TailleLabel=%<fontsize cmd%>
+AffTermes#true,false
+#endkeyvals
+
+## L’outil « Calcul Formel » ##
+\CalculFormelParametres
+\CalculFormelParametres[options%keyvals]
 
 #keyvals:\paramCF
-larg=%<largeur%>
-esplg=##L
-premcol=%<largeur%>
-hpremcol=%<hauteur%>
-taille=%<fontsize cmd%>
-couleur=#%color
-titre#true,false
-tailletitre=%<fontsize cmd%>
-poscmd=#centre,gauche,right
-posres=#centre,gauche,right
-couleurcmd=#%color
-couleurres=#%color
-sep#true,false
-menu#true,false
-labeltitre
+Largeur=%<largeur%>
+EspaceLg=##L
+PremCol=%<largeur%>
+HautPremCol=%<hauteur%>
+Taille=%<fontsize cmd%>
+Couleur=#%color
+Titre#true,false
+TailleTitre=%<fontsize cmd%>
+PosCmd=#centre,gauche,right
+PosRes=#centre,gauche,right
+CouleurCmd=#%color
+CouleurRes=#%color
+Sep#true,false
+Menu#true,false
+LabelTitre={%<texte%>}
 #endkeyvals
 
-\ligneCF{commande de celui%text}{commande de sortie%text}
-\ligneCF[options%keyvals]{commande de celui%text}{commande de sortie%text}
+\CalculFormelLigne{commande%text}{résultat%text}
+\CalculFormelLigne[options%keyvals]{commande%text}{résultat%text}
 
-#keyvals:\ligneCF
-hc=%<hauteur%>
-hr=%<hauteur%>
+#keyvals:\CalculFormelLigne
+HautCmd=%<hauteur%>
+HautRes=%<hauteur%>
 #endkeyvals
 
-\begin{envcodepython}{tcolorbox options}#V
-\begin{envcodepython}[largeur]{tcolorbox options}#V
-\begin{envcodepython}*{tcolorbox options}#V
-\begin{envcodepython}*[largeur]{tcolorbox options}#V
-\end{envcodepython}
+\CFchap#*
+\CFpremcol#*
+\CFhpremcol#*
 
-\envcodepythonfichier{tcolorbox options}{file}#i
-\envcodepythonfichier[largeur]{tcolorbox options}{file}#i
-\envcodepythonfichier*{tcolorbox options}{file}#i
-\envcodepythonfichier*[largeur]{tcolorbox options}{file}#i
+## Code Python « simple » via le package listings ##
+\begin{CodePythonLst}{tcolorbox options}#V
+\begin{CodePythonLst}[largeur%l]{tcolorbox options}#V
+\begin{CodePythonLst}*{tcolorbox options}#V
+\begin{CodePythonLst}*[largeur%l]{tcolorbox options}#V
+\end{CodePythonLst}
 
-\begin{envcodepythontex}#V
-\begin{envcodepythontex}[options%keyvals]#V
-\end{envcodepythontex}
+\CodePythonLstFichier{tcolorbox options}{file}#i
+\CodePythonLstFichier[largeur%l]{tcolorbox options}{file}#i
+\CodePythonLstFichier*{tcolorbox options}{file}#i
+\CodePythonLstFichier*[largeur%l]{tcolorbox options}{file}#i
+
+## Code Python via le package piton ##
+\begin{CodePiton}#V
+\begin{CodePiton}[options%keyvals]#V
+\end{CodePiton}
+
+#keyvals:\begin{CodePiton}
+Lignes#true,false
+Largeur=##L
+Alignement=#justify,left,flush left,right,flush right,center,flush center
+#endkeyvals
+
+## Code & Console Python, via les packages Pythontex ou Minted ##
+\begin{CodePythontex}#V
+\begin{CodePythontex}[options%keyvals]#V
+\end{CodePythontex}
 
 #keyvals:\begin{envcodepythontex}
-largeur=##L
-centre#true,false
-lignes#true,false
+Largeur=##L
+Centre#true,false
+Lignes#true,false
 #endkeyvals
 
-\begin{envcodepythonminted}#V
-\begin{envcodepythonminted}[largeur%l][tcolorbox options]#V
-\begin{envcodepythonminted}*#V
-\begin{envcodepythonminted}*[largeur%l][tcolorbox options]#V
-\end{envcodepythonminted}
+\begin{CodePythonMinted}#V
+\begin{CodePythonMinted}[largeur%l][tcolorbox options]#V
+\begin{CodePythonMinted}*#V
+\begin{CodePythonMinted}*[largeur%l][tcolorbox options]#V
+\end{CodePythonMinted}
 
-\begin{envconsolepythontex}#V
-\begin{envconsolepythontex}[options%keyvals]#V
-\end{envconsolepythontex}
+## Code & Console Python, version Pythontex ou Minted ##
+\begin{ConsolePythontex}#V
+\begin{ConsolePythontex}[options%keyvals]#V
+\end{ConsolePythontex}
 
-#keyvals:\begin{envconsolepythontex}
-largeur=##L
-centre#true,false
-label#true,false
+#keyvals:\begin{ConsolePythontex}
+Largeur=##L
+Centre#true,false
+Label#true,false
 #endkeyvals
 
-\begin{envpseudocode}
-\begin{envpseudocode}[largeur%l][tcolorbox options]
-\begin{envpseudocode}*
-\begin{envpseudocode}*[largeur%l][tcolorbox options]
-\end{envpseudocode}
+## Pseudo-Code ##
+\begin{PseudoCode}
+\begin{PseudoCode}[largeur%l][tcolorbox options]
+\begin{PseudoCode}*
+\begin{PseudoCode}*[largeur%l][tcolorbox options]
+\end{PseudoCode}
 
-\begin{PLtermwin}{titre=%<texte%>}#V
-\begin{PLtermwin}[%<largeur%>]{titre=%<texte%>}[%<tcolorbox options%>]#V
-\end{PLtermwin}
+## Terminal Windows/UNiX/OSX ##
+\begin{TerminalWin}{Titre=%<texte%>}#V
+\begin{TerminalWin}[%<largeur%>]{Titre=%<texte%>}[%<tcolorbox options%>]#V
+\end{TerminalWin}
 
-\begin{PLtermunix}{titre=%<texte%>}#V
-\begin{PLtermunix}[%<largeur%>]{titre=%<texte%>}[%<tcolorbox options%>]#V
-\end{PLtermunix}
+\begin{TerminalUnix}{Titre=%<texte%>}#V
+\begin{TerminalUnix}[%<largeur%>]{Titre=%<texte%>}[%<tcolorbox options%>]#V
+\end{TerminalUnix}
 
-\begin{PLtermosx}{titre=%<texte%>}#V
-\begin{PLtermosx}[%<largeur%>]{titre=%<texte%>}[%<tcolorbox options%>]#V
-\end{PLtermosx}
+\begin{TerminalOSX}{Titre=%<texte%>}#V
+\begin{TerminalOSX}[%<largeur%>]{Titre=%<texte%>}[%<tcolorbox options%>]#V
+\end{TerminalOSX}
 
-\liencapytale{code}
-\liencapytale[prefix]{code}
-\liencapytale*{code}
-\liencapytale*[prefix]{code}
+## Cartouche Capytale ##
+\CartoucheCapytale{code capytale}
+\CartoucheCapytale[prefix]{code capytale}
+\CartoucheCapytale*{code capytale}
+\CartoucheCapytale*[prefix]{code capytale}
 
-\pavePL
-\pavePL[options%keyvals]
+## Pavé droit « simple » ##
+\PaveTikz
+\PaveTikz[options%keyvals]
 
-#keyvals:\pavePL
-largeur=%<num%>
-profondeur=%<num%>
-hauteur=%<num%>
-angle=%<degrees%>
-fuite=%<num%>
-sommets=%<A1§...§A8%>
-epaisseur=%<épaisseur%>
-aff#true,false
-plein#true,false
-cube#true,false
+#keyvals:\PaveTikz
+Largeur=%<num%>
+Profondeur=%<num%>
+Hauteur=%<num%>
+Angle=%<degrees%>
+Fuite=%<num%>
+Sommets=%<A1§...§A8%>
+Epaisseur=%<épaisseur%>
+Aff#true,false
+Plein#true,false
+Cube#true,false
 #endkeyvals
 
-\tetraPL
-\tetraPL[options%keyvals]
+## Tétraèdre « simple » ##
+\TetraedreTikz
+\TetraedreTikz[options%keyvals]
 
-#keyvals:\tetraPL
-largeur=%<num%>
-profondeur=%<num%>
-hauteur=%<num%>
-alpha=%<degrees%>
-beta=%<degrees%>
-sommets=%<A1§...§A8%>
-epaisseur=%<épaisseur%>
-aff#true,false
-plein#true,false
+#keyvals:\TetraedreTikz
+Largeur=%<num%>
+Profondeur=%<num%>
+Hauteur=%<num%>
+Alpha=%<degrees%>
+Beta=%<degrees%>
+Sommets=%<A1§...§A8%>
+Epaisseur=%<épaisseur%>
+Aff#true,false
+Plein#true,false
 #endkeyvals
 
-\convertfraction{fraction expr}
-\convertfraction[d ou t]{fraction expr}
+## Cercle trigo ##
+\CercleTrigo
+\CercleTrigo[options%keyvals]
 
-\ensPL{a1/a2/...}
-\ensPL[options%keyvals]{a1/a2/...}
-
-#keyvals:\ensPL
-sep={%<separator%>}
-option={%<code%>}
-mathpunct#true,false
-#endkeyvals
-
-\recurrPL[options%keyvals]
-\recurrPL[options%keyvals][options du tracé]
-\recurrPL[options%keyvals][options du tracé][option supplémentaire des termes]
-
-#keyvals:\recurrPL
-fct=%<fonction%>
-nom=%<nom%>
-no=%<l’indice initial%>
-uno=%<la valeur du terme initial%>
-nb=%<nombre%>
-poslabel=%<pos%>
-decallabel=##L
-taillelabel=%<fontsize cmd%>
-afftermes#true,false
-#endkeyvals
-
-\cercletrigoPL
-\cercletrigoPL[options%keyvals]
-
-#keyvals:\cercletrigoPL
-rayon=%<rayon%>
-epaisseur=%<épaisseur%>
-epaisseursol=%<épaisseur%>
-marge=%<marge%>
-taillevaleurs=%<fontsize cmd%>
-tailleangles=%<fontsize cmd%>
-couleurfond=#%color
-decal=##L
-moinspi#true,false
-affangles#true,false
-afftraits#true,false
-affvaleurs#true,false
-equationcos#true,false
-equationsin#true,false
+#keyvals:\CercleTrigo
+Rayon=%<rayon%>
+Epaisseur=%<épaisseur%>
+Epaisseursol=%<épaisseur%>
+Marge=%<marge%>
+TailleValeurs=%<fontsize cmd%>
+TailleAngles=%<fontsize cmd%>
+CouleurFond=#%color
+Decal=##L
+MoinsPi#true,false
+AffAngles#true,false
+AffTraits#true,false
+AffValeurs#true,false
+Equationcos#true,false
+Equationsin#true,false
 cos=%<degrees%>
 sin=%<degrees%>
-couleursol=#%color
+CouleurSol=#%color
 #endkeyvals
 
-\aidesignePL
-\aidesignePL[options%keyvals]
+## Paramètres d’une régression linéaire par la méthode des moindres carrés ##
+\CalculsRegLin{listeX}{listeY}
+\CalculsRegLin[options%keyvals]{listeX}{listeY}
 
-\aidesignetkztabPL{numligne}
-\aidesignetkztabPL{numligne}[echelle]
-\aidesignetkztabPL{numligne}[echelle][décalage horizontal]
-\aidesignetkztabPL[options%keyvals]{numligne}
-\aidesignetkztabPL[options%keyvals]{numligne}[echelle]
-\aidesignetkztabPL[options%keyvals]{numligne}[echelle][décalage horizontal]
-
-#keyvals:\aidesignePL,\aidesignetkztabPL
-code=
-couleur=#%color
-racines=%<racines%>
-largeur=%<num%>
-hauteur=%<num%>
-cadre#true,false
-#endkeyvals
-
-\PLreglin{listeX}{listeY}
-\PLreglin[options%keyvals]{listeX}{listeY}
-
-#keyvals:\PLreglin
-nomcoeffa=%<nom%>
-nomcoeffb=%<nom%>
-nomcoeffr=%<nom%>
-nomcoeffrd=%<nom%>
-nomxmin=%<nom%>
-nomxmax=%<nom%>
+#keyvals:\CalculsRegLin
+NomCoeffa=%<nom%>
+NomCoeffb=%<nom%>
+NomCoeffr=%<nom%>
+NomCoeffrd=%<nom%>
+NomXmin=%<nom%>
+NomXmax=%<nom%>
 #endkeyvals
 
 \LX#*
@@ -278,16 +319,17 @@ nomxmax=%<nom%>
 \LYvar#*
 \LXYvar#*
 
-\PLreglinpts{listeX}{listeY}
-\PLreglinpts[options%keyvals]{listeX}{listeY}
+\PointsRegLin{listeX}{listeY}
+\PointsRegLin[options%keyvals]{listeX}{listeY}
 
-#keyvals:\PLreglinpts
-couleur=#%color
-taille=##L
+#keyvals:\PointsRegLin
+Couleur=#%color
+Taille=##L
 Ox=%<num%>
 Oy=%<num%>
 #endkeyvals
 
+## Statistiques à deux variables ##
 #keyvals:\tikz#c,\begin{tikzpicture}#c,\tikzset#c
 Ox=%<num%>
 Oy=%<num%>
@@ -303,89 +345,89 @@ xunit=%<num%>
 yunit=%<num%>
 #endkeyvals
 
-\PLgrilletikz
-\PLgrilletikz[options%keyvals]
-\PLgrilletikz[options%keyvals][options grille ppale]#*
-\PLgrilletikz[options%keyvals][options grille ppale][options grille second]
+\GrilleTikz
+\GrilleTikz[options%keyvals]
+\GrilleTikz[options%keyvals][options grille ppale]#*
+\GrilleTikz[options%keyvals][options grille ppale][options grille second]
 
-#keyvals:\PLgrilletikz
-affp#true,false
-affs#true,false
+#keyvals:\GrilleTikz
+Affp#true,false
+Affs#true,false
 #endkeyvals
 
-\PLaxestikz
-\PLaxestikz[options%keyvals]
+\AxesTikz
+\AxesTikz[options%keyvals]
 
-#keyvals:\PLaxestikz
-epaisseur=##L
-police=%<font commands%>
-labelx=%<text%>
-labely=%<text%>
-afflabel=#x,y,xy
-poslabelx=%<TikZ pos%>
-poslabely=%<TikZ pos%>
-echellefleche=%<num%>
-typefleche=%<type%>
+#keyvals:\AxesTikz
+Epaisseur=##L
+Police=%<font commands%>
+Labelx=%<text%>
+Labely=%<text%>
+AffLabel=#x,y,xy
+PosLabelx=%<TikZ pos%>
+PosLabely=%<TikZ pos%>
+EchelleFleche=%<num%>
+TypeFleche=%<type%>
 #endkeyvals
 
-\PLaxextikz{valeurs}
-\PLaxextikz[options%keyvals]{valeurs}
-\PLaxeytikz{valeurs}
-\PLaxeytikz[options%keyvals]{valeurs}
+\AxexTikz{valeurs}
+\AxexTikz[options%keyvals]{valeurs}
+\AxeyTikz{valeurs}
+\AxeyTikz[options%keyvals]{valeurs}
 
-#keyvals:\PLaxextikz,\PLaxeytikz
-epaisseur=##L
-police=%<font commands%>
-posgrad=%<TikZ pos%>
-hautgrad=##L
-affgrad=#true,false
-afforigine=#true,false
-annee=#true,false
+#keyvals:\AxexTikz,\AxeyTikz
+Epaisseur=##L
+Police=%<font commands%>
+PosGrad=%<TikZ pos%>
+HautGrad=##L
+AffGrad#true,false
+AffOrigine#true,false
+Annee#true,false
 #endkeyvals
 
-\PLfenetre
-\PLfenetresimple{liste abscisses}{liste ordonnées}
-\PLfenetresimple{liste abscisses}<options axe Oy>{liste ordonnées}
-\PLfenetresimple<options axe Ox>{liste abscisses}{liste ordonnées}
-\PLfenetresimple<options axe Ox>{liste abscisses}<options axe Oy>{liste ordonnées}
+\FenetreTikz
+\FenetreSimpleTikz{liste abscisses}{liste ordonnées}
+\FenetreSimpleTikz{liste abscisses}<options axe Oy>{liste ordonnées}
+\FenetreSimpleTikz<options axe Ox>{liste abscisses}{liste ordonnées}
+\FenetreSimpleTikz<options axe Ox>{liste abscisses}<options axe Oy>{liste ordonnées}
 
-\PLorigine
-\PLorigine[options%keyvals]
+\OrigineTikz#*
+\OrigineTikz[options%keyvals]#*
 
-#keyvals:\PLorigine
-police=%<font commands%>
-pos=%<TikZ pos%>
-decal=##L
-valeur=%<num%>
+#keyvals:\OrigineTikz
+Police=%<font commands%>
+Pos=%<TikZ pos%>
+Decal=##L
+Valeur=%<num%>
 #endkeyvals
 
-\PLnuagepts{listeX}{listeY}
-\PLnuagepts[options%keyvals]{listeX}{listeY}
+\NuagePointsTikz{listeX}{listeY}
+\NuagePointsTikz[options%keyvals]{listeX}{listeY}
 
-#keyvals:\PLnuagepts
-taille=##L
-couleur=#%color
-style=#o,x,+
+#keyvals:\NuagePointsTikz
+Taille=##L
+Style=#o,x,+
+Couleur=#%color
 #endkeyvals
 
-\PLnuageptmoy
-\PLnuageptmoy[options%keyvals]
+\PointMoyenTikz
+\PointMoyenTikz[options%keyvals]
 
-#keyvals:\PLnuageptmoy
-police=%<font commands%>
-taille=##L
-couleur=#%color
-style=#o,x,+
+#keyvals:\PointMoyenTikz
+Police=%<font commands%>
+Taille=##L
+Couleur=#%color
+Style=#o,x,+
 xg=%<num%>
 yg=%<num%>
-nom=%<text%>
-pos=%<TikZ pos%>
-decal=##L
-affnom=#true,false
+Nom=%<text%>
+Pos=%<TikZ pos%>
+Decal=##L
+AffNom#true,false
 #endkeyvals
 
-\PLcourbe{formule}{domaine}
-\PLcourbe[TikZ clés]{formule}{domaine}
+\CourbeTikz{formule}{domaine}
+\CourbeTikz[TikZ clés]{formule}{domaine}
 
 \axexOx#*
 \axeyOy#*
@@ -400,64 +442,272 @@ affnom=#true,false
 \xunit#*
 \yunit#*
 
-\PLconvdecbin{nombre}
-\PLconvdecbin[options%keyvals]{nombre}
-\PLconvdecbin*{nombre}
-\PLconvdecbin*[options%keyvals]{nombre}
+## Boîtes à moustaches ##
+\BoiteMoustaches{a1/a2/...}
+\BoiteMoustaches[options%keyvals]{a1/a2/...}
 
-#keyvals:\PLconvdecbin,\PLconvdecbin*
-affbase#true,false
+#keyvals:\BoiteMoustaches
+Couleur=#%color
+Elevation=%<nombre%>
+Hauteur=%<nombre%>
+Moyenne=%<nombre%>
+Epaisseur=%<épaisseur%>
+Remplir=#%color
+AffMoyenne#true,false
+Pointilles#true,false
+Valeurs#true,false
 #endkeyvals
 
-\PLconvbinhex{nombre}
-\PLconvbinhex[options%keyvals]{nombre}
+\BoiteMoustachesAxe[options%keyvals]
 
-#keyvals:\PLconvbinhex
-affbase#true,false
-details#true,false
-trait=##L
+#keyvals:\BoiteMoustachesAxe
+Min=%<nombre%>
+Max=%<nombre%>
+Elargir=%<pourcentage%>
+Epaisseur=%<épaisseur%>
+Valeurs={%<liste%>}
+AffValeurs#true,false
 #endkeyvals
 
-\PLconvtodec{nombre}
-\PLconvtodec[options%keyvals]{nombre}
+## Calculs de probabilités ##
+\CalcBinomP{n}{p}{k}
+\CalcBinomC{n}{p}{a}{b}
+\CalcPoissP{l}{k}
+\CalcPoissC{l}{a}{b}
+\CalcGeomP{p}{k}
+\CalcGeomC{l}{a}{b}
+\CalcHypergeomP{N}{n}{m}{k}
+\CalcHypergeomC{N}{n}{m}{a}{b}
+\CalcNormC{m}{s}{a}{b}
+\CalcExpoC{l}{a}{b}
 
-#keyvals:\PLconvtodec
-basedep=%<2 ou 16%>
-affbase#true,false
-details#true,false
-zeros#true,false
+\BinomP{n}{p}{k}
+\BinomP[prec]{n}{p}{k}
+\BinomP*{n}{p}{k}
+\BinomP*[prec]{n}{p}{k}
+\BinomC{n}{p}{a}{b}
+\BinomC[prec]{n}{p}{a}{b}
+\BinomC*{n}{p}{a}{b}
+\BinomC*[prec]{n}{p}{a}{b}
+\PoissonP{l}{k}
+\PoissonP[prec]{l}{k}
+\PoissonP*{l}{k}
+\PoissonP*[prec]{l}{k}
+\PoissonC{l}{a}{b}
+\PoissonC[prec]{l}{a}{b}
+\PoissonC*{l}{a}{b}
+\PoissonC*[prec]{l}{a}{b}
+\GeomP{p}{k}
+\GeomP[prec]{p}{k}
+\GeomP*{p}{k}
+\GeomP*[prec]{p}{k}
+\GeomC{l}{a}{b}
+\GeomC[prec]{l}{a}{b}
+\GeomC*{l}{a}{b}
+\GeomC*[prec]{l}{a}{b}
+\HypergeomP{N}{n}{m}{k}
+\HypergeomP[prec]{N}{n}{m}{k}
+\HypergeomP*{N}{n}{m}{k}
+\HypergeomP*[prec]{N}{n}{m}{k}
+\HypergeomC{N}{n}{m}{a}{b}
+\HypergeomC[prec]{N}{n}{m}{a}{b}
+\HypergeomC*{N}{n}{m}{a}{b}
+\HypergeomC*[prec]{N}{n}{m}{a}{b}
+\NormaleC{m}{s}{a}{b}
+\NormaleC[prec]{m}{s}{a}{b}
+\NormaleC*{m}{s}{a}{b}
+\NormaleC*[prec]{m}{s}{a}{b}
+\ExpoC{l}{a}{b}
+\ExpoC[prec]{l}{a}{b}
+\ExpoC*{l}{a}{b}
+\ExpoC*[prec]{l}{a}{b}
+
+## Arbres de probabilités « classiques » ##
+\ArbreProbasTikz{donnees}
+\ArbreProbasTikz[options%keyvals]{donnees}
+\begin{EnvArbreProbasTikz}{donnees}
+\begin{EnvArbreProbasTikz}[options%keyvals]{donnees}
+\end{EnvArbreProbasTikz}
+
+#keyvals:\ArbreProbasTikz,\begin{EnvArbreProbasTikz}
+Unite=##L
+EspaceNiveau=%<nombre%>
+EspaceFeuille=%<nombre%>
+Type=#2x2,2x3,3x2,3x3
+Police=%<font commands%>
+PoliceProbas=%<font commands%>
+InclineProbas#true,false
+Fleche#true,false
+StyleTrait={%<TikZ keys%>}
+EpaisseurTrait=%<épaisseur%>
 #endkeyvals
 
+## Petits schémas pour des probabilités continues ##
+\LoiNormaleGraphe{m}{s}{a}{b}
+\LoiNormaleGraphe<TikZ options>{m}{s}{a}{b}
+\LoiNormaleGraphe[options%keyvals]{m}{s}{a}{b}
+\LoiNormaleGraphe[options%keyvals]<TikZ options>{m}{s}{a}{b}
+\LoiExpoGraphe{l}{a}{b}
+\LoiExpoGraphe<TikZ options>{l}{a}{b}
+\LoiExpoGraphe[options%keyvals]{l}{a}{b}
+\LoiExpoGraphe[options%keyvals]<TikZ options>{l}{a}{b}
+
+#keyvals:\LoiNormaleGraphe,\LoiExpoGraphe
+CouleurAire=#%color
+CouleurCourbe=#%color
+Largeur=%<nombre%>
+Hauteur=%<nombre%>
+AfficheM#true,false
+AfficheCadre#true,false
+#endkeyvals
+
+## Conversions binaire/hexadécimal/décimal ##
+\ConversionDecBin{nombre}
+\ConversionDecBin[options%keyvals]{nombre}
+\ConversionDecBin*{nombre}
+\ConversionDecBin*[options%keyvals]{nombre}
+
+#keyvals:\ConversionDecBin,\ConversionDecBin*
+AffBase#true,false
+#endkeyvals
+
+\ConversionBinHex{nombre}
+\ConversionBinHex[options%keyvals]{nombre}
+
+#keyvals:\ConversionBinHex
+AffBase#true,false
+Details#true,false
+#endkeyvals
+
+\ConversionVersDec{nombre}
+\ConversionVersDec[options%keyvals]{nombre}
+\ConversionBaseDix{nombre}{base de départ}
+\ConversionBaseDix[options%keyvals]{nombre}{base de départ}
+
+#keyvals:\ConversionVersDec,\ConversionBaseDix
+BaseDep=%<2 ou 16%>
+AffBase#true,false
+Details#true,false
+Zeros#true,false
+#endkeyvals
+
+## Conversion « présentée » d’un nombre en décimal ##
+\ConversionDepuisBaseDix{nombre en base 10}{base d'arrivée}
+\ConversionDepuisBaseDix[options%keyvals]{nombre en base 10}{base d'arrivée}
+
+#keyvals:\ConversionDepuisBaseDix
+Couleur=#%color
+DecalH=##L
+DecalV=##L
+Noeud=%<préfixe%>
+Rect#true,false
+CouleurRes#true,false
+#endkeyvals
+
+## Algorithme d’Euclide pour le PGCD ##
+\PresentationPGCD{a}{b}
+\PresentationPGCD[options%keyvals]{a}{b}
+
+#keyvals:\PresentationPGCD
+Couleur=#%color
+DecalRect=##L
+Rectangle#true,false
+Noeud=%<nom du nœud%>
+CouleurResultat#true,false
+AfficheConclusion#true,false
+AfficheDelimiteurs#true,false
+#endkeyvals
+
+## Fractions, ensembles ##
+\ConversionFraction{fraction expr}
+\ConversionFraction[d ou t]{fraction expr}
+
+\EcritureEnsemble{a1/a2/...}
+\EcritureEnsemble[options%keyvals]{a1/a2/...}
+
+#keyvals:\EcritureEnsemble
+Sep={%<separator%>}
+Option={%<code%>}
+Mathpunct#true,false
+#endkeyvals
+
+## Petits schémas pour le signe d’une fonction affine ou d’un trinôme ##
+\MiniSchemaSignes
+\MiniSchemaSignes[options%keyvals]
+
+\MiniSchemaSignesTkzTab{numligne}
+\MiniSchemaSignesTkzTab{numligne}[echelle]
+\MiniSchemaSignesTkzTab{numligne}[echelle][décalage horizontal]
+\MiniSchemaSignesTkzTab[options%keyvals]{numligne}
+\MiniSchemaSignesTkzTab[options%keyvals]{numligne}[echelle]
+\MiniSchemaSignesTkzTab[options%keyvals]{numligne}[echelle][décalage horizontal]
+
+#keyvals:\aidesignePL,\aidesignetkztabPL
+Code=
+Couleur=#%color
+Racines=%<racines%>
+Largeur=%<num%>
+Hauteur=%<num%>
+Cadre#true,false
+#endkeyvals
+
+## Style « main levée » en TikZ ##
 #keyvals:\draw#c
 mainlevee
 mainlevee=%<segment-length%> et %<amplitude%>
 #endkeyvals
 
-\PLpixelart{file}#i
-\PLpixelart[options%keyvals]{file}#i
+## Écriture d’un trinôme, trinôme aléatoire ##
+\EcritureTrinome{a}{b}{c}
+\EcritureTrinome[options%keyvals]{a}{b}{c}
 
-#keyvals:\PLpixelart
-codes=%<chaîne%>
-couleurs={%<couleur1,couleur2,...%>}
-symboles={%<symbol1,symbol2,...%>}
-correction#true,false
-symb#true,false
-style=%<font commands%>
+#keyvals:\EcritureTrinome
+Alea#true,false
+Anegatif#true,false
+#endkeyvals
+
+## PixelART via un fichier csv, en TikZ ##
+\PixelArtTikz{file}#i
+\PixelArtTikz[options%keyvals]{file}#i
+
+#keyvals:\PixelArtTikz
+Codes=%<chaîne%>
+Couleurs={%<couleur1,couleur2,...%>}
+Symboles={%<symbol1,symbol2,...%>}
+Correction#true,false
+Symb#true,false
+BordCases#true,false
+Style=%<font commands%>
+#endkeyvals
+
+## SudoMaths, en TikZ ##
+\SudoMaths{liste}
+\SudoMaths[options%keyvals]{liste}
+
+\begin{EnvSudoMaths}{grille}
+\begin{EnvSudoMaths}[options%keyvals]{grille}
+\end{EnvSudoMaths}
+
+#keyvals:\SudoMaths,\begin{EnvSudoMaths}
+Epaisseurg=##L
+Epaisseur=##L
+Unite=##L
+CouleurCase=#%color
+CouleurTexte=#%color
+NbCol=%<nombre%>
+NbSubCol=%<nombre%>
+NbLig=%<nombre%>
+NbSubLig=%<nombre%>
+Police=%<font commands%>
+Legendes#true,false
+PoliceLeg=%<font commands%>
+ListeLegV=%<liste%>
+ListeLegH=%<liste%>
+DecalLegende=%<décalage%>
 #endkeyvals
 
 # from table option of xcolor
 #include:colortbl
-\rowcolors{row}{odd-row-color}{even-row-color}
-\rowcolors[commands]{row}{odd-row-color}{even-row-color}
-\rowcolors{row}{color}{color}#S
-\rowcolors[commands]{row}{color}{color}#S
-\rowcolors*{row}{odd-row-color}{even-row-color}
-\rowcolors*[commands]{row}{odd-row-color}{even-row-color}
-\rowcolors*{row}{color}{color}#S
-\rowcolors*[commands]{row}{color}{color}#S
-\showrowcolors
-\hiderowcolors
-\rownum
 
 # from svgnames option of xcolor
 AliceBlue#B
@@ -623,8 +873,19 @@ Teal#B
 # from minted tcolorbox library
 #include:minted
 
+PLlinux#B
+PLmgray#B
+PLmpurple#B
+PLogray#B
+PLoorange#B
+PLosxgray#B
+PLterminal#B
+PLwinblue#B
+vertcapyt#B
+
 # not documented
-\algomathttPL{text%plain}#*
+\AleaSigneA#S
+\algomathttPL{text%plain}#S
 \axesafflabel#S
 \axesechellefleche#S
 \axesfont#S
@@ -650,61 +911,106 @@ Teal#B
 \axeytickwidthA#S
 \axeytickwidthB#S
 \axeywidth#S
+\BaMAxeElarg#S
+\BaMAxeEpaisseur#S
+\BaMaxelargeur#S
+\BaMAxeMax#S
+\BaMAxeMin#S
+\BaMAxeValeurs#S
+\BaMaxexmax#S
+\BaMaxexmin#S
+\BaMCouleur#S
+\BaMElevation#S
+\BaMEpaisseur#S
+\BaMHauteur#S
+\BaMListeparams#S
+\BaMmax#S
+\BaMmed#S
+\BaMmin#S
+\BaMMoyenne#S
+\BaMqt#S
+\BaMqu#S
+\BaMRemplissage#S
 \basedepart#S
 \begin{PLstats}#S
 \begin{PLstats}[opt]#S
+\begin{PresentationCode}[color]{tcolorbox options}#SV
+\begin{PresentationCode}{tcolorbox options}#SV
 \begin{pythont}#S
-\begin{tcpythontexcode}#*
-\begin{tcpythontexcode}[width]#*
-\begin{tcpythontexcodeno}#*
-\begin{tcpythontexcodeno}[width]#*
+\begin{tcpythontexcode}#S
+\begin{tcpythontexcode}[width]#S
+\begin{tcpythontexcodeno}#S
+\begin{tcpythontexcodeno}[width]#S
+\BorneInf#S
+\BorneSup#S
 \calculargument#S
-\CFchap#S
+\CalculInterneTermeRecurrence{arg1}{arg2}{arg3}{arg4}#S
 \CFcoulcmd#S
 \CFcouleur#S
 \CFcoulres#S
 \CFesplg#S
 \CFhle#S
 \CFhlr#S
-\CFhpremcol#S
 \CFL#S
 \CFLA#S
 \CFlabeltitre#S
 \CFlarg#S
 \CFposcmd#S
 \CFposres#S
-\CFpremcol#S
 \CFtaille#S
 \CFtailletitre#S
 \chbrut#S
+\chiffre#S
+\CODPITalign#S
+\CODPITlargeur#S
 \CODPYlargeur#S
 \COEFF#S
 \COEFFA#S
+\Coeffa#S
 \COEFFB#S
+\Coeffc#S
+\convertbasedixtobase{arg1}{arg2}#S
+\convertbasetobasedix{arg1}{arg2}#S
 \cpt#S
 \CSPYlargeur#S
 \denominateur#S
+\densexpo{arg}#S
+\densnorm{arg}#S
+\DHTnomfct#S
+\DHTnomsol#S
+\DHTprec#S
+\DHTstretch#S
+\DHTva#S
+\DHTvb#S
 \end{PLstats}#S
+\end{PresentationCode}#S
 \end{pythont}#S
-\end{tcpythontexcode}#*
-\end{tcpythontexcodeno}#*
-\epcrochet#S
-\extractcoeff{liste}{numero}#*
+\end{tcpythontexcode}#S
+\end{tcpythontexcodeno}#S
+\extractcoeff{liste}{numero}#S
 \fctdecx#S
 \fprimea#S
 \fprimeb#S
+\GRPHPROBcoulcbe#S
+\GRPHPROBcoulsurf#S
+\GRPHPROBhauteur#S
+\GRPHPROBlarg#S
 \hookcenterpost#S
 \hookcenterpre#S
 \ifinal#S
 \iinit#S
 \indice#S
+\larcolinter#S
+\larliginter#S
 \LCNA#S
 \lcoeffs#S
 \LCPA#S
 \listepointsaffiches#S
+\MOYENNE#S
 \nbblocs#S
 \nbchiffres#S
 \nbdepart#S
+\NBdepart#S
 \nbgrp#S
 \numerateur#S
 \PATchiffres#S
@@ -739,6 +1045,15 @@ Teal#B
 \pixcnt#S
 \pixcol#S
 \pixpos#S
+\PLAPeptrait#S
+\PLAPespfeuille#S
+\PLAPespniv#S
+\PLAPfont#S
+\PLAPfontproba#S
+\PLAPtype#S
+\PLAPtypetrait#S
+\PLAPunite#S
+\PLARBREDONNES#S
 \PLcercleangles#S
 \PLcerclecoleq#S
 \PLcercledecal#S
@@ -750,20 +1065,27 @@ Teal#B
 \PLcerclevalcos#S
 \PLcerclevaleurs#S
 \PLcerclevalsin#S
-\PLcommandeswin#*
-\PLconvblocbinhex[rule thickness]{binary integer}#*
-\PLconvblocbinhex{binary integer}#*
+\PLcommandeswin#S
+\PLConvCouleur#S
+\PLConvDecalH#S
+\PLConvDecalV#S
+\PLConvNoeud#S
 \PLDm#S
 \PLDM#S
 \PLdomaine#S
 \PLensopt#S
 \PLenssep#S
+\PLnoeud{arg1}{arg2}#S
 \PLnuagepoints[opt]{arg}#S
 \PLnuagepoints{arg}#S
-\PLOSXGreen#*
-\PLOSXLG#*
-\PLOSXOrange#*
-\PLOSXRed#*
+\PLOSXGreen#S
+\PLOSXLG#S
+\PLOSXOrange#S
+\PLOSXRed#S
+\PLpgcd#S
+\PLPGCDCouleur#S
+\PLPGCDDecal#S
+\PLPGCDNoeud#S
 \PLRecurfct#S
 \PLRecurlabelsize#S
 \PLRecurnb#S
@@ -772,11 +1094,25 @@ Teal#B
 \PLRecuroffset#S
 \PLRecurposlab#S
 \PLRecuruno#S
-\PLstrzeros{nombre}#*
-\PLUbuntuClose#*
-\PLUbuntuMax#*
-\PLUbuntuMin#*
-\PLUbuntuWhite#*
+\PLSMcoulcase#S
+\PLSMcoultexte#S
+\PLSMdecalleg#S
+\PLSMepf#S
+\PLSMepg#S
+\PLSMfonte#S
+\PLSMfonteleg#S
+\PLSMlistelegh#S
+\PLSMlistelegv#S
+\PLSMnbcol#S
+\PLSMnblig#S
+\PLSMnbsubcol#S
+\PLSMnbsublig#S
+\PLSMunite#S
+\PLstrzeros{nombre}#S
+\PLUbuntuClose#S
+\PLUbuntuMax#S
+\PLUbuntuMin#S
+\PLUbuntuWhite#S
 \ptmoycouleur#S
 \ptmoycouleurA#S
 \ptmoycouleurB#S
@@ -806,31 +1142,47 @@ Teal#B
 \RegLinNuageTaille#S
 \resbrut#S
 \resinter#S
-\schematdsaff*{arg1}{arg2}{arg3}{arg4}#*
-\schematdsaff{arg1}{arg2}{arg3}{arg4}#*
-\schematdsparab{arg1}{arg2}{arg3}{arg4}{arg5}#*
-\schematdsparab{arg1}{arg2}{arg3}{arg4}{arg5}[opt]#*
+\respgcd#S
+\schematdsaff*{arg1}{arg2}{arg3}{arg4}#S
+\schematdsaff{arg1}{arg2}{arg3}{arg4}#S
+\schematdsparab{arg1}{arg2}{arg3}{arg4}{arg5}#S
+\schematdsparab{arg1}{arg2}{arg3}{arg4}{arg5}[opt]#S
+\SensDeb#S
+\SEUILindiceinit#S
+\SEUILn#S
+\SEUILnmu#S
+\SEUILnomsuite#S
+\SEUILprec#S
+\SEUILsens#S
+\SEUILstretch#S
+\SEUILtermeinit#S
+\SMcase#S
+\SMcaseb#S
+\SPGrilleSudoMaths#S
 \SPLcoeffs#S
 \SPLcouleur#S
 \SPLcouleurpoints#S
 \SPLepaisseur#S
-\SPLliste#S
 \SPLlistepoints#S
 \SPLlistepointslen#S
 \SPLnbsplines#S
 \SPLstyle#S
 \SPLtaillepoints#S
+\SRnfinal#S
+\SRninit#S
+\SRprec#S
+\SRuninit#S
 \tdscouleur#S
 \tdshaut#S
 \tdslarg#S
 \tdsparam#S
 \tdsracine#S
-\termnuxtitre#*
-\termnuxtitre[opt]#*
-\termosxtitre#*
-\termosxtitre[opt]#*
-\termwintitre#*
-\termwintitre[opt]#*
+\termnuxtitre#S
+\termnuxtitre[opt]#S
+\termosxtitre#S
+\termosxtitre[opt]#S
+\termwintitre#S
+\termwintitre[opt]#S
 \TetraA#S
 \TetraB#S
 \TetraC#S
@@ -839,13 +1191,29 @@ Teal#B
 \TGTDEB#S
 \TGTepaisseur#S
 \TGTFIN#S
-\TGTliste#S
 \TGTlistepoints#S
 \TGTnumpt#S
 \TGTstyle#S
 \TGTXL#S
 \TGTXR#S
 \theCFnum#S
+\TriPartieA#S
+\TriPartieB#S
+\TriPartieC#S
+\TriSigneA#S
+\UNITEX#S
+\UNITEY#S
+\ValA#S
+\ValA#S
+\ValB#S
+\ValB#S
+\ValMU#S
+\ValQ#S
+\ValQ#S
+\ValR#S
+\ValR#S
+\ValRes#S
+\ValTMP#S
 \verbcenterpost#S
 \verbcenterpre#S
 \xa#S
@@ -856,28 +1224,3 @@ Teal#B
 \yb#S
 \yliste#S
 \YPT#S
-
-PLlinux#B
-PLmgray#B
-PLmpurple#B
-PLogray#B
-PLoorange#B
-PLosxgray#B
-PLterminal#B
-PLwinblue#B
-vertcapyt#B
-
-#keyvals:\tcbset,\begin{tcolorbox},\tcbsetforeverylayer,\tcbox,\newtcolorbox,\renewtcolorbox,\newtcbox,\renewtcbox,\tcolorboxenvironment,\tcbsubtitle,\tcbsidebyside,\tcbsubskin,\tcbincludegraphics,\tcbincludepdf,\begin{tcbraster},\begin{tcbitemize},\tcbitem,\begin{tcboxedraster},\begin{tcboxeditemize},\begin{tcblisting},\tcbinputlisting,\newtcblisting,\renewtcblisting,\newtcbinputlisting,\renewtcbinputlisting,\newtcbtheorem,\renewtcbtheorem,\tcboxmath,\tcbhighmath,\usetcboxarray,\consumetcboxarray,\posterbox,\begin{posterboxenv},\tcboxfit,\newtcboxfit,\renewtcboxfit,\DeclareTColorBox,\NewTColorBox,\RenewTColorBox,\ProvideTColorBox,\DeclareTotalTColorBox,\NewTotalTColorBox,\RenewTotalTColorBox,\ProvideTotalTColorBox,\DeclareTCBox,\NewTCBox,\RenewTCBox,\ProvideTCBox,\DeclareTotalTCBox,\NewTotalTCBox,\RenewTotalTCBox,\ProvideTotalTCBox,\DeclareTCBListing,\NewTCBListing,\RenewTCBListing,\ProvideTCBListing,\DeclareTCBInputListing,\NewTCBInputListing,\RenewTCBInputListing,\ProvideTCBInputListing,\DeclareTCBoxFit,\NewTCBoxFit,\RenewTCBoxFit,\ProvideTCBoxFit,\DeclareTotalTCBoxFit,\NewTotalTCBoxFit,\RenewTotalTCBoxFit,\ProvideTotalTCBoxFit,\tcboxverb,\begin{docCommand},\begin{docCommand*},\begin{docCommands},\begin{docEnvironment},\begin{docEnvironment*},\begin{docEnvironments},\begin{docKey},\begin{docKey*},\begin{docKeys},\begin{docPathOperation},\begin{docPathOperation*},\begin{docPathOperations},\docValue,\docValue*,\docAuxCommand,\docAuxCommand*,\docAuxEnvironment,\docAuxEnvironment*,\docAuxKey,\docAuxKey*,\docCounter,\docCounter*,\docLength,\docLength*,\docColor,\docColor*,\begin{dispExample*},\begin{dispListing*},\tcbdocmarginnote
-stylepythonlst
-stylepythonlstnolineos
-stylepythonlstlineos
-stylepythontex
-stylepythonnolineos
-stylepythonlineos
-pytmintedno
-pytminted
-stylepseudocodePL
-PLfaketermwin
-PLtermlinux
-PLfaketermosx
-#endkeyvals

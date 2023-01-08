@@ -1,5 +1,5 @@
 # media4svg package
-# Matthew Bertucci 2022/08/12 for v0.8
+# Matthew Bertucci 2022/10/16 for v0.13
 
 #include:pdfbase
 
@@ -21,6 +21,8 @@ muted#true,false
 scale=%<factor%>
 url#true,false
 embed#true,false
+youtube#true,false
+vimeo#true,false
 #endkeyvals
 
 #keyvals:\includemedia

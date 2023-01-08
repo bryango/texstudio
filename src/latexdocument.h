@@ -95,6 +95,7 @@ public:
 	friend class LatexStructureMerger;
 	friend class LatexStructureMergerMerge;
 	friend class ScriptEngineTest;
+    friend class LatexDocumentTest;
 
 private:
 	static QStringList someItems(const QMultiHash<QDocumentLineHandle *, ReferencePair> &list);
@@ -250,11 +251,12 @@ private:
 
 	int findStructureParentPos(const QList<StructureEntry *> &children, QList<StructureEntry *> &removedElements, int linenr, int count);
 
-	bool IsInTree (StructureEntry *se);
-	void updateElementWithSignal(StructureEntry *se){ emit updateElement(se); }
-	void removeElementWithSignal(StructureEntry *se);
-	void addElementWithSignal(StructureEntry *parent, StructureEntry *se);
-	void insertElementWithSignal(StructureEntry *parent, int pos, StructureEntry *se);
+    StructureEntry* splitStructure(StructureEntry *base,int lineNr);
+    void appendStructure(StructureEntry *base,StructureEntry *addition);
+
+	void removeElement(StructureEntry *se);
+	void addElement(StructureEntry *parent, StructureEntry *se);
+	void insertElement(StructureEntry *parent, int pos, StructureEntry *se);
 	void moveElementWithSignal(StructureEntry *se, StructureEntry *parent, int pos);
 
 	void addMagicComment(const QString &text, int lineNr, int posMagicComment);
@@ -276,7 +278,7 @@ public:
 public slots:
 	void updateStructure();
 	bool patchStructure(int linenr, int count, bool recheck = false);
-    void patchStructureRemoval(QDocumentLineHandle *dlh,int hint=-1);
+    void patchStructureRemoval(QDocumentLineHandle *dlh,int hint=-1,int count=1);
 	void initClearStructure();
 	void updateLtxCommands(bool updateAll = false);
 	void setLtxCommands(const LatexParser &cmds);
@@ -286,18 +288,9 @@ public slots:
     void checkNextLine(QDocumentLineHandle *dlh, bool clearOverlay, int ticket, int hint=-1);
 
 signals:
-	void hasBeenIncluded(const LatexDocument &newMasterDocument);
     void structureUpdated(LatexDocument *document, StructureEntry *highlight = nullptr);
-    void setHighlightedEntry(StructureEntry *highlight);
-	void structureLost(LatexDocument *document);
-	void removeElement(StructureEntry *se, int row);
-	void removeElementFinished();
-	void addElement(StructureEntry *se, int row);
-	void addElementFinished();
-	void updateElement(StructureEntry *se);
 	void updateCompleter();
 	void updateBibTeXFiles();
-	void toBeChanged();
 	void importPackage(QString name);
 	void spellingDictChanged(const QString &name);
 	void encodingChanged();

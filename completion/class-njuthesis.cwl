@@ -1,5 +1,5 @@
 # njuthesis class
-# Matthew Bertucci 2022/08/10 for v1.0.0
+# Matthew Bertucci 2022/10/24 for v1.1.0
 
 #include:xtemplate
 #include:l3keys2e
@@ -87,7 +87,9 @@ footer/content*={{%<位置%>}{%<内容%>}%<,{位置}{内容},...%>}
 image/path={%<{路径1},{路径2},...%>}
 image/nju-emblem={%<文件%>}
 image/nju-name={%<文件%>}
-footnote/style=#plain,pifont
+footnote/style=#plain,pifont,circled,circled*
+footnote/hang#true,false
+footnote/circledtext-option=%<选项列表%>
 math/style=#TeX,ISO,GB
 math/integral=#upright,slanted
 math/integral-limits#true,false
@@ -184,12 +186,14 @@ listoftables/toc-entry#true,false
 \setendmarkfalse#S
 
 # from style=gb7714-2015 option of biblatex
+#ifOption:style=gb7714-2015
 #keyvals:\usepackage/biblatex#c,\ExecuteBibliographyOptions#c
 # from gb7714-2015.bbx
 citexref#true,false
 gbmedium#true,false
 gbannote#true,false
 gbfieldtype#true,false
+gbfootbibfmt#true,false
 gbfnperpage#true,false
 gbfootbib#true,false
 gbstyle#true,false
@@ -223,6 +227,13 @@ gbcitelabel=#bracket,parens,plain,dot,box,circle
 \testCJKfirst{field}#*
 \multivolparser{arg}#*
 \multinumberparser{arg}#*
+\BracketLift#*
+\gbleftparen#*
+\gbrightparen#*
+\gbleftbracket#*
+\gbrightbracket#*
+\execgbfootbibfmt#*
+\SlashFont#*
 \footbibmargin#*
 \footbiblabelsep#*
 \execgbfootbib#*

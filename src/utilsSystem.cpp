@@ -196,11 +196,13 @@ QString findResourceFile(const QString &fileName, bool allowOverride, QStringLis
 #endif
 #ifdef Q_OS_MAC
 	searchFiles << QCoreApplication::applicationDirPath() + "/../Resources/"; //macx
+    searchFiles << QCoreApplication::applicationDirPath() + "/../Resources/html/"; //macx
 #endif
 	searchFiles << QCoreApplication::applicationDirPath() + "/"; //windows old
 	searchFiles << QCoreApplication::applicationDirPath() + "/dictionaries/"; //windows new
 	searchFiles << QCoreApplication::applicationDirPath() + "/translations/"; //windows new
 	searchFiles << QCoreApplication::applicationDirPath() + "/help/"; //windows new
+    searchFiles << QCoreApplication::applicationDirPath() + "/help/build/html/"; //windows new manual
 	searchFiles << QCoreApplication::applicationDirPath() + "/utilities/"; //windows new
 	// searchFiles<<QCoreApplication::applicationDirPath() + "/data/"; //windows new
 
@@ -242,6 +244,7 @@ QString quoteSpaces(const QString &s)
 
 
 int modernStyle;
+int iconTheme;
 bool darkMode;
 bool useSystemTheme;
 
@@ -261,21 +264,29 @@ QString getRealIconFile(const QString &icon)
         suffixList=QStringList{"_dm",""};
     QStringList iconNames = QStringList();
     for(const QString& suffix : suffixList){
-        iconNames
-                << ":/images-ng/" + icon + suffix + ".svg"
-                << ":/images-ng/" + icon + suffix + ".svgz" ;
-        if (modernStyle) {
-            iconNames << ":/images-ng/modern/" + icon + suffix + ".svg"
-                      << ":/images-ng/modern/" + icon + suffix + ".svgz"
-                      << ":/modern/images/modern/" + icon + suffix + ".png";
-        } else {
-            iconNames << ":/images-ng/classic/" + icon + suffix + ".svg"
-                      << ":/images-ng/classic/" + icon + suffix + ".svgz"
-                      << ":/classic/images/classic/" + icon + suffix + ".png";
-        }
-        iconNames << ":/symbols-ng/icons/" + icon + suffix + ".svg" ;//voruebergehend
-        iconNames << ":/symbols-ng/icons/" + icon + suffix + ".png"; //voruebergehend
+
+        QString iconThemeName = "";
+
+		if (iconTheme == 0) { // colibre
+			iconThemeName = "colibre";
+		} else if (iconTheme == 1) { // modern
+			iconThemeName = "modern";
+		} else if (iconTheme == 2) { // classic
+			iconThemeName = "classic";
+		}
+
+		iconNames << ":/images-ng/" + iconThemeName + "/" + icon + suffix + ".svg"
+					<< ":/images-ng/" + iconThemeName + "/" + icon + suffix + ".svgz"
+					<< ":/modern/images/" + iconThemeName + "/" + icon + suffix + ".png";
+
+        iconNames << ":/symbols-ng/icons/" + icon + suffix + ".svg";
+        iconNames << ":/symbols-ng/icons/" + icon + suffix + ".png";
         iconNames << ":/images/" + icon + ".png";
+
+		// fallback
+		iconNames
+			<< ":/images-ng/" + icon + suffix + ".svg"
+			<< ":/images-ng/" + icon + suffix + ".svgz" ;
     }
 
 	foreach (const QString &name, iconNames) {

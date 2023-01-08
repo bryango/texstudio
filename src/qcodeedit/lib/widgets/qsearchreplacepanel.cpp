@@ -64,6 +64,8 @@ bool cbHasFocus(const QComboBox* cb) {
 	return false;
 }
 
+const int MAX_HISTORY_ENTRIES = 100;
+
 QStringList findHistory, replaceHistory;
 
 /*!
@@ -112,6 +114,17 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cFind->setSizePolicy(sizePolicy4);
     cFind->setMinimumSize(QSize(120, 22));
     conf->registerOption("Search/Find History", &findHistory, QStringList());
+    if(findHistory.size()>MAX_HISTORY_ENTRIES){
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        findHistory.remove(0,findHistory.size()-MAX_HISTORY_ENTRIES);
+        findHistory.squeeze();
+#else
+        const int cnt=findHistory.size()-MAX_HISTORY_ENTRIES;
+        for(int i=0;i<cnt;++i)
+            findHistory.removeFirst();
+#endif
+    }
     conf->linkOptionToObject(&findHistory, cFind, LinkOptions(LO_UPDATE_ALL | LO_DIRECT_OVERRIDE));
     flowLayout->addWidget(cFind);
 
@@ -124,7 +137,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     bNext->setMinimumSize(buttonSize);
     bNext->setMaximumSize(buttonSize);
     bNext->setIcon(getRealIconCached("down"));
-    bNext->setIconSize(buttonSize);
     flowLayout->addWidget(bNext);
 
     bPrevious = new QToolButton(this);
@@ -132,7 +144,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     bPrevious->setMinimumSize(buttonSize);
     bPrevious->setMaximumSize(buttonSize);
     bPrevious->setIcon(getRealIconCached("up"));
-    bPrevious->setIconSize(buttonSize);
     flowLayout->addWidget(bPrevious);
 
     bCount = new QToolButton(this);
@@ -140,7 +151,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     bCount->setMinimumSize(buttonSize);
     bCount->setMaximumSize(buttonSize);
     bCount->setIcon(getRealIconCached("count"));
-    bCount->setIconSize(buttonSize);
     flowLayout->addWidget(bCount);
 
     QLabel *spacer = new QLabel("  ");
@@ -154,7 +164,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbCase->setMinimumSize(buttonSize);
     cbCase->setMaximumSize(buttonSize);
     cbCase->setIcon(getRealIconCached("case"));
-    cbCase->setIconSize(buttonSize);
     CONFIG_DECLARE_OPTION_WITH_OBJECT(conf, bool, caseConfig, false, "Search/Case Sensitive", cbCase);
     flowLayout->addWidget(cbCase);
 
@@ -165,7 +174,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbWords->setMinimumSize(buttonSize);
     cbWords->setMaximumSize(buttonSize);
     cbWords->setIcon(getRealIconCached("word"));
-    cbWords->setIconSize(buttonSize);
     CONFIG_DECLARE_OPTION_WITH_OBJECT(conf, bool, wordConfig, false, "Search/Whole Words", cbWords);
     flowLayout->addWidget(cbWords);
 
@@ -176,7 +184,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbRegExp->setMinimumSize(buttonSize);
     cbRegExp->setMaximumSize(buttonSize);
     cbRegExp->setIcon(getRealIconCached("regex"));
-    cbRegExp->setIconSize(buttonSize);
     CONFIG_DECLARE_OPTION_WITH_OBJECT(conf, bool, regexConfig, false, "Search/Regular Expression", cbRegExp);
     flowLayout->addWidget(cbRegExp);
 
@@ -187,7 +194,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbHighlight->setIcon(getRealIconCached("highlight"));
     cbHighlight->setMinimumSize(buttonSize);
     cbHighlight->setMaximumSize(buttonSize);
-    cbHighlight->setIconSize(buttonSize);
     CONFIG_DECLARE_OPTION_WITH_OBJECT(conf, bool, highlightConfig, true, "Search/Highlight", cbHighlight);
     flowLayout->addWidget(cbHighlight);
 
@@ -198,7 +204,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbCursor->setMinimumSize(buttonSize);
     cbCursor->setMaximumSize(buttonSize);
     cbCursor->setIcon(getRealIconCached("cursor"));
-    cbCursor->setIconSize(buttonSize);
     CONFIG_DECLARE_OPTION_WITH_OBJECT(conf, bool, cursorConfig, true, "Search/Cursor", cbCursor);
     flowLayout->addWidget(cbCursor);
 
@@ -209,7 +214,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbSelection->setMinimumSize(buttonSize);
     cbSelection->setMaximumSize(buttonSize);
     cbSelection->setIcon(getRealIconCached("selection"));
-    cbSelection->setIconSize(buttonSize);
     CONFIG_DECLARE_OPTION_WITH_OBJECT(conf, bool, selectionConfig, false, "Search/Selection", cbSelection);
     flowLayout->addWidget(cbSelection);
 
@@ -232,7 +236,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cbFilter->setMenu(menu);
     cbFilter->setPopupMode(QToolButton::InstantPopup);
     cbFilter->setIcon(getRealIconCached("all"));
-    cbFilter->setIconSize(buttonSize);
     flowLayout->addWidget(cbFilter);
 
     bExtend  = new QToolButton(this);
@@ -241,7 +244,6 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     bExtend->setMinimumSize(buttonSize);
     bExtend->setMaximumSize(buttonSize);
     bExtend->setIcon(getRealIconCached("extend"));
-    bExtend->setIconSize(buttonSize);
     flowLayout->addWidget(bExtend);
     connect(bExtend, SIGNAL(clicked()), this, SIGNAL(showExtendedSearch()));
 
@@ -276,6 +278,16 @@ QSearchReplacePanel::QSearchReplacePanel(QWidget *p)
     cReplace->setMinimumSize(QSize(120, 22));
     //	cReplace->setMaximumSize(QSize(1200, 16777215));
     conf->registerOption("Search/Replace History", &replaceHistory, QStringList());
+    if(replaceHistory.size()>MAX_HISTORY_ENTRIES){
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        replaceHistory.remove(0,replaceHistory.size()-MAX_HISTORY_ENTRIES);
+        replaceHistory.squeeze();
+#else
+        const int cnt=replaceHistory.size()-MAX_HISTORY_ENTRIES;
+        for(int i=0;i<cnt;++i)
+            replaceHistory.removeFirst();
+#endif
+    }
     conf->linkOptionToObject(&replaceHistory, cReplace, LinkOptions(LO_UPDATE_ALL | LO_DIRECT_OVERRIDE));
     flowLayout2->addWidget(cReplace);
 
@@ -432,7 +444,7 @@ void QSearchReplacePanel::editorChange(QEditor *e)
 bool QSearchReplacePanel::forward(QMouseEvent *e)
 {
 	Q_UNUSED(e)
-	
+
 	/*
 		This panel does not need mouse events to be forwarded to the editor.
 		Even more, it requires them not to be forwarded...
@@ -576,8 +588,14 @@ void QSearchReplacePanel::rememberLastSearch(QStringList& history, const QString
 		ConfigManagerInterface::getInstance()->updateAllLinkedObjects(&history);
 		return;
 	}
-	if (!incremental && !history.contains(str)) {
-		history.append(str);
+    if (!incremental){
+        history.removeAll(str);
+        history.append(str);
+        if(history.size()>MAX_HISTORY_ENTRIES){
+            const int cnt=history.size()-MAX_HISTORY_ENTRIES;
+            for(int i=0;i<cnt;++i)
+                history.removeFirst();
+        }
 		ConfigManagerInterface::getInstance()->updateAllLinkedObjects(&history);
 	}
 }
@@ -696,7 +714,7 @@ void QSearchReplacePanel::showEvent(QShowEvent *)
 void QSearchReplacePanel::closeEvent(QCloseEvent *)
 {
 	//beware: the CloseEvent could be 0
-	
+
 	if ( m_search )
 	{
 		if (isVisible() && editor() && m_search->lastReplacedPosition().isValid()) {
@@ -812,40 +830,30 @@ void QSearchReplacePanel::updateButtonSizes(){
 	QSize buttonSize(cFind->height(),cFind->height());
 	bNext->setMinimumSize(buttonSize);
 	bNext->setMaximumSize(buttonSize);
-	bNext->setIconSize(buttonSize);
 	bPrevious->setMinimumSize(buttonSize);
 	bPrevious->setMaximumSize(buttonSize);
-	bPrevious->setIconSize(buttonSize);
 	bCount->setMinimumSize(buttonSize);
 	bCount->setMaximumSize(buttonSize);
-	bCount->setIconSize(buttonSize);
 	cbCase->setMinimumSize(buttonSize);
 	cbCase->setMaximumSize(buttonSize);
-	cbCase->setIconSize(buttonSize);
 	cbWords->setMinimumSize(buttonSize);
 	cbWords->setMaximumSize(buttonSize);
-	cbWords->setIconSize(buttonSize);
 	cbCursor->setMinimumSize(buttonSize);
 	cbCursor->setMaximumSize(buttonSize);
-	cbCursor->setIconSize(buttonSize);
 	cbRegExp->setMinimumSize(buttonSize);
 	cbRegExp->setMaximumSize(buttonSize);
-	cbRegExp->setIconSize(buttonSize);
 	cbHighlight->setMinimumSize(buttonSize);
 	cbHighlight->setMaximumSize(buttonSize);
-	cbHighlight->setIconSize(buttonSize);
 	cbSelection->setMinimumSize(buttonSize);
 	cbSelection->setMaximumSize(buttonSize);
-	cbSelection->setIconSize(buttonSize);
 	bExtend->setMinimumSize(buttonSize);
 	bExtend->setMaximumSize(buttonSize);
-	bExtend->setIconSize(buttonSize);
 }
 
 void QSearchReplacePanel::cFind_textEdited(const QString& text)
-{ 
+{
 	if (! m_search) init();
-	
+
 	if(m_search->searchText().length()==text.length()+1 && m_search->searchText().startsWith(text)){
 		// last letter removed (backspace)
 		QDocumentCursor cur=m_initialCursorPos.top();
@@ -859,7 +867,7 @@ void QSearchReplacePanel::cFind_textEdited(const QString& text)
 		}
 	}
 	m_search->setSearchText(text);
-	
+
 	if ( text.isEmpty() )
 	{
 		cFind->lineEdit()->setStyleSheet(QString());
@@ -872,13 +880,13 @@ void QSearchReplacePanel::cFind_textEdited(const QString& text)
 		cur = m_search->cursor();
 		m_search->setCursor(m_search->cursor().selectionStart());
 	}
-	
+
 	m_search->setOption(QDocumentSearch::Silent,true);
-	
+
 	findReplace(false);
-	
+
 	m_search->setOption(QDocumentSearch::Silent,false);
-	
+
 	if ( m_search->cursor().isNull() )
 		cFind->lineEdit()->setStyleSheet("QLineEdit { background: red; color : white; }");
 	else if ((m_search->cursor().anchorLineNumber() < cur.anchorLineNumber()) ||
@@ -1115,7 +1123,7 @@ void QSearchReplacePanel::init()
 
 	if ( cbEscapeSeq->isChecked() )
 		opt |= QDocumentSearch::EscapeSeq;
-	
+
 	m_search = new QDocumentSearch(	editor(),
 	                                cFind->currentText(),
 	                                opt,

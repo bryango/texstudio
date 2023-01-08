@@ -1,5 +1,5 @@
 # unbtex class
-# Matthew Bertucci 2022/08/12 for v1.1.2
+# Matthew Bertucci 2022/10/07 for v1.2
 
 #include:class-abntex2
 #include:fontenc
@@ -13,16 +13,15 @@
 #include:indentfirst
 #include:microtype
 #include:multirow
-#include:nomencl
+#include:xcolor
+# loads dvipsnames and table options of xcolor
+#include:tikz
+# loads external, shapes, arrows, and positioning tikzlibraries
 #include:amsmath
 #include:amsfonts
 #include:amsthm
 #include:mathtools
 #include:mathrsfs
-#include:xcolor
-# loads dvipsnames option of xcolor
-#include:tabu
-#include:colortbl
 #include:caption
 #include:algorithm
 #include:algpseudocode
@@ -177,7 +176,6 @@ twoside
 \kwordiv{Keyword%text}
 \kwordivnome#*
 \lmname#*
-\makenomencl
 \membrodabancai{Nome}
 \membrodabancaifuncao{Funcao}
 \membrodabancaifuncaonome#*
@@ -317,3 +315,6 @@ WildStrawberry#B
 Yellow#B
 YellowGreen#B
 YellowOrange#B
+
+# from table option of xcolor
+#include:colortbl

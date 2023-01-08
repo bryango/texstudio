@@ -64,8 +64,10 @@ class SymbolListModel;
 class SymbolWidget;
 class StructureTreeView;
 
-Q_DECLARE_METATYPE(QSet<QString>)
+//Q_DECLARE_METATYPE(QSet<QString>)
+#if QT_VERSION_MAJOR<6
 Q_DECLARE_METATYPE(std::set<QString>)
+#endif
 
 class Texstudio : public QMainWindow
 {
@@ -227,6 +229,9 @@ private:
 
     bool parseStruct(StructureEntry* se, QVector<QTreeWidgetItem *> &rootVector, QSet<LatexDocument*> *visited=nullptr, QList<QTreeWidgetItem *> *todoList=nullptr, int currentColor=0);
     void parseStructLocally(StructureEntry* se, QVector<QTreeWidgetItem *> &rootVector, QList<QTreeWidgetItem *> *todoList=nullptr, QList<QTreeWidgetItem *> *labelList=nullptr, QList<QTreeWidgetItem *> *magicList=nullptr, QList<QTreeWidgetItem *> *biblioList=nullptr);
+#ifndef QT_NO_DEBUG
+    void checkForShortcutDuplicate();
+#endif
 private slots:
     void updateTOCs();
 
@@ -269,7 +274,7 @@ protected slots:
 	void fileMakeTemplate();
 	void fileOpen();
 	void fileRestoreSession(bool showProgress = true, bool warnMissing = true);
-	void fileSave(const bool saveSilently = false);
+    void fileSave(const bool saveSilently = false,QEditor *editor=nullptr);
 	void fileSaveAll();
     void fileSaveAllFromTimer();
 	void fileSaveAll(bool alsoUnnamedFiles, bool alwaysCurrentFile);
@@ -331,7 +336,7 @@ private slots:
 	void fileDiffMerge();
 	void declareConflictResolved();
 protected slots:
-    void openExternalFile(QString name, const QString &defaultExt = "tex", LatexDocument *doc = nullptr); // signaled by latexViewer to open specific file
+    void openExternalFile(QString name, const QString &defaultExt = "tex", LatexDocument *doc = nullptr,bool relativeToCurrentDoc=false); // signaled by latexViewer to open specific file
     void openExternalFileFromAction();
 
 	void editUndo(); ///< undo changes in text editor

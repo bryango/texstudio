@@ -1,5 +1,5 @@
 # letgut class
-# Matthew Bertucci 2022/06/20 for v0.9.2
+# Matthew Bertucci 2022/10/04 for v0.9.4
 
 #include:luatex
 #include:l3keys2e
@@ -96,11 +96,11 @@ detailedtoc#true,false
 \file*{nom}[préfixe]
 \foreignloc{locution}
 \latinloc{locution}
+\Ucode{point de code}
+\Ucode[nom%text]{point de code}
 
 \gutenberg
 \gut
-\lettre
-\lettregut
 \cahier
 \cahiers
 \Cahier#S
@@ -116,6 +116,18 @@ detailedtoc#true,false
 \linux
 \macos
 \windows
+
+\lettrenumber
+\lettrenumber[entier relatif signé]
+\lettrenumber*
+\lettrenumber*[entier relatif signé]
+
+\lettre
+\lettre[opt]
+\lettre*[opt]
+\lettregut
+\lettregut[opt]
+\lettregut*[opt]
 
 \begin{ltx-code}
 \begin{ltx-code}[options%keyvals]
@@ -302,6 +314,8 @@ float*
 float*=%<values%>
 nofloat
 every float={%<code%>}
+before float={%<code%>}
+after float={%<code%>}
 before={%<code%>}
 after={%<code%>}
 nobeforeafter
@@ -404,6 +418,21 @@ remake
 remake#true,false
 reset
 code={%<code%>}
+IfBlankTF={%<token list%>}{%<true%>}{%<false%>}
+IfBlankT={%<token list%>}{%<true%>}
+IfBlankF={%<token list%>}{%<false%>}
+IfEmptyTF={%<token list%>}{%<true%>}{%<false%>}
+IfEmptyT={%<token list%>}{%<true%>}
+IfEmptyF={%<token list%>}{%<false%>}
+IfNoValueTF={%<arg%>}{%<true%>}{%<false%>}
+IfNoValueT={%<arg%>}{%<true%>}
+IfNoValueF={%<arg%>}{%<false%>}
+IfValueTF={%<arg%>}{%<true%>}{%<false%>}
+IfValueT={%<arg%>}{%<true%>}
+IfValueF={%<arg%>}{%<false%>}
+IfBooleanTF={%<arg%>}{%<true%>}{%<false%>}
+IfBooleanT={%<arg%>}{%<true%>}
+IfBooleanF={%<arg%>}{%<false%>}
 void
 nirvana
 blend before title=#colon,dash,colon hang,dash hang
@@ -659,6 +688,7 @@ marker
 bicolor
 colbacklower=#%color
 opacitybacklower=%<fraction%>
+overlaplower=##L
 bicolor jigsaw
 tile
 beamer
@@ -742,6 +772,10 @@ before app={%<code%>}
 before pre={%<code%>}
 after app={%<code%>}
 after pre={%<code%>}
+before float app={%<code%>}
+before float pre={%<code%>}
+after float app={%<code%>}
+after float pre={%<code%>}
 overlay app={%<code%>}
 overlay pre={%<code%>}
 overlay unbroken app={%<code%>}
@@ -1059,17 +1093,6 @@ letgut_default_alert_box_color#B
 
 # from table option of xcolor
 #include:colortbl
-\rowcolors{row}{odd-row-color}{even-row-color}
-\rowcolors[commands]{row}{odd-row-color}{even-row-color}
-\rowcolors{row}{color}{color}#S
-\rowcolors[commands]{row}{color}{color}#S
-\rowcolors*{row}{odd-row-color}{even-row-color}
-\rowcolors*[commands]{row}{odd-row-color}{even-row-color}
-\rowcolors*{row}{color}{color}#S
-\rowcolors*[commands]{row}{color}{color}#S
-\showrowcolors
-\hiderowcolors
-\rownum
 
 # from french option of babel
 \frenchsetup{options%keyvals}

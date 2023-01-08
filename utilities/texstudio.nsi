@@ -2,7 +2,7 @@
 !define DESCRIPTION "TeXstudio is a fully featured LaTeX editor."
 # These three must be integers
 !define VERSIONMAJOR 4
-!define VERSIONMINOR 3
+!define VERSIONMINOR 4
 !define VERSIONBUILD 1
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
@@ -175,7 +175,7 @@ File utilities\COPYING
 File utilities\latex2e.html
 File utilities\latex2e.css
 File utilities\license.txt
-File utilities\manual\*
+File /r utilities\manual\build\html\*
 
 SetOutPath $INSTDIR\share\poppler
 File /r utilities\poppler-data\*

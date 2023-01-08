@@ -254,6 +254,9 @@ public:
 		// filter list for longest common characters
 		if (words.count() > 1) {
             QString myResult = words.at(1).word; // skip favorite
+            if(!my_curWord.startsWith("\\")){
+                myResult = words.at(0).word; // don't skip if no command
+            }
 			int curWordLength = my_curWord.length();
 			my_curWord = completer->listModel->getLastWord().word;
 
@@ -960,7 +963,7 @@ CompletionWord manipulateCompletionWord(CompletionWord cw,QString key,QString re
         for (int j = 0; j < cw.placeHolders[i].count(); j++) {
             CodeSnippetPlaceHolder &ph = cw.placeHolders[i][j];
             if (ph.offset > index)
-                ph.offset += replacement.length() - 1;
+                ph.offset += replacement.length() - key.length();
         }
     }
     if(makePlaceholder){
@@ -969,7 +972,12 @@ CompletionWord manipulateCompletionWord(CompletionWord cw,QString key,QString re
         ph.length=replacement.length();
         ph.id=-1;
         ph.flags=CodeSnippetPlaceHolder::AutoSelect;
-        cw.placeHolders.last().append(ph);
+        int k=0;
+        for(;k<cw.placeHolders.last().length();++k){
+            if(cw.placeHolders.last().value(k).offset>index)
+                break;
+        }
+        cw.placeHolders.last().insert(k,ph);
     }
     return cw;
 }
@@ -1107,7 +1115,7 @@ void CompletionListModel::filterList(const QString &word, int mostUsed, bool fet
                                     for (int j = 0; j < cw.placeHolders[i].count(); j++) {
                                         CodeSnippetPlaceHolder &ph = cw.placeHolders[i][j];
                                         if (ph.offset > index)
-                                            ph.offset += id.word.length() - 1;
+                                            ph.offset += id.word.length() - key.length();
                                     }
                                 }
                                 words.append(cw);
@@ -1678,7 +1686,10 @@ void LatexCompleter::updateAbbreviations()
 		// <!compatibility>
 		cw.word = macro.abbrev;
 		cw.sortWord = makeSortWord(cw.word);
-		cw.setName(macro.abbrev + tr(" (Usertag)"));
+		if (macro.name == "")
+			cw.setName(macro.abbrev + tr(" (Usertag)"));
+		else 
+			cw.setName(macro.abbrev + " (" + macro.name + ")");
 		wordsAbbrev << cw;
 	}
 	listModel->setAbbrevWords(wordsAbbrev);

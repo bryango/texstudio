@@ -341,6 +341,9 @@ Texstudio::Texstudio(QWidget *parent, Qt::WindowFlags flags, QSplashScreen *spla
 
 	setMenuBar(new DblClickMenuBar());
 	setupMenus();
+#ifndef QT_NO_DEBUG
+    checkForShortcutDuplicate();
+#endif
 	TitledPanelPage *logPage = outputView->pageFromId(outputView->LOG_PAGE);
 	if (logPage) {
 		logPage->addToolbarAction(getManagedAction("main/tools/logmarkers"));
@@ -1924,8 +1927,8 @@ void Texstudio::configureNewEditorViewEnd(LatexEditorView *edit, bool reloadFrom
     //disconnect(edit->editor->document(),SIGNAL(contentsChange(int, int))); // force order of contentsChange update
     connect(edit->editor->document(), SIGNAL(contentsChange(int,int)), edit->document, SLOT(patchStructure(int,int)));
     //connect(edit->editor->document(),SIGNAL(contentsChange(int, int)),edit,SLOT(documentContentChanged(int,int))); now directly called by patchStructure
-    connect(edit->editor->document(), SIGNAL(lineRemoved(QDocumentLineHandle*)), edit->document, SLOT(patchStructureRemoval(QDocumentLineHandle*)));
-    connect(edit->editor->document(), SIGNAL(lineDeleted(QDocumentLineHandle*,int)), edit->document, SLOT(patchStructureRemoval(QDocumentLineHandle*,int)));
+    connect(edit->editor->document(), SIGNAL(linesRemoved(QDocumentLineHandle*,int,int)), edit->document, SLOT(patchStructureRemoval(QDocumentLineHandle*,int,int)));
+    //connect(edit->editor->document(), SIGNAL(lineDeleted(QDocumentLineHandle*,int)), edit->document, SLOT(patchStructureRemoval(QDocumentLineHandle*,int)));
     connect(edit->document, SIGNAL(updateCompleter()), this, SLOT(completerNeedsUpdate()));
     connect(edit->editor, SIGNAL(needUpdatedCompleter()), this, SLOT(needUpdatedCompleter()));
     connect(edit->document, SIGNAL(importPackage(QString)), this, SLOT(importPackage(QString)));
@@ -2725,24 +2728,30 @@ void Texstudio::fileRestoreSession(bool showProgress, bool warnMissing)
 }
 /*!
  * \brief save current editor content
+ * Optionally a different editor may be used
+ * Necessary for hidden docuements
  *
  * \param saveSilently
  */
-void Texstudio::fileSave(const bool saveSilently)
+void Texstudio::fileSave(const bool saveSilently, QEditor *editor)
 {
-	if (!currentEditor())
+    if(!editor){
+        // fallback to current editor
+        editor=currentEditor();
+    }
+    if (!editor)
 		return;
 
-    if (currentEditor()->fileName() == "" || !QFileInfo::exists(currentEditor()->fileName())) {
+    if (editor->fileName() == "" || !QFileInfo::exists(editor->fileName())) {
 		removeDiffMarkers();// clean document from diff markers first
-		fileSaveAs(currentEditor()->fileName(), saveSilently);
+        fileSaveAs(editor->fileName(), saveSilently);
 	} else {
 		removeDiffMarkers();// clean document from diff markers first
-		currentEditor()->save();
-		currentEditor()->document()->markViewDirty();//force repaint of line markers (yellow -> green)
+        editor->save();
+        editor->document()->markViewDirty();//force repaint of line markers (yellow -> green)
 		MarkCurrentFileAsRecent();
 		int checkIn = (configManager.autoCheckinAfterSaveLevel > 0 && !saveSilently) ? 2 : 1;
-		emit infoFileSaved(currentEditor()->fileName(), checkIn);
+        emit infoFileSaved(editor->fileName(), checkIn);
 	}
 	updateCaption();
 }
@@ -3008,28 +3017,26 @@ void Texstudio::fileClose()
 	bookmarks->updateBookmarks(currentEditorView());
 	QFileInfo fi = currentEditorView()->document->getFileInfo();
 
-repeatAfterFileSavingFailed:
-	if (currentEditorView()->editor->isContentModified()) {
-		switch (QMessageBox::warning(this, TEXSTUDIO,
-		                             tr("The document \"%1\" contains unsaved work. "
-		                                "Do you want to save it before closing?").arg(currentEditorView()->displayName()),
-		                             tr("Save and Close"), tr("Close without Saving"), tr("Cancel"),
-		                             0,
-		                             2)) {
-		case 0:
-			fileSave();
-			if (currentEditorView()->editor->isContentModified())
-				goto repeatAfterFileSavingFailed;
-			documents.deleteDocument(currentEditorView()->document);
-			break;
-		case 1:
-			documents.deleteDocument(currentEditorView()->document);
-			break;
-		case 2:
-		default:
-			return;
-		}
-	} else documents.deleteDocument(currentEditorView()->document);
+    // check if this is last document
+    LatexDocument *doc=currentEditorView()->getDocument();
+    auto lst=doc->getListOfDocs();
+    int cnt_hidden=0;
+    int cnt_open=lst.count();
+    for(auto *d:lst){
+        if(d->isHidden()) ++cnt_hidden;
+    }
+    if( (cnt_open-cnt_hidden) > 1){
+        //not closing last document
+        //no need to save all hidden documents
+        lst={doc};
+    }
+
+    bool closeFile = saveFilesForClosing(lst);
+
+    if(!closeFile){
+        return;
+    }
+    documents.deleteDocument(currentEditorView()->document);
 	//UpdateCaption(); unnecessary as called by tabChanged (signal)
     updateTOCs();
 
@@ -3087,8 +3094,8 @@ repeatAfterFileSavingFailed:
 			                             0,
 			                             2)) {
 			case 0:
-				fileSave();
-				if (currentEditorView()->editor->isContentModified())
+                fileSave(false,edView->editor);
+                if (currentEditorView() && currentEditorView()->editor->isContentModified())
 					goto repeatAfterFileSavingFailed;
 				break;
 			case 1:
@@ -3487,6 +3494,7 @@ Session Texstudio::getCurrentSession()
 
 void Texstudio::MarkCurrentFileAsRecent()
 {
+    if(!currentEditorView()) return;
 	configManager.addRecentFile(getCurrentFileName(), documents.masterDocument == currentEditorView()->document);
 }
 
@@ -4595,6 +4603,7 @@ void Texstudio::normalCompletion()
 		completer->setWorkPath("%color");
 		currentEditorView()->complete(LatexCompleter::CF_FORCE_VISIBLE_LIST | LatexCompleter::CF_FORCE_SPECIALOPTION); //TODO: complete support for special opt
 		break;
+    case Token::colDef:
 	case Token::keyValArg:
 	case Token::keyVal_key:
 	case Token::keyVal_val: {
@@ -6488,7 +6497,7 @@ void Texstudio::latexHelp()
  */
 void Texstudio::userManualHelp()
 {
-	QString latexHelp = findResourceFile("usermanual_en.html");
+    QString latexHelp = findResourceFile("getting_started.html");
 	if (latexHelp == "")
 		QMessageBox::warning(this, tr("Error"), tr("File not found"));
 	else if (!QDesktopServices::openUrl("file:///" + latexHelp))
@@ -6546,6 +6555,7 @@ void Texstudio::generalOptions()
 {
     bool oldDarkMode = darkMode;
     int oldModernStyle = modernStyle;
+	int oldIconTheme = iconTheme;
     bool oldSystemTheme = useSystemTheme;
     int oldReplaceQuotes = configManager.replaceQuotes;
     autosaveTimer.stop();
@@ -6713,7 +6723,7 @@ void Texstudio::generalOptions()
             ed->document()->markFormatCacheDirty();
             ed->update();
         }
-        if (oldModernStyle != modernStyle || oldSystemTheme != useSystemTheme) {
+        if (oldModernStyle != modernStyle || oldIconTheme != iconTheme|| oldSystemTheme != useSystemTheme) {
             iconCache.clear();
             setupMenus();
             setupDockWidgets();
@@ -7437,7 +7447,7 @@ void Texstudio::aboutToDeleteDocument(LatexDocument *doc)
 	editors->removeEditor(doc->getEditorView());
 	for (int i = configManager.completerConfig->userMacros.size() - 1; i >= 0; i--)
 		if (configManager.completerConfig->userMacros[i].document == doc)
-			configManager.completerConfig->userMacros.removeAt(i);
+            configManager.completerConfig->userMacros.removeAt(i);
 }
 
 //*********************************
@@ -7847,10 +7857,11 @@ void Texstudio::gotoLine(QTreeWidgetItem *item, int)
         }
         if(se->type==StructureEntry::SE_INCLUDE || se->type==StructureEntry::SE_BIBTEX){
             saveCurrentCursorToHistory();
+            bool relativeToCurrentDoc=se->hasContext(StructureEntry::Import);
             QString defaultExt = se->type == StructureEntry::SE_BIBTEX ? ".bib" : ".tex";
             QString name=se->title;
             name.replace("\\string~",QDir::homePath());
-            openExternalFile(name,defaultExt,se->document);
+            openExternalFile(name,defaultExt,se->document,relativeToCurrentDoc);
         }
     }
 }
@@ -9464,7 +9475,7 @@ void Texstudio::findMissingBracket()
 	if (c.isValid()) currentEditor()->setCursor(c);
 }
 
-void Texstudio::openExternalFile(QString name, const QString &defaultExt, LatexDocument *doc)
+void Texstudio::openExternalFile(QString name, const QString &defaultExt, LatexDocument *doc, bool relativeToCurrentDoc)
 {
 	if (!doc) {
 		if (!currentEditor()) return;
@@ -9475,6 +9486,9 @@ void Texstudio::openExternalFile(QString name, const QString &defaultExt, LatexD
     QStringList curPaths;
     if (defaultExt == "bib") {
         curPaths << configManager.additionalBibPaths.split(getPathListSeparator());
+    }
+    if(relativeToCurrentDoc){
+        curPaths<< ensureTrailingDirSeparator(doc->getFileInfo().absolutePath());
     }
     bool loaded = false;
     loaded = load(documents.getAbsoluteFilePath(name, defaultExt,curPaths));
@@ -12042,6 +12056,24 @@ void Texstudio::parseStructLocally(StructureEntry* se, QVector<QTreeWidgetItem *
         }
     }
 }
+#ifndef QT_NO_DEBUG
+/*!
+ * \brief check all currently defined shortcuts for main window for duplicates
+ */
+void Texstudio::checkForShortcutDuplicate()
+{
+    QHash<QString, QKeySequence>  ms=configManager.managedMenuShortcuts;
+    QMultiMap<QString,QString> shortcuts;
+    for(const QString &elem:ms.keys()){
+        if(ms.value(elem).toString().isEmpty()) continue; // no shortcut
+        if(shortcuts.contains(ms.value(elem).toString())){
+            // duplicate found
+            qDebug()<<ms.value(elem).toString()<<elem<<" "<<shortcuts.values(ms.value(elem).toString());
+        }
+        shortcuts.insert(ms.value(elem).toString(),elem);
+    }
+}
+#endif
 
 void Texstudio::openAllRelatedDocuments()
 {

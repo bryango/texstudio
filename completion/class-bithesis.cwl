@@ -1,5 +1,5 @@
 # bithesis class
-# Matthew Bertucci 2022/08/14 for v3.0.0
+# Matthew Bertucci 2022/10/23 for v3.1.1
 
 #include:expl3
 #include:l3keys2e
@@ -22,11 +22,13 @@
 #include:array
 #include:amsmath
 #include:amssymb
+#include:pifont
 #include:amsthm
 #include:unicode-math
 #include:pdfpages
 #include:listings
 #include:enumitem
+#include:fmtcount
 #include:environ
 
 #keyvals:\documentclass/bithesis#c
@@ -58,6 +60,7 @@ cover/underlineOffset=##L
 info={%<键值列表%>}
 info/title=%<字符串%>
 info/titleEn=%<字符串%>
+info/verticalTitle=%<字符串%>
 info/school=%<字符串%>
 info/schoolEn=%<字符串%>
 info/major=%<字符串%>
@@ -85,6 +88,7 @@ info/defenseDateEn=%<字符串%>
 info/classifiedLevel=%<字符串%>
 style={%<键值列表%>}
 style/head=%<字符串%>
+style/bibliographyIndent#true,false
 TOC={%<键值列表%>}
 TOC/abstract#true,false
 TOC/abstractEn#true,false
@@ -93,6 +97,9 @@ appendices={%<键值列表%>}
 appendices/chapterLeveltrue,false
 appendices/title=%<字符串%>
 appendices/TOCTitle=%<字符串%>
+publications={%<键值列表%>}
+publications/sorting#true,false
+publications/omit#true,false
 misc={%<键值列表%>}
 misc/arialFont=%<字符串%>
 #endkeyvals
@@ -147,21 +154,34 @@ misc/arialFont=%<字符串%>
 \begin{theorem}[留数定理%text]
 \end{theorem}
 
+\addpub{bibid}#C
+\addpubs{bibid}#C
+\Author
+\Author[n]
+\Author[n][覆盖普通模式下内容]
+\Author[n][覆盖普通模式下内容][覆盖盲审模式下内容]
+\AuthorEn
+\AuthorEn[n]
+\AuthorEn[n][覆盖普通模式下内容]
+\AuthorEn[n][覆盖普通模式下内容][覆盖盲审模式下内容]
 \MakeCover
 \MakeOriginality
 \MakePaperBack
 \MakeTitle
 \MakeTOC
+\pubsection{text}
 
 # not documented
 \begin{blindPeerReview}#*
 \end{blindPeerReview}#*
 \arabicHeiti{arg}#*
 \arialfamily#*
+\BigStar#*
 \circled[opt]{arg}#*
 \circled{arg}#*
 \dunderline[opt]{arg1}{arg2}#*
 \dunderline{arg1}{arg2}#*
+\thepub#S
 
 codegreen#B
 codegray#B

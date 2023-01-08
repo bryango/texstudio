@@ -1,8 +1,27 @@
+TeXstudio 4.4.1
+-----------------
+- fix file association on OSX
+- allow ignore all in spell checker dialog
+- fix language code for LanguageTool
+- fix cancel file close (#2705)
+- fix missing icons in latex/math menu
+
+TeXstudio 4.4.0
+-----------------
+- new icon theme Colibri (by geolta)
+- modernized manual
+- faster removing of multiple lines
+- end multi cursor mode with esc
+- **no** win/qt5 build
+- switch to CMAKE build system (qmake deprecated)
+- hide/filter configuration completer list
+- bug fixes
+
 TeXstudio 4.3.1
 -----------------
 - fix loading files various times if relative path is used for \include (#2533)
 - fix custom verbatim highlighting (#2528)
-- fix label hihligthing (#2512)
+- fix label highlighting (#2512)
 - fix version checking (#2527)
 
 TeXstudio 4.3.0

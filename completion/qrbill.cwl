@@ -1,9 +1,10 @@
 # qrbill package
-# Matthew Bertucci 2022/07/10 for v1.04
+# Matthew Bertucci 2022/10/20 for v1.07
 
 #include:iftex
 #include:l3keys2e
 #include:fontspec
+#include:anyfontsize
 #include:scrbase
 #include:graphicx
 #include:numprint
@@ -13,17 +14,31 @@
 billinginfo#true,false
 creditorprefix=%<string%>
 debtorprefix=%<string%>
+data-to-string#true,false
 font=%<font name%>
-frame=#true,false,top,bottom
+frame=#true,false,top,bottom,none
 ibanseparator=%<token list%>
-icon=%<file name%>
+icon=#swiss-cross,%<file name%>
 iconwidth=##L
+ignore-if-empty={%<comma list%>}
+qrmode=#package,lua
 qrscheme=%<name%>
 referenceseparator=%<token list%>
 sep-iban=%<integer%>
 sep-reference=%<integer%>
 separate=#false,text,symbol
+replace-tilde#true,false
+replace-umlauts#true,false
+vrule=#true,false,symbol
 #endkeyvals
+
+#ifOption:separate=symbol
+#include:marvosym
+#endif
+
+#ifOption:vrule=symbol
+#include:marvosym
+#endif
 
 \QRbill
 \QRbill[data setup%keyvals]
@@ -87,10 +102,16 @@ conditions=
 
 \QRbillParseDate{year}{month}{day}
 
+\QRbillAddCustomReplacement{string}{replacement}
+
 \insertcreditor
 \insertcurrency
 \insertdebtor
 
+\SetStaticData{arg}#*
 \SetBillingInfoScheme{scheme data}#*
 \SetQrScheme{scheme data}#*
 \qrbillfont#*
+\qrblack#S
+\qrwhite#S
+\qrnewline#S

@@ -1,7 +1,7 @@
 # latex mode: LaTeX commands (package level)
 # dani/2006-02-18
 # muzimuzhi/8 Jul 2019
-# Matthew Bertucci 2022/07/06 for 2022/07/05 release
+# Matthew Bertucci 2022/11/01 for 2022/11/01 release
 
 # commands with big Letters and others
 \ActivateGenericHook{hook}#*
@@ -303,6 +303,7 @@ colorprofiles={%<options%>}
 testphase=#phase-I,phase-II
 debug={%<options%>}
 #endkeyvals
+\IfDocumentMetadataTF{true code}{false code}#*
 
 # counter, lengths and dimens
 \setcounter{counter}{value}#*
@@ -435,8 +436,9 @@ debug={%<options%>}
 \height#*L
 \partopsep#*L
 \parsep#*L
-\footheight#*L
 \hideskip#*
+\stockheight#*L
+\stockwidth#*L
 
 # pdftex specials
 \efcode#*
@@ -612,8 +614,22 @@ debug={%<options%>}
 \kill#*
 \loggingall#*
 \loggingoutput#*
-\ltfilehookdate#*
-\ltfilehookversion#*
+\ltcmddate#S
+\ltcmdhooksdate#S
+\ltcmdhooksversion#S
+\ltcmdversion#S
+\ltfilehookdate#S
+\ltfilehookversion#S
+\lthooksdate#S
+\lthooksversion#S
+\ltmarksdate#S
+\ltmarksversion#S
+\ltmetadate#S
+\ltmetaversion#S
+\ltparadate#S
+\ltparaversion#S
+\ltshipoutdate#S
+\ltshipoutversion#S
 \mathalpha#*
 \mathgroup#*
 \mathhexbox#*

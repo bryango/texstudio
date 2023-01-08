@@ -1,5 +1,5 @@
 # achemso class (distinct from achemso package; see achemso.cwl)
-# Matthew Bertucci 3/19/2022 for v3.13c
+# Matthew Bertucci 2022/10/31 for v3.13e
 
 #include:xkeyval
 #include:geometry

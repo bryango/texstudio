@@ -1,5 +1,22 @@
 # glossaries-extra-stylemods package
-# Matthew Bertucci 11/27/2021 for v1.48
+# Matthew Bertucci 2022/11/09 for v1.50
+
+#keyvals:\usepackage/glossaries-extra-stylemods#c
+all
+inline
+list
+tree
+mcols
+long
+longragged
+longbooktabs
+super
+superragged
+bookindex
+longextra
+topic
+table
+#endkeyvals
 
 #ifOption:all
 #include:glossary-inline
@@ -14,6 +31,7 @@
 #include:glossary-bookindex
 #include:glossary-longextra
 #include:glossary-topic
+#include:glossary-table
 #endif
 #ifOption:inline
 #include:glossary-inline
@@ -51,6 +69,9 @@
 #ifOption:topic
 #include:glossary-topic
 #endif
+#ifOption:table
+#include:glossary-table
+#endif
 
 \glsxtrprelocation#*
 \glslistprelocation#*
@@ -82,6 +103,7 @@
 \glstreeDescLoc{label}{location}#*
 \glstreeChildDescLoc{label}{location}#*
 \glstreeNoDescSymbolPreLocation#*
+\glstreesubgroupitem{prev-group-level}{level}{parent-label}{group-label}{group-title}#*
 \gglssetwidest{name}#*
 \gglssetwidest[level]{name}#*
 \eglssetwidest{name}#*
@@ -134,3 +156,7 @@
 \glsxtrtreechildpredesc#*
 \glsxtrtreepredesc#*
 \glsxtrtreetopindent#*
+\glsindexingsetting{prev-group-level}{level}{parent-label}{group-label}{group-title}#*
+
+# not documented
+\glsalttreesubgroupheader{arg1}{arg2}{arg3}{arg4}{arg5}{arg6}#S

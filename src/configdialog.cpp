@@ -476,7 +476,9 @@ ConfigDialog::ConfigDialog(QWidget *parent): QDialog(parent,Qt::Dialog|Qt::Windo
 #endif
 
 
-    ui.labelGetDic->setText(tr("Download additional dictionaries from %1 or %2").arg("<a href=\"http://extensions.openoffice.org/de/search?f[0]=field_project_tags%3A157\">OpenOffice</a>","<a href=\"https://extensions.libreoffice.org/extensions?getCategories=Dictionary&getCompatibility=any\">LibreOffice</a>"));
+    ui.labelGetDic->setText(tr("Download additional dictionaries from %1 or %2")
+            .arg("<a href=\"https://extensions.openoffice.org/de/search?f[0]=field_project_tags%3A157\">OpenOffice</a>",
+                 "<a href=\"https://extensions.libreoffice.org/?Tag%5B0%5D=50&q=&Tags%5B%5D=50\">LibreOffice</a>"));
 	ui.labelGetDic->setOpenExternalLinks(true);
 	//pagequick
 	connect(ui.pushButtonGrammarWordlists, SIGNAL(clicked()), this, SLOT(browseGrammarWordListsDir()));
@@ -501,6 +503,8 @@ ConfigDialog::ConfigDialog(QWidget *parent): QDialog(parent,Qt::Dialog|Qt::Windo
 	fmConfig->addCategory(tr("QtScript")) << "qtscript:comment" << "qtscript:string" << "qtscript:number" << "qtscript:keyword" << "qtscript:txs-variable" << "qtscript:txs-function";
 
 	connect(ui.spinBoxSize, SIGNAL(valueChanged(int)), fmConfig, SLOT(setBasePointSize(int)));
+
+    connect(ui.leCompletionFilter,&QLineEdit::textChanged,this,&ConfigDialog::filterCompletionList);
 
 	//fmConfig->setMaximumSize(490,300);
 	//fmConfig->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
@@ -642,7 +646,7 @@ void ConfigDialog::revertClicked()
 	QToolButton *bt = qobject_cast<QToolButton *>(sender());
 	if (bt) {
 		if (bt->objectName() == "tbRevertIcon") {
-			ui.horizontalSliderIcon->setValue(22);
+			ui.horizontalSliderIcon->setValue(24);
 		}
 		if (bt->objectName() == "tbRevertCentralIcon") {
 			ui.horizontalSliderCentraIcon->setValue(16);
@@ -864,7 +868,7 @@ void ConfigDialog::advancedOptionsToggled(bool on)
 
 void ConfigDialog::advancedOptionsClicked(bool on)
 {
-	if (on) {
+	if (on & !riddled) {
 		if (!askRiddle()) ui.checkBoxShowAdvancedOptions->setChecked(false);
 		else riddled = true;
 	}
@@ -1159,7 +1163,19 @@ void ConfigDialog::updateCheckNow()
 
 void ConfigDialog::refreshLastUpdateTime()
 {
-	ui.labelUpdateCheckDate->setText(UpdateChecker::lastCheckAsString());
+    ui.labelUpdateCheckDate->setText(UpdateChecker::lastCheckAsString());
+}
+
+void ConfigDialog::filterCompletionList(const QString &text)
+{
+    for(int i=0;i<ui.completeListWidget->count();++i){
+        QListWidgetItem *item=ui.completeListWidget->item(i);
+        bool visible=item->text().contains(text, Qt::CaseInsensitive);
+        if(text.isEmpty()){
+            visible=true;
+        }
+        item->setHidden(!visible);
+    }
 }
 
 void ConfigDialog::populateComboBoxFont(bool onlyMonospaced)
@@ -1233,4 +1249,3 @@ bool ConfigDialog::askRiddle()
 	return false;
 	*/
 }
-

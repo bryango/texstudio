@@ -3,6 +3,7 @@
 #include "templateselector.h"
 #include "mostQtHeaders.h"
 #include "configmanager.h"
+#include <QLibraryInfo>
 
 QString TemplateManager::configBaseDir;
 
@@ -32,9 +33,21 @@ QString TemplateManager::builtinTemplateDir()
 #define PREFIX ""
 #endif
 #ifndef Q_OS_MAC
-	QString fn = PREFIX"/share/texstudio/";
-	if (!QDir(fn).isReadable()) { // fallback if program is not installed (e.g. debug build )
-		fn = QCoreApplication::applicationDirPath() + "/templates/";
+    QStringList paths;
+
+#if QT_VERSION_MAJOR>=6
+    paths << QLibraryInfo::path(QLibraryInfo::PrefixPath)+"/share/texstudio/";
+#else
+    paths << PREFIX"/share/texstudio/";
+#endif
+    paths << "/usr/share/texstudio/"<< "/usr/local/share/texstudio/";
+    paths<<QCoreApplication::applicationDirPath() + "/templates/";
+    QString fn;
+    for(const QString &pathName:paths){
+        if (QDir(pathName).isReadable()) {
+            fn=pathName;
+            break;
+        }
 	}
 	return fn;
 #endif
@@ -147,7 +160,7 @@ AbstractTemplateResource *TemplateManager::createResourceFromXMLNode(const QDomE
 		path = userTemplateDir();
 		description = tr("User created template files");
 		isEditable = true;
-		icon = QIcon(":/images-ng/user.svgz");
+		icon = getRealIcon("user");
 	}
 
 	if (QFileInfo(path).isDir()) {
@@ -220,7 +233,7 @@ bool TemplateManager::tableTemplateDialogExec()
 	dialog.hideFolderSelection();
 	connect(&dialog, SIGNAL(editTemplateRequest(TemplateHandle)), SLOT(editTemplate(TemplateHandle)));
 	connect(&dialog, SIGNAL(editTemplateInfoRequest(TemplateHandle)), SLOT(editTemplateInfo(TemplateHandle)));
-	LocalTableTemplateResource userTemplates(configBaseDir, tr("User"), this, QIcon(":/images-ng/user.svgz"));
+	LocalTableTemplateResource userTemplates(configBaseDir, tr("User"), this, getRealIcon("user"));
 	LocalTableTemplateResource builtinTemplates(builtinTemplateDir(), "Builtin", this, QIcon(":/images/appicon.png"));
 	dialog.addResource(&userTemplates);
 	dialog.addResource(&builtinTemplates);

@@ -1,9 +1,10 @@
 # univie-ling-wlg class
-# Matthew Bertucci 2022/06/01 for v1.18
+# Matthew Bertucci 2022/10/21 for v.2.1
 
-#include:xkeyval
 #include:class-scrartcl
 #include:cochineal
+#include:sourcesanspro
+#include:DejaVuSansMono
 #include:url
 #include:microtype
 #include:scalefnt
@@ -35,6 +36,7 @@ expertfonts#true,false
 titlepage=#none,specialprint,issue
 preprint#true,false
 peerrev#true,false
+draftmark=#true,false,firstpage
 #endkeyvals
 
 #ifOption:biblatex
@@ -56,15 +58,28 @@ issueeditor#true,false
 
 #ifOption:expertfonts
 #include:MinionPro
+#include:MyriadPro
 #endif
 #ifOption:expertfonts=true
 #include:MinionPro
+#include:MyriadPro
+#endif
+
+#ifOption:draftmark
+#include:draftwatermark
+#endif
+#ifOption:draftmark=true
+#include:draftwatermark
+#endif
+#ifOption:draftmark=firstpage
+#include:draftwatermark
 #endif
 
 \aff*[m|f]{affiliation%text}
 \aff*{affiliation%text}
 \aff[m|f]{affiliation%text}
 \aff{affiliation%text}
+\AfterInputencOrAtEndPreamble{code}#*
 \author[short names]{names}
 \backmatter
 \computelastpage#*
@@ -107,25 +122,3 @@ author=%<name%>
 title=%<text%>
 subtitle=%<text%>
 #endkeyvals
-
-\ifbiblatex#S
-\biblatextrue#S
-\biblatexfalse#S
-\ifcovington#S
-\covingtontrue#S
-\covingtonfalse#S
-\ifexpert#S
-\experttrue#S
-\expertfalse#S
-\iftitlepage#S
-\titlepagetrue#S
-\titlepagefalse#S
-\ifspecialprint#S
-\specialprinttrue#S
-\specialprintfalse#S
-\iftitlepageneeded#S
-\titlepageneededtrue#S
-\titlepageneededfalse#S
-\ifstartpageset#S
-\startpagesettrue#S
-\startpagesetfalse#S

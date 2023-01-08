@@ -1202,7 +1202,6 @@ void LatexEditorView::removeBookmark(QDocumentLineHandle *dlh, int bookmarkNumbe
 	int rmid = bookMarkId(bookmarkNumber);
 	if (hasBookmark(dlh, bookmarkNumber)) {
 		document->removeMark(dlh, rmid);
-        editor->removeMark(dlh,"bookmark");
 		emit bookmarkRemoved(dlh);
 	}
 }
@@ -1267,7 +1266,6 @@ bool LatexEditorView::toggleBookmark(int bookmarkNumber, QDocumentLine line)
 	int rmid = bookMarkId(bookmarkNumber);
 	if (line.hasMark(rmid)) {
 		line.removeMark(rmid);
-        editor->removeMark(line.handle(),"bookmark");
 		emit bookmarkRemoved(line.handle());
 		return false;
 	}
@@ -1275,7 +1273,6 @@ bool LatexEditorView::toggleBookmark(int bookmarkNumber, QDocumentLine line)
 		int ln = editor->document()->findNextMark(rmid);
 		if (ln >= 0) {
 			editor->document()->line(ln).removeMark(rmid);
-            editor->removeMark(editor->document()->line(ln).handle(),"bookmark");
 			emit bookmarkRemoved(editor->document()->line(ln).handle());
 		}
 	}
@@ -1283,12 +1280,10 @@ bool LatexEditorView::toggleBookmark(int bookmarkNumber, QDocumentLine line)
 		int rmid = bookMarkId(i);
 		if (line.hasMark(rmid)) {
 			line.removeMark(rmid);
-            editor->removeMark(line.handle(),"bookmark");
 			emit bookmarkRemoved(line.handle());
 		}
 	}
 	line.addMark(rmid);
-    editor->addMark(line.handle(),Qt::darkMagenta,"bookmark");
 	emit bookmarkAdded(line.handle(), bookmarkNumber);
 	return true;
 }
@@ -1620,7 +1615,9 @@ bool LatexEditorView::containsBibTeXId(QString id)
 int LatexEditorView::bookMarkId(int bookmarkNumber)
 {
 	if (bookmarkNumber == -1) return  QLineMarksInfoCenter::instance()->markTypeId("bookmark"); //unnumbered mark
-	else return QLineMarksInfoCenter::instance()->markTypeId("bookmark" + QString::number(bookmarkNumber));
+    if(bookmarkNumber>9)
+        bookmarkNumber=0;
+    return QLineMarksInfoCenter::instance()->markTypeId("bookmark" + QString::number(bookmarkNumber));
 	//return document->bookMarkId(bookmarkNumber);
 }
 
@@ -1629,8 +1626,10 @@ void LatexEditorView::setLineMarkToolTip(const QString &tooltip)
 	lineMarkPanel->setToolTipForTouchedMark(tooltip);
 }
 
-int LatexEditorView::environmentFormat, LatexEditorView::referencePresentFormat, LatexEditorView::referenceMissingFormat, LatexEditorView::referenceMultipleFormat, LatexEditorView::citationMissingFormat, LatexEditorView::citationPresentFormat, LatexEditorView::structureFormat, LatexEditorView::todoFormat, LatexEditorView::packageMissingFormat, LatexEditorView::packagePresentFormat, LatexEditorView::packageUndefinedFormat,
-    LatexEditorView::wordRepetitionFormat, LatexEditorView::wordRepetitionLongRangeFormat, LatexEditorView::badWordFormat, LatexEditorView::grammarMistakeFormat, LatexEditorView::grammarMistakeSpecial1Format, LatexEditorView::grammarMistakeSpecial2Format, LatexEditorView::grammarMistakeSpecial3Format, LatexEditorView::grammarMistakeSpecial4Format,
+int LatexEditorView::environmentFormat, LatexEditorView::referencePresentFormat, LatexEditorView::referenceMissingFormat, LatexEditorView::referenceMultipleFormat, LatexEditorView::citationMissingFormat,
+    LatexEditorView::citationPresentFormat, LatexEditorView::structureFormat, LatexEditorView::todoFormat, LatexEditorView::packageMissingFormat, LatexEditorView::packagePresentFormat, LatexEditorView::packageUndefinedFormat,
+    LatexEditorView::wordRepetitionFormat, LatexEditorView::wordRepetitionLongRangeFormat, LatexEditorView::badWordFormat, LatexEditorView::grammarMistakeFormat, LatexEditorView::grammarMistakeSpecial1Format,
+    LatexEditorView::grammarMistakeSpecial2Format, LatexEditorView::grammarMistakeSpecial3Format, LatexEditorView::grammarMistakeSpecial4Format,
     LatexEditorView::numbersFormat, LatexEditorView::verbatimFormat, LatexEditorView::commentFormat, LatexEditorView::pictureFormat, LatexEditorView::math_DelimiterFormat, LatexEditorView::math_KeywordFormat,
     LatexEditorView::pweaveDelimiterFormat, LatexEditorView::pweaveBlockFormat, LatexEditorView::sweaveDelimiterFormat, LatexEditorView::sweaveBlockFormat,
     LatexEditorView::asymptoteBlockFormat;
@@ -1869,7 +1868,6 @@ void LatexEditorView::lineMarkClicked(int line)
 	for (int i = -1; i < 10; i++)
 		if (l.hasMark(bookMarkId(i))) {
 			l.removeMark(bookMarkId(i));
-            editor->removeMark(l.handle(),"bookmark");
 			emit bookmarkRemoved(l.handle());
 			return;
 		}
@@ -1890,13 +1888,11 @@ void LatexEditorView::lineMarkClicked(int line)
 	for (int i = 1; i <= 10; i++) {
 		if (editor->document()->findNextMark(bookMarkId(i % 10)) < 0) {
 			l.addMark(bookMarkId(i % 10));
-            editor->addMark(l.handle(),Qt::darkMagenta,"bookmark");
 			emit bookmarkAdded(l.handle(), i);
 			return;
 		}
 	}
 	l.addMark(bookMarkId(-1));
-    editor->addMark(l.handle(),Qt::darkMagenta,"bookmark");
 	emit bookmarkAdded(l.handle(), -1);
 }
 
@@ -2269,12 +2265,25 @@ void LatexEditorView::textReplaceFromAction()
         wordSelection=QDocumentCursor();
 	}
 }
-
-void LatexEditorView::spellCheckingAlwaysIgnore()
+/*!
+ * \brief add word to ignore file
+ */
+void LatexEditorView::spellCheckingAddToDict()
 {
     if (speller && editor && wordSelection.selectedText() == defaultInputBinding->lastSpellCheckedWord) {
         QString newToIgnore = wordSelection.selectedText();
         speller->addToIgnoreList(newToIgnore);
+    }
+}
+/*!
+ * \brief add word to ignore list but not into file
+ * Volatile addition.
+ */
+void LatexEditorView::spellCheckingIgnoreAll()
+{
+    if (speller && editor && wordSelection.selectedText() == defaultInputBinding->lastSpellCheckedWord) {
+        QString newToIgnore = wordSelection.selectedText();
+        speller->addToIgnoreList(newToIgnore,false);
     }
 }
 
@@ -2321,15 +2330,19 @@ void LatexEditorView::addSpellingActions(QMenu *menu, QString word, bool dedicat
 	addReplaceActions(menu, suggestions, false);
 
 	QAction *act = new QAction(LatexEditorView::tr("Add to Dictionary"), menu);
-	connect(act, SIGNAL(triggered()), this, SLOT(spellCheckingAlwaysIgnore()));
+    connect(act, &QAction::triggered, this, &LatexEditorView::spellCheckingAddToDict);
+    QAction *act2 = new QAction(LatexEditorView::tr("Ignore all"), menu);
+    connect(act2, &QAction::triggered, this, &LatexEditorView::spellCheckingIgnoreAll);
 	if (dedicatedMenu) {
 		menu->addSeparator();
 	} else {
 		QFont ignoreFont;
 		ignoreFont.setItalic(true);
 		act->setFont(ignoreFont);
+        act2->setFont(ignoreFont);
 	}
 	menu->addAction(act);
+    menu->addAction(act2);
 	menu->setProperty("isSpellingPopulated", true);
 }
 
@@ -2739,6 +2752,11 @@ bool LatexEditorView::closeElement()
 		searchReplacePanel->closeElement(config->closeSearchAndReplace);
 		return true;
 	}
+    if(editor->cursorMirrorCount()>0){
+        // collapse mirrors to main cursor
+        editor->clearCursorMirrors();
+        return true;
+    }
 	return false;
 }
 
@@ -3216,9 +3234,10 @@ void LatexEditorView::lineMarkContextMenuRequested(int lineNumber, QPoint global
 	act->setData(-1);
 	menu.addAction(act);
 
-	for (int i = 0; i < 10; i++) {
-		QAction *act = new QAction(getRealIconCached(QString("lbook%1").arg(i)), tr("Bookmark") + QString(" %1").arg(i), &menu);
-		act->setData(i);
+	for (int i = 1; i < 11; i++) {
+		int modi = i % 10;
+		QAction *act = new QAction(getRealIconCached(QString("lbook%1").arg(modi)), tr("Bookmark") + QString(" %1").arg(modi), &menu);
+		act->setData(modi);
 		menu.addAction(act);
 	}
 

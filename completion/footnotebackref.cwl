@@ -9,3 +9,6 @@
 symbol=%<symbol%>
 numberlinked#true,false
 #endkeyvals
+
+\BackrefFootnoteTag#*
+\theBackrefHyperFootnoteCounter#*
