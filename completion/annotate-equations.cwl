@@ -3,7 +3,10 @@
 
 #include:ifluatex
 #include:tikz
-# loads backgrounds, arrows, shapes, tikzmark, and calc tikzlibraries
+#include:tikzlibrarybackgrounds
+#include:tikzlibraryshapes
+#include:tikzlibrarytikzmark
+#include:tikzlibrarycalc
 #include:xcolor
 #include:expl3
 #include:l3keys2e
@@ -52,21 +55,6 @@ label below
 \swapWestEast{anchor}#*
 \theeqnannotatenode#*
 \usevalue{node name}#*
-
-# from tikzmark library v1.10
-\tikzmark{name}
-\tikzmark[drawing command]{name}
-\tikzmark{name}{coordinate}
-\pgfmark{name}
-\iftikzmark{name}{true}{false}
-\iftikzmarkexists{name}
-\iftikzmarkoncurrentpage{name}
-\iftikzmarkonpage{name}{page}
-\tikzmarknode{name}{contents}
-\tikzmarknode[options]{name}{contents}
-\subnode{name}{contents}
-\subnode[options]{name}{contents}
-\usetikzmarklibrary{library}#*
 
 #keyvals:\tikzset#c,\begin{tikzpicture}#c,\node#c
 check picture id

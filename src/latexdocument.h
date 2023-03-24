@@ -7,7 +7,7 @@
 #include "codesnippet.h"
 #include "bibtexparser.h"
 #include "latexparser.h"
-#include "usermacro.h"
+//#include "usermacro.h"
 #include "syntaxcheck.h"
 #include "grammarcheck.h"
 #include "latexpackage.h"
@@ -72,13 +72,12 @@ public:
     Q_INVOKABLE LatexEditorView *getEditorView() const;
 	QString getFileName() const;
 	QFileInfo getFileInfo() const;
-	//QSet<QString> texFiles; //absolute file names, also contains fileName
+    void setAsImportedFile(bool state);
+    bool getStateImportedFile();
 
     Q_PROPERTY(QString fileName READ getFileName)
     Q_PROPERTY(QFileInfo fileInfo READ getFileInfo)
-#if (QT_VERSION<QT_VERSION_CHECK(6,0,0))
     Q_PROPERTY(LatexEditorView *editorView READ getEditorView)
-#endif
 
 	bool isHidden(); ///< true if editor is not displayed
 
@@ -107,7 +106,7 @@ public:
 	Q_INVOKABLE QStringList refItems() const; ///< all references in this document
 	Q_INVOKABLE QStringList bibItems() const; ///< all bibitem defined in this document
 	Q_INVOKABLE QList<CodeSnippet> userCommandList() const; ///< all user commands defined in this document, sorted
-	Q_INVOKABLE CodeSnippetList additionalCommandsList();
+    Q_INVOKABLE CodeSnippetList additionalCommandsList(QStringList &loadedFiles);
 	void updateRefsLabels(const QString &ref);
     void recheckRefsLabels(QList<LatexDocument *> listOfDocs=QList<LatexDocument*>(), QStringList items=QStringList());
     static void updateRefHighlight(ReferencePairEx p);
@@ -160,7 +159,7 @@ public:
 		return getRootDocument();    // DEPRECATED: only the for backward compatibility of user scripts
 	}
 
-	Q_INVOKABLE QStringList includedFiles();
+    Q_INVOKABLE QStringList includedFiles(bool importsOnly=false);
 	Q_INVOKABLE QStringList includedFilesAndParent();
     Q_INVOKABLE QList<LatexDocument *> getListOfDocs(QSet<LatexDocument *> *visitedDocs = nullptr);
 
@@ -215,6 +214,7 @@ private:
 	QString fileName; //absolute
 	QString temporaryFileName; //absolute, temporary
 	QFileInfo fileInfo;
+    bool importedFile=false; /// mark if this file was loaded via import/subimport, i.e. inputs relative to this file instead of root !
 
 	LatexEditorView *edView;
 
@@ -234,6 +234,7 @@ private:
 	QMultiHash<QDocumentLineHandle *, UserCommandPair> mUserCommandList;
 	QMultiHash<QDocumentLineHandle *, QString> mUsepackageList;
 	QMultiHash<QDocumentLineHandle *, QString> mIncludedFilesList;
+    QMultiHash<QDocumentLineHandle *, QString> mImportedFilesList;
 
 	QList<QDocumentLineHandle *> mLineSnapshot;
 
@@ -290,6 +291,7 @@ public slots:
 signals:
     void structureUpdated(LatexDocument *document, StructureEntry *highlight = nullptr);
 	void updateCompleter();
+    void updateCompleterCommands();
 	void updateBibTeXFiles();
 	void importPackage(QString name);
 	void spellingDictChanged(const QString &name);

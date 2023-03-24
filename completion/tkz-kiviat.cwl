@@ -2,6 +2,7 @@
 # Matthew Bertucci 9/17/2021 for v0.1b
 
 #include:tikz
+#include:tikzlibrarybackgrounds
 
 \tkzKiviatDiagram{name1,name2,...}#/tikzpicture
 \tkzKiviatDiagram[options%keyvals]{name1,name2,...}#/tikzpicture
@@ -17,7 +18,7 @@ label style=
 #endkeyvals
 
 \tkzKiviatLine[options%keyvals]{num1,num2,...}#/tikzpicture
-\tkzKiviatLineFromFile[options%keyvals]{file1}{file2}#/tikzpicture
+\tkzKiviatLineFromFile[options%keyvals]{file1%file}{file2%file}#/tikzpicture
 
 #keyvals:\tkzKiviatLine#c,\tkzKiviatLineFromFile#c
 fill=

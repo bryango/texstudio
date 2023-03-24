@@ -26,7 +26,7 @@
 #include:url
 #include:hyperref
 #include:tikz
-# loads calc tikzlibrary
+#include:tikzlibrarycalc
 #include:ifthen
 #include:titlesec
 #include:titletoc
@@ -38,7 +38,7 @@
 #include:bclogo
 #include:lettrine
 #include:tcolorbox
-# loads breakable and most tcolorbox libraries
+#include:tcolorboxlibrarymost
 #include:incgraph
 #include:listings
 #include:listingsutf8

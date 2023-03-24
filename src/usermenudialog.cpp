@@ -132,6 +132,9 @@ void UserMenuDialog::addMacro(const Macro &m,bool insertRow)
     auto *item=new QTreeWidgetItem();
     item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled);
     item->setText(0,m.name);
+    item->setText(1,m.shortcut());
+    item->setText(2,m.trigger);
+    item->setText(3,m.abbrev);
     item->setData(0,Qt::UserRole,QVariant::fromValue(m));
     if(insertRow){
         ui.treeWidget->addTopLevelItem(item);
@@ -406,8 +409,8 @@ void UserMenuDialog::slotMoveDown()
 
 void UserMenuDialog::importMacro()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,tr("Import macro"), "", tr("txs macro files (*.txsMacro)"));
-    if(!fileName.isEmpty()){
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,tr("Import macros"), "", tr("txs macro files (*.txsMacro)"));
+    for(const QString &fileName:fileNames){
         Macro m;
         m.load(fileName);
         addMacro(m,true);
@@ -516,6 +519,7 @@ void UserMenuDialog::shortcutChanged()
         Macro m=v.value<Macro>();
         m.setShortcut(ui.cbShortcut->currentText());
         item->setData(0,Qt::UserRole,QVariant::fromValue(m));
+        item->setText(1,m.shortcut());
     }
 }
 
@@ -528,11 +532,27 @@ void UserMenuDialog::abbrevChanged()
         Macro m=v.value<Macro>();
         m.abbrev=ui.abbrevEdit->text();
         item->setData(0,Qt::UserRole,QVariant::fromValue(m));
+        item->setText(3,m.abbrev);
     }
 }
 
 void UserMenuDialog::triggerChanged()
 {
+    // check if trigger is a valid regex
+    const QStringList fixedTriggers{"?txs-start","?new-file","?new-from-template","?load-file","?load-this-file","?save-file","?close-file","?master-changed","?after-typeset","?after-command-run"};
+    const QString text=ui.triggerEdit->text();
+    QRegularExpression re(text);
+    if(!re.isValid() && !fixedTriggers.contains(text)){
+        // syntax error in regex
+        ui.triggerEdit->setToolTip(re.errorString()+tr(" (col. %1)").arg(re.patternErrorOffset()));
+        ui.triggerEdit->setStyleSheet("QLineEdit { background: orange; color : black; }");
+
+        return;
+    }else{
+        ui.triggerEdit->setStyleSheet(QString());
+        ui.triggerEdit->setToolTip("");
+    }
+    // update current macro
     QTreeWidgetItem *item=ui.treeWidget->currentItem();
     if(item==nullptr) return;
     QVariant v=item->data(0,Qt::UserRole);
@@ -540,6 +560,7 @@ void UserMenuDialog::triggerChanged()
         Macro m=v.value<Macro>();
         m.setTrigger(ui.triggerEdit->text());
         item->setData(0,Qt::UserRole,QVariant::fromValue(m));
+        item->setText(2,m.trigger);
     }
 }
 

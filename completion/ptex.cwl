@@ -1,5 +1,5 @@
 # pTeX and 𝜀-pTeX commands (only those specific to pTeX)
-# Matthew Bertucci 2022/07/21 for v4.0.0
+# Matthew Bertucci 2022/11/25 for v4.1.0
 
 #include:tex
 
@@ -41,12 +41,15 @@
 \ifjfont%<⟨font⟩%>#*
 \iftfont%<⟨font⟩%>#*
 \jfam%<=⟨number⟩%>#*
+\ptextracingfonts#*
+\ptexfontname#*
 \kuten%<⟨16-bit number⟩%>#*
 \jis%<⟨16-bit number⟩%>#*
 \euc%<⟨16-bit number⟩%>#*
 \sjis%<⟨16-bit number⟩%>#*
 \ucs%<⟨number⟩%>#*
 \toucs%<⟨number⟩%>#*
+\tojis%<⟨number⟩%>#*
 \kansuji%<⟨number⟩%>#*
 \kansujichar%<⟨0–9⟩=⟨kanji code⟩%>#*
 \ptexversion‌#*
@@ -71,8 +74,8 @@
 \pdflastxpos#*
 \pdflastypos#*
 \pdfcreationdate#*
-\pdffilemoddate%<⟨filename⟩%>#*
-\pdffilesize%<⟨filename⟩%>#*
+\pdffilemoddate{file}#*
+\pdffilesize{file}#*
 \pdffiledump%<offset length ⟨filename⟩%>#*
 \pdfshellescape#*
 \pdfmdfivesum{text%plain}#*

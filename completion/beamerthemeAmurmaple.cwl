@@ -1,16 +1,20 @@
 # Amurmaple beamertheme
-# Matthew Bertucci 2022/09/12 for v1.1
+# Matthew Bertucci 2023/01/31 for v1.2
 
 #include:multicol
 #include:xparse
 #include:xfp
 #include:expl3
 #include:iftex
+#include:pgfpages
 #include:luamesh
 #include:tcolorbox
-# loads skins tcolorbox library
-#include:tikz
-# loads backgrounds, quotes, angles, automata, arrows, and calc tikzlibraries
+#include:tcolorboxlibraryskins
+#include:tikzlibrarybackgrounds
+#include:tikzlibraryquotes
+#include:tikzlibraryangles
+#include:tikzlibraryautomata
+#include:tikzlibrarycalc
 
 #keyvals:\usetheme/Amurmaple#c
 nogauge
@@ -20,6 +24,7 @@ amurmapleblue
 amurmaplegreen
 sidebarwidth=##L
 sidebar
+toplogo
 leftframetitle
 rule
 rulecolor=#%color
@@ -58,3 +63,4 @@ AmurmapleRed#B
 AmurmapleOrange#B
 AmurmapleBlue#B
 AmurmapleGreen#B
+AmurmapleRemarkColor#B

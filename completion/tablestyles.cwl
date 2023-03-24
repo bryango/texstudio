@@ -35,7 +35,7 @@ sansboldbw
 
 \setuptablefontsize{name}{size definition}
 \tablefontsize{name}
-\setuptablecolor{color name}{definition}#s#%color
+\setuptablecolor{color name%specialDef}{definition}#s#%color
 \tablecolor{color}
 \tablealtcolored
 \disablealternatecolors
@@ -43,21 +43,10 @@ sansboldbw
 \coloredhline{color}#t
 \coloredvline{color}#t
 
-\setuptablestyle{style name}{definition}#s#%tablestyle
+\setuptablestyle{style name%specialDef}{definition}#s#%tablestyle
 \resettablestyle
 
 \tableitemize
 
 # from table option of xcolor
 #include:colortbl
-\rowcolors{row}{odd-row-color}{even-row-color}
-\rowcolors[commands]{row}{odd-row-color}{even-row-color}
-\rowcolors{row}{color}{color}#S
-\rowcolors[commands]{row}{color}{color}#S
-\rowcolors*{row}{odd-row-color}{even-row-color}
-\rowcolors*[commands]{row}{odd-row-color}{even-row-color}
-\rowcolors*{row}{color}{color}#S
-\rowcolors*[commands]{row}{color}{color}#S
-\showrowcolors
-\hiderowcolors
-\rownum

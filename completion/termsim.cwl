@@ -12,10 +12,9 @@
 #include:etoolbox
 #include:minted
 #include:tcolorbox
-# loads skins, xparse, and breakable tcolorbox libraries
-#include:pdfcol
-#include:tikz
-# loads shapes.geometric tikzlibrary
+#include:tcolorboxlibraryskins
+#include:tcolorboxlibrarybreakable
+#include:tikzlibraryshapes.geometric
 
 \begin{terminal}{title%text}#V
 \begin{terminal}[options%keyvals]{title%text}#V
@@ -23,9 +22,9 @@
 \begin{terminal*}[options%keyvals][comments%text]{title%text}#V
 \end{terminal*}
 
-\termfile{title%text}{file}#i
-\termfile[options%keyvals]{title%text}{file}#i
-\termfile*[options%keyvals][comments%text]{title%text}{file}#i
+\termfile{title%text}{file}
+\termfile[options%keyvals]{title%text}{file}
+\termfile*[options%keyvals][comments%text]{title%text}{file}
 
 \termset{options%keyvals}
 

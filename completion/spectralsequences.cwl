@@ -1,12 +1,15 @@
 # spectralsequences package
-# Matthew Bertucci 12/28/2021 for v1.3.0
+# Matthew Bertucci 2023/01/29 for v1.3.3
 
-#include:etoolbox
 #include:tikz
+#include:etoolbox
 #include:verbatim
-#include:xparse
-# loads quotes, fit, positioning, intersections, backgrounds, and shapes tikzlibraries
-# loads arrows.meta pgflibrary
+#include:tikzlibraryquotes
+#include:tikzlibraryfit
+#include:tikzlibrarypositioning
+#include:tikzlibraryintersections
+#include:tikzlibrarybackgrounds
+#include:tikzlibraryshapes
 
 #ifOption:tooltip
 #include:pdfcomment

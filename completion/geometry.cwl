@@ -6,7 +6,7 @@
 \geometry{options%keyvals}
 \newgeometry{options%keyvals}
 \restoregeometry
-\savegeometry{name}#s#%geometry
+\savegeometry{name%specialDef}#s#%geometry
 \loadgeometry{name%keyvals}
 #keyvals:\loadgeometry
 %geometry
@@ -151,6 +151,7 @@ nofoot#true,false
 noheadfoot#true,false
 footnotesep=##L
 marginparwidth=##L
+marginpar=##L
 marginparsep=##L
 nomarginpar#true,false
 columnsep=##L

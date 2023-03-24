@@ -284,8 +284,8 @@ verbatim
 \begin{pygments}[fancyvrb settings%keyvals]{lexer}#V
 \end{pygments}
 
-\inputpygments{lexer}{file}#i
-\inputpygments[fancyvrb settings%keyvals]{lexer}{file}#i
+\inputpygments{lexer}{file}
+\inputpygments[fancyvrb settings%keyvals]{lexer}{file}
 
 \setpygmentsfv{fancyvrb settings%keyvals}
 \setpygmentsfv[lexer]{fancyvrb settings%keyvals}
@@ -1332,7 +1332,7 @@ label=%<label text%>
 labelposition=#none,topline,bottomline,all
 numbers=#none,left,right
 numbersep=##L
-firstnumber=#auto,last,integer
+firstnumber=%<auto|last|<integer>%>
 stepnumber=%<integer%>
 numberblanklines#true,false
 firstline=%<integer%>
@@ -1353,6 +1353,9 @@ codes*={%<code%>}
 defineactive={%<code%>}
 defineactive*={%<code%>}
 reflabel=##l
+fileext=%<extension%>
+vspace=##L
+listparameters={%<code%>}
 beameroverlays#true,false
 curlyquotes#true,false
 extra#true,false

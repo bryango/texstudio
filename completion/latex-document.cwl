@@ -364,7 +364,7 @@
 \pounds
 \protect
 \pushtabs#T
-\put(xcoord,ycoord){text}#*/picture
+\put(xcoord,ycoord){text}#*
 \qbezier(x1,y1)(x2,y2)(x3,y3)#*/picture
 \qbezier[n](x1,y1)(x2,y2)(x3,y3)#*/picture
 \qbeziermax#*
@@ -390,7 +390,7 @@
 \rule{width}{thickness%l}
 \SS
 \samepage#*
-\sbox{cmd}[text]
+\sbox{cmd}{text}
 \sc#*
 \scriptsize
 \scshape

@@ -6,7 +6,8 @@
 #include:xcolor
 # xcolor loaded with svgnames and dvipsnames options
 #include:tikz
-# loads positioning and svg.path tikzlibraries
+#include:tikzlibrarypositioning
+#include:tikzlibrarysvg.path
 
 #keyvals:\usepackage/pgfmolbio#c
 chromatogram
@@ -27,8 +28,8 @@ coordinate format string=%<format string%>
 ### chromatogram module ###
 #ifOption:chromatogram
 
-\pmbchromatogram{file}#i
-\pmbchromatogram[options%keyvals]{file}#i
+\pmbchromatogram{scf file%file}
+\pmbchromatogram[options%keyvals]{scf file%file}
 
 #keyvals:\pmbchromatogram#c,\pgfmolbioset#c
 sample range=%<lower%>-%<upper%>
@@ -140,8 +141,8 @@ sequence length=%<number%>
 \setfeatureprintfunction{key list}{Lua function}
 \removefeatureprintfunction{key list}
 \pmbdomdrawfeature{type}
-\inputuniprot{file}#i
-\inputgff{file}#i
+\inputuniprot{Uniprot file%file}
+\inputgff{gff file%file}
 
 #endif
 

@@ -1,19 +1,20 @@
 # yquant package
-# Matthew Bertucci 4/14/2022 for v0.7
+# Matthew Bertucci 2022/12/25 for v0.7.2
 
 #include:etoolbox
 #include:tikz
 #include:trimspaces
 #include:xkeyval
-# loads arrows.meta, decorations.pathreplacing, and decorations.pathmorphing tikzlibraries
+#include:tikzlibrarydecorations.pathreplacing
+#include:tikzlibrarydecorations.pathmorphing
 
 #keyvals:\usepackage/yquant#c
 compat=#newest,0.3,0.4,0.6
 #endkeyvals
 
-\ifyquantdebug#*
-\yquantdebugtrue#*
-\yquantdebugfalse#*
+\ifyquantdebug#S
+\yquantdebugtrue#S
+\yquantdebugfalse#S
 
 \useyquantlanguage{language%keyvals}
 
@@ -206,6 +207,7 @@ operators/every custom gate/.append style={%<TikZ keys%>}
 operators/every dmeter/.append style={%<TikZ keys%>}
 operators/every h/.append style={%<TikZ keys%>}
 operators/every inspect/.append style={%<TikZ keys%>}
+operators/every iswap/.style={%<TikZ keys%>}
 operators/every measure/.append style={%<TikZ keys%>}
 operators/every measure meter/.append style={%<TikZ keys%>}
 operators/every not/.append style={%<TikZ keys%>}

@@ -8,7 +8,7 @@ nonstop
 batch
 #endkeyvals
 
-\begin{fmffile}{METAFONT-file}
+\begin{fmffile}{METAFONT-file%file}
 \end{fmffile}
 \begin{fmfchar}(width,height)#*
 \end{fmfchar}#*
@@ -51,7 +51,7 @@ batch
 \fmfipath{METAFONT paths}
 \fmfiset{lval}{rval}
 \fmfiv{shape=val,opt=val,...}{v}
-\fmfkeep{name}#s#%fmfname
+\fmfkeep{name%specialDef}#s#%fmfname
 \fmflabel{label}{v}
 \fmfleft{v1,v2,...}
 \fmfleftn{v}{n}

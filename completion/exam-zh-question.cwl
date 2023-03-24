@@ -5,10 +5,10 @@
 #include:xparse
 #include:amsthm
 #include:tcolorbox
-# loads most option of tcolorbox
+#include:tcolorboxlibrarymost
 #include:xeCJKfntef
 #include:linegoal
-# loads shapes.misc tikzlibrary
+#include:tikzlibraryshapes.misc
 
 #keyvals:\examsetup,\ExamPrintAnswerSet
 question={%<键值列表%>}
@@ -159,13 +159,3 @@ blank-vsep=##L
 #endkeyvals
 
 \score{分数}
-
-# from most option of tcolorbox
-#include:amsmath
-#include:incgraph
-#include:listings
-#include:listingsutf8
-#include:pdftexcmds
-#include:shellesc
-#include:tikz
-#include:pdfcol

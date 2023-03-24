@@ -7,6 +7,17 @@
 #include:fontawesome
 #include:tikz
 #include:longtable
+#include:tikzlibrarymatrix
+#include:tikzlibrarypositioning
+#include:tikzlibraryfit
+#include:tikzlibrarycalc
+#include:tikzlibraryshapes
+#include:tikzlibrarybackgrounds
+#include:tikzlibrarymath
+#include:tikzlibrarytrees
+#include:tikzlibrarydecorations.markings
+#include:tikzlibrarydecorations
+#include:tikzlibrarydecorations.pathmorphing
 #include:translations
 #include:xspace
 #include:ifthen
@@ -65,7 +76,7 @@ boden
 floor
 #endkeyvals
 
-\setcolor{name}{hex color code}#s#%color
+\setcolor{name%specialDef}{hex color code}#s#%color
 
 grundlagen-color#B
 eingaben-color#B

@@ -1370,6 +1370,14 @@ d
 \DeclareListFormat*{format}{code}#*
 \DeclareNameFormat[entrytype, ...]{format}{code}#*
 \DeclareNameFormat*{format}{code}#*
+\namepartprefix#*
+\namepartprefixi#*
+\namepartfamily#*
+\namepartfamilyi#*
+\namepartsuffix#*
+\namepartsuffixi#*
+\namepartgiven#*
+\namepartgiveni#*
 \DeclareListWrapperFormat[entrytype, ...]{format}{code}#*
 \DeclareListWrapperFormat*{format}{code}#*
 \DeclareNameWrapperFormat[entrytype, ...]{format}{code}#*
@@ -7654,7 +7662,7 @@ eutreaty#true,false
 \indexonly{bibid}#C
 #endif
 
-### biblatex-oxalph v2.2 ###
+### biblatex-oxref v3.0 ###
 #ifOption:style=oxalph
 # loads oxyear bibliography style
 #include:xpatch
@@ -7679,6 +7687,7 @@ timefirst#true,false
 usenametitles#true,false
 #endkeyvals
 # from oxref.bbx
+\cacasetitlepunct#*
 \casenote#*
 \casenotetext#*
 \collectionofdecisions#*
@@ -7699,6 +7708,7 @@ usenametitles#true,false
 \mkbibnametitle{text}#*
 \mkrawpageprefix#*
 \mkrawpageprefix[type]#*
+\mkusbibordinal{number}#*
 \officialjournaltitle#*
 \ojspecedtitle#*
 \oxrefand#*
@@ -7708,7 +7718,6 @@ usenametitles#true,false
 \parliamentarytype#*
 \recordseriespunct#*
 \recto#*
-\relatedtypepunct#*
 \seriesa#*
 \siganddate{arg}#*
 \subtypecourtrules#*
@@ -7719,10 +7728,9 @@ usenametitles#true,false
 \titlebyauthordelim#*
 \treatypartysep#*
 \treatysubtype#*
+\uscasetitlepunct#*
 \Version#S
 \verso#*
-# from english-oxref.lbx
-\mkusbibordinal{number}#*
 # from oxyear.bbx
 \iflabeldateisanydate{true}{false}#*
 \iflabeldateispubstate{true}{false}#*
@@ -7754,6 +7762,7 @@ timefirst#true,false
 usenametitles#true,false
 #endkeyvals
 # from oxref.bbx
+\cacasetitlepunct#*
 \casenote#*
 \casenotetext#*
 \collectionofdecisions#*
@@ -7774,6 +7783,7 @@ usenametitles#true,false
 \mkbibnametitle{text}#*
 \mkrawpageprefix#*
 \mkrawpageprefix[type]#*
+\mkusbibordinal{number}#*
 \officialjournaltitle#*
 \ojspecedtitle#*
 \oxrefand#*
@@ -7783,7 +7793,6 @@ usenametitles#true,false
 \parliamentarytype#*
 \recordseriespunct#*
 \recto#*
-\relatedtypepunct#*
 \seriesa#*
 \siganddate{arg}#*
 \subtypecourtrules#*
@@ -7794,10 +7803,9 @@ usenametitles#true,false
 \titlebyauthordelim#*
 \treatypartysep#*
 \treatysubtype#*
+\uscasetitlepunct#*
 \Version#S
 \verso#*
-# from english-oxref.lbx
-\mkusbibordinal{number}#*
 # from oxyear.bbx
 \iflabeldateisanydate{true}{false}#*
 \iflabeldateispubstate{true}{false}#*
@@ -7828,6 +7836,7 @@ timefirst#true,false
 usenametitles#true,false
 #endkeyvals
 # from oxref.bbx
+\cacasetitlepunct#*
 \casenote#*
 \casenotetext#*
 \collectionofdecisions#*
@@ -7848,6 +7857,7 @@ usenametitles#true,false
 \mkbibnametitle{text}#*
 \mkrawpageprefix#*
 \mkrawpageprefix[type]#*
+\mkusbibordinal{number}#*
 \officialjournaltitle#*
 \ojspecedtitle#*
 \oxrefand#*
@@ -7857,7 +7867,6 @@ usenametitles#true,false
 \parliamentarytype#*
 \recordseriespunct#*
 \recto#*
-\relatedtypepunct#*
 \seriesa#*
 \siganddate{arg}#*
 \subtypecourtrules#*
@@ -7868,10 +7877,9 @@ usenametitles#true,false
 \titlebyauthordelim#*
 \treatypartysep#*
 \treatysubtype#*
+\uscasetitlepunct#*
 \Version#S
 \verso#*
-# from english-oxref.lbx
-\mkusbibordinal{number}#*
 #endif
 
 #ifOption:style=oxnum
@@ -7897,6 +7905,7 @@ timefirst#true,false
 usenametitles#true,false
 #endkeyvals
 # from oxref.bbx
+\cacasetitlepunct#*
 \casenote#*
 \casenotetext#*
 \collectionofdecisions#*
@@ -7917,6 +7926,7 @@ usenametitles#true,false
 \mkbibnametitle{text}#*
 \mkrawpageprefix#*
 \mkrawpageprefix[type]#*
+\mkusbibordinal{number}#*
 \officialjournaltitle#*
 \ojspecedtitle#*
 \oxrefand#*
@@ -7926,7 +7936,6 @@ usenametitles#true,false
 \parliamentarytype#*
 \recordseriespunct#*
 \recto#*
-\relatedtypepunct#*
 \seriesa#*
 \siganddate{arg}#*
 \subtypecourtrules#*
@@ -7937,10 +7946,9 @@ usenametitles#true,false
 \titlebyauthordelim#*
 \treatypartysep#*
 \treatysubtype#*
+\uscasetitlepunct#*
 \Version#S
 \verso#*
-# from english-oxref.lbx
-\mkusbibordinal{number}#*
 #endif
 
 ### biblatex-philosophy v1.9.8f ###

@@ -49,6 +49,7 @@ struct LinkOverlay {
 	LinkOverlayType type;
 	QDocumentLine docLine;
 	QFormatRange formatRange;
+    QString m_link;
 
 	LinkOverlay() : type(Invalid) {}
 	LinkOverlay(const LinkOverlay &o);
@@ -107,6 +108,8 @@ public:
 
 	static QList<QAction *> getBaseActions();
 	static void setBaseActions(QList<QAction *> baseActions);
+    static int getLineRowforContexMenu();
+    static int getLineColforContexMenu();
 	void setSpellerManager(SpellerManager *manager);
     bool setSpeller(const QString &name,bool updateComment=false);
 	Q_INVOKABLE QString getSpeller();

@@ -440,7 +440,7 @@ debug={%<options%>}
 \stockheight#*L
 \stockwidth#*L
 
-# pdftex specials
+# pdftex v3.141592653-2.6-1.40.25
 \efcode#*
 \expanded#*
 \ifincsname#*
@@ -479,8 +479,8 @@ debug={%<options%>}
 \pdfescapestring{string}#*
 \pdffakespace#*
 \pdffiledump#*
-\pdffilemoddate#*
-\pdffilesize#*
+\pdffilemoddate{file}#*
+\pdffilesize{file}#*
 \pdffirstlineheight#*
 \pdffontattr#*
 \pdffontexpand#*
@@ -532,6 +532,7 @@ debug={%<options%>}
 \pdfobjcompresslevel#*
 \pdfomitcharset#*
 \pdfomitinfodict#*
+\pdfomitprocset#*
 \pdfoutline#*
 \pdfoutput#*
 \pdfpageattr{attributes}#*
@@ -593,6 +594,7 @@ debug={%<options%>}
 \shbscode#*
 \showstream#*
 \stbscode#*
+\synctex#*
 \tagcode#*
 \tracingstacklevels#*
 

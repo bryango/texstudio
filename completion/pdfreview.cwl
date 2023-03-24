@@ -9,7 +9,8 @@
 #include:graphicx
 #include:kvoptions
 #include:tikz
-# loads calc, arrows, and positioning tikzlibraries
+#include:tikzlibrarycalc
+#include:tikzlibrarypositioning
 #include:twoopt
 #include:xstring
 #include:grffile
@@ -53,7 +54,7 @@ t
 \bnote{height}{text}
 \cnote{height}{text}
 \tnote{height}{text}
-\sourcedoc{file%definition}
+\sourcedoc{file%file}
 \pagegrid
 \pagegrid[TikZ settings]
 \pagegrid[TikZ settings][steps]

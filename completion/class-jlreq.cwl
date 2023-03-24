@@ -1,5 +1,5 @@
 # jlreq class
-# Matthew Bertucci 2022/07/17 for release 2022/07/13
+# Matthew Bertucci 2022/11/28 for release 2022/11/28
 
 #include:l3keys2e
 #include:etoolbox
@@ -264,10 +264,10 @@ twolinemax=##L
 %jlreqpagestyle
 #endkeyvals
 
-\NewPageStyle{name}{options%keyvals}#s#%jlreqpagestyle
+\NewPageStyle{name%specialDef}{options%keyvals}#s#%jlreqpagestyle
 \RenewPageStyle{name}{options%keyvals}
-\ProvidePageStyle{name}{options%keyvals}#s#%jlreqpagestyle
-\DeclarePageStyle{name}{options%keyvals}#s#%jlreqpagestyle
+\ProvidePageStyle{name%specialDef}{options%keyvals}#s#%jlreqpagestyle
+\DeclarePageStyle{name%specialDef}{options%keyvals}#s#%jlreqpagestyle
 \ModifyPageStyle{pagestyle}{options%keyvals}
 
 #keyvals:\NewPageStyle#c,\RenewPageStyle#c,\ProvidePageStyle#c,\DeclarePageStyle#c,\ModifyPageStyle#c
@@ -290,10 +290,6 @@ clear_markcommand#true,false
 #endkeyvals
 
 # not documented
-\cleartoevenpage
-\cleartoevenpage[pagestyle]
-\cleartooddpage
-\cleartooddpage[pagestyle]
 \ifjlreqadjustreferencemark#S
 \if西暦#*
 \inlinenote*{text}

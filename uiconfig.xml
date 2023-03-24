@@ -75,7 +75,7 @@
 	cursor.moveTo(cursor.lineNumber()-1,0);&#10;
 	cursor.movePosition(1,cursorEnums.EndOfLine );"
 	info="The enumerate environment produces a numbered list.%nEach item of an enumerated list begins with an \item command." icon="enumerate"/>
-    <insert id="description" text="\begin{description}" insert="\begin{description}%\\item[%&lt;label%>] %&lt;description%>%\\end{description}" info="The description environment is used to make labelled lists.%nEach item of the list begins with an \item[label] command."/>
+    <insert id="description" text="\begin{description}" insert="\begin{description}%\\item[%&lt;label%>] %&lt;description%>%\\end{description}" info="The description environment produces a labelled list.%nEach item of the list begins with an \item[label] command."/>
     <insert id="list" text="\begin{list}" insert="\begin{list}{%&lt;label%>}{%&lt;spacing%>}%\\item %|%\\end{list}" info="The {label} argument is a piece of text that is inserted in a box to form the label.%nThe {spacing} argument contains commands to change the spacing parameters for the list.%nEach item of the list begins with an \item command."/>
     <insert id="item" text="\item" insert="%SCRIPT&#10;
     var ln=cursor.lineNumber();&#10;
@@ -142,14 +142,28 @@
     <insert id="cline" text="\cline" insert="\cline{%&lt;from%|%>-%&lt;to%>}" info=""/>
   </menu>
 
-  <menu id="spacing" text="&amp;Vertical Spacing">
+  <menu id="horizontalSpacing" text="&amp;Horizontal Spacing">
+    <insert id="spaceCharacter" text="\space" insert="\space" info="The command \space gives you a space where you can't enter a space character."/>
+    <insert id="enspace" text="\enspace" insert="\enspace" info="The \enspace command inserts a horizontal space of 1/2em."/>
+    <insert id="quad" text="\quad" insert="\quad" info="The \quad command inserts a horizontal space of 1em (1em being the width of M)."/>
+    <insert id="qquad" text="\qquad" insert="\qquad" info="The \qquad command inserts a horizontal space of 2em."/>
+    <insert id="thinspace" text="\thinspace" insert="\thinspace" info="The command \thinspace produces unbreakable and unstretchable space of 1/6em (same as \, in math mode)."/>
+    <insert id="negthinspace" text="\negthinspace" insert="\negthinspace" info="The command \negthinspace produces unbreakable and unstretchable space of -1/6em (same as \, in math mode)."/>
+    <insert id="hspace" text="\hspace" insert="\hspace{%&lt;skip%>}" info="The \hspace command inserts an amount of skip of horizontal space."/>
+    <insert id="hfill" text="\hfill" insert="\hfill" info="The \hfill command inserts a rubber length which has no natural space but that can stretch horizontally as far as needed."/>
+    <insert id="hrulefill" text="\hrulefill" insert="\hrulefill" info="The \hrulefill command produces an infinite horizontal rubber length that LaTeX fills with a rule (that is, a line), instead of white space."/>
+    <insert id="dotfill" text="\dotfill" insert="\dotfill" info="The \dotfill command produces an infinite horizontal rubber length that LaTeX fills with dots, instead of white space."/>
+  </menu>
+
+  <menu id="verticalSpacing" text="&amp;Vertical Spacing">
     <insert id="newpage" text="\newpage" insert="\newpage" info="The \newpage command ends the current page"/>
     <insert id="linebreak" text="\linebreak" insert="\linebreak" info="The \linebreak command tells LaTeX to break the current line at the point of the command."/>
     <insert id="pagebreak" text="\pagebreak" insert="\pagebreak" info="The \pagebreak command tells LaTeX to break the current page at the point of the command."/>
     <insert id="bigskip" text="\bigskip" insert="\bigskip" info="The \bigskip command adds a 'big' vertical space."/>
     <insert id="medskip" text="\medskip" insert="\medskip" info="The \medskip command adds a 'medium' vertical space."/>
     <insert id="smallskip" text="\smallskip" insert="\smallskip" info="The \smallskip command adds a 'small' vertical space."/>
-    <insert id="vspace" text="\vspace" insert="\vspace{%&lt;skip%>}"/>
+    <insert id="vspace" text="\vspace" insert="\vspace{%&lt;skip%>}" info="The \vspace command inserts an amount of skip (positive, zero or negative) of vertical space."/>
+    <insert id="vfill" text="\vfill" insert="\vfill" info="The \vfill command inserts a rubber length which has no natural space but that can stretch vertically as far as needed."/>
     <insert id="newline" text="New line - \\" insert="\\%\" info="The \newline command breaks the line right where it is." icon="newline" shortcut="Ctrl+Return"/>
   </menu>
   
@@ -164,6 +178,11 @@
     <insert id="8" text="\v{}" insert="\v{}" icon="accent8"/>
     <insert id="9" text="\u{}" insert="\u{}" icon="accent9"/>
     <insert id="10" text="\H{}" insert="\H{}" icon="accent10"/>
+    <insert id="11" text="\r{}" insert="\r{}" icon="accent11"/>
+    <insert id="12" text="\c{}" insert="\c{}" icon="accent12"/>
+    <insert id="13" text="\k{}" insert="\k{}" icon="accent13"/>
+    <insert id="14" text="\b{}" insert="\b{}" icon="accent14"/>
+    <insert id="15" text="\d{}" insert="\d{}" icon="accent15"/>
   </menu>
 
   <menu id="insertfiles" text="Input/Include &amp;Files">
@@ -227,37 +246,37 @@
 
 <menu id="main/math" text="&amp;Math">
   
-  <insert id="mathmode" text="Inline math mode $...$" insert="$ %| $" info="The math environment can be used in both paragraph and LR mode" icon="mathmode" shortcut="Ctrl+Shift+M"/>
+  <insert id="mathmode" text="Inline math mode $...$" insert="$%&lt; %>$" info="The math environment can be used in both paragraph and LR mode" icon="mathmode" shortcut="Ctrl+Shift+M"/>
   <insert id="latexmathmode" text="LaTeX inline math mode \(...\)" insert="\( %| \)" info="The LaTeX math environment can be used in both paragraph and LR mode"/>
   <insert id="displaymath" text="Display math mode \[...\]" insert="\[ %| \]" info="The displaymath environment can be used only in paragraph mode" shortcut="Alt+Shift+M"/>
   <insert id="subscript" text="Subscript - _{}" insert="_{%|}" icon="subscript" shortcut="Ctrl+Shift+D"/>  
   <insert id="superscript" text="Superscript - ^{}" insert="^{%|}"  icon="superscript" shortcut="Ctrl+Shift+U"/>  
-  <insert id="frac" text="\frac{}{}" insert="\frac{%&lt;num%|%:translatable%>}{%&lt;den%:translatable%>}" icon="smallfrac" shortcut="Alt+Shift+F"/>    
-  <insert id="dfrac" text="\dfrac{}{}" insert="\dfrac{%&lt;num%|%:translatable%>}{%&lt;den%:translatable%>}" icon="dfrac" shortcut="Ctrl+Shift+F"/>  
-  <insert id="sqrt" text="\sqrt{}" insert="\sqrt{%|}" icon="sqrt" shortcut="Ctrl+Shift+Q"/>  
+  <insert id="frac" text="Fraction - \frac{}{}" insert="\frac{%&lt;num%|%:translatable%>}{%&lt;den%:translatable%>}" icon="smallfrac" shortcut="Alt+Shift+F"/>    
+  <insert id="dfrac" text="Fraction - \dfrac{}{}" insert="\dfrac{%&lt;num%|%:translatable%>}{%&lt;den%:translatable%>}" info="\dfrac is an amsmath package shorthand for \displaystyle\frac..." icon="dfrac" shortcut="Ctrl+Shift+F"/>  
+  <insert id="sqrt" text="Square Root - \sqrt{}" insert="\sqrt{%|}" icon="sqrt" shortcut="Ctrl+Shift+Q"/>  
   <insert id="left" text="\left" insert="\left " shortcut="Ctrl+Shift+L"/>  
   <insert id="right" text="\right" insert="\right " shortcut="Ctrl+Shift+R"/>  
   <insert id="array" text="\begin{array}" insert="\begin{array}{%&lt;columns%>}%\%&lt;content%|%>%\\end{array}" info="\begin{array}{col1col2...coln}%ncolumn 1 entry &amp; column 2 entry ... &amp; column n entry \\%n...%n\end{array}"/>  
 
   
   <menu id="equations" text="Math &amp;Equations">
-      <insert id="equation" text="env equation" insert="\begin{equation}\label{%&lt;key%>}%\%|%\\end{equation}" info="The equation environment centres your equation on the page and places the equation number in the right margin." shortcut="Ctrl+Shift+N"/>
-      <insert id="equation*" text="env equation* (amsmath)" insert="\begin{equation*}%\%|%\\end{equation*}"/>
-      <insert id="align" text="env align (amsmath)" insert="\begin{align}%\%|%\\end{align}"/>
-      <insert id="alignat" text="env alignat (amsmath)" insert="\begin{alignat}{%&lt;ncols%>}%\%&lt;content%>%\\end{alignat}"/>
-      <insert id="flalign" text="env flalign (amsmath)" insert="\begin{flalign}%\%|%\\end{flalign}"/>
-      <insert id="gather" text="env gather (amsmath)" insert="\begin{gather}%\%|%\\end{gather}"/>
-      <insert id="multline" text="env multline (amsmath)" insert="\begin{multline}%\%|%\\end{multline}"/>
-      <insert id="align*" text="env align* (amsmath)" insert="\begin{align*}%\%|%\\end{align*}"/>
-      <insert id="alignat*" text="env alignat* (amsmath)" insert="\begin{alignat*}{%&lt;ncols%>}%\%&lt;content%>%\\end{alignat*}"/>
-      <insert id="flalign*" text="env flalign* (amsmath)" insert="\begin{flalign*}%\%|%\\end{flalign*}"/>
-      <insert id="gather*" text="env gather* (amsmath)" insert="\begin{gather*}%\%|%\\end{gather*}"/>
-      <insert id="multline*" text="env multline* (amsmath)" insert="\begin{multline*}%\%|%\\end{multline*}"/>
+      <insert id="equation" text="env equation" insert="\begin{equation}\label{%&lt;key%>}%\%|%\\end{equation}" info="The equation environment centers one equation on the page and places the equation number in the margin." shortcut="Ctrl+Shift+N"/>
+      <insert id="align" text="env align (amsmath)" insert="\begin{align}%\%|%\\end{align}" info="The align environment vertically aligns multiple equations. You can do so in several equation columns. Use &amp; sign for alignment and splitting into columns."/>
+      <insert id="alignat" text="env alignat (amsmath)" insert="\begin{alignat}{%&lt;ncols%>}%\%&lt;content%>%\\end{alignat}" info="The alignat environment is a variation of the align environment and allows to explicitly specify the space between equation columns. For ex. use &amp;\quad&amp; as column separator. Give the number of columns as a parameter."/>
+      <insert id="flalign" text="env flalign (amsmath)" insert="\begin{flalign}%\%|%\\end{flalign}" info="The flalign environment is an align environment that stretches space between equation columns as much as possible, leaving just enough space at the margin for the equation number."/>
+      <insert id="gather" text="env gather (amsmath)" insert="\begin{gather}%\%|%\\end{gather}" info="The gather environment is used for multiple centered equations separated by \\, each having an equation number."/>
+      <insert id="multline" text="env multline (amsmath)" insert="\begin{multline}%\%|%\\end{multline}" info="The multline environment is a variation of the equation environment used for equations that don't fit on one line. Use \\ to split lines. Lines between the first and the last one will be centered."/>
+      <insert id="equation*" text="env equation* (amsmath)" insert="\begin{equation*}%\%|%\\end{equation*}" info="The equation* environment is an unnumbered equation environment."/>
+      <insert id="align*" text="env align* (amsmath)" insert="\begin{align*}%\%|%\\end{align*}" info="The align* environment is an unnumbered align environment."/>
+      <insert id="alignat*" text="env alignat* (amsmath)" insert="\begin{alignat*}{%&lt;ncols%>}%\%&lt;content%>%\\end{alignat*}" info="The alignat* environment is an unnumbered alignat environment."/>
+      <insert id="flalign*" text="env flalign* (amsmath)" insert="\begin{flalign*}%\%|%\\end{flalign*}" info="The flalign* environment is an unnumbered flalign environment."/>
+      <insert id="gather*" text="env gather* (amsmath)" insert="\begin{gather*}%\%|%\\end{gather*}" info="The gather* environment is an unnumbered gather environment."/>
+      <insert id="multline*" text="env multline* (amsmath)" insert="\begin{multline*}%\%|%\\end{multline*}" info="The multline* environment is an unnumbered multline environment."/>
 
       <separator/>
 
-	<insert id="cases" text="env cases (amsmath)" insert="\begin{cases}%\%|%\\end{cases}"/>
-        <insert id="split" text="env split (amsmath)" insert="\begin{split}%\%|%\\end{split}"/>
+      <insert id="cases" text="env cases (amsmath)" insert="\begin{cases}%\%|%\\end{cases}" info="The cases environment provides a strucure that displays as a brace left to an array of lines with two left-aligned columns."/>
+      <insert id="split" text="env split (amsmath)" insert="\begin{split}%\%|%\\end{split}" info="The split environment is similar to the multline environment but allows vertical alignment using &amp; signs. There is no eqn number. Use inside displayed environments."/>
   </menu>   
       
   
@@ -353,9 +372,8 @@
     <insert id="medium" text="Medium - \:" insert="\:" info="4/18 of a \quad"/>
     <insert id="large" text="Thick - \;" insert="\;" info="5/18 of a \quad"/>
 	<insert id="interword" text="Interword - \ " insert="\ " info="regular whitespace"/>
-	<insert id="quad" text="One quad - \quad" insert="\quad " info="A \quad is a horizontal space with a size equal to the font size."/>
+	<insert id="quad" text="One quad - \quad" insert="\quad " info="The \quad command inserts a horizontal space of 1em (1em being the width of M)."/>
     <insert id="qquad" text="Two quads - \qquad" insert="\qquad" info="Twice the size of a \quad"/>
   </menu>
 </menu>
 </TexMakerXUI>
-

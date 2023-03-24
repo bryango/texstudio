@@ -28,7 +28,7 @@
 \tikzchildanchor#*
 \tikzparentnode#*
 \tikzchildnode#*
-\tikzstyle{style} = [definition]#s#%tikzstyle
+\tikzstyle{style%specialDef} = [definition]#s#%tikzstyle
 \begin{tikzpicture}#\pictureHighlight
 \begin{tikzpicture}[options%keyvals]
 \end{tikzpicture}
@@ -123,12 +123,12 @@ circuits.logic.IEC
 circuits.logic.US
 circuits.plc.ladder
 circuits.plc.sfc
-circular
+colorbrewer
 commutative-diagrams
 curvilinear
+datavisualization
 datavisualization.3d
 datavisualization.barcharts
-datavisualization
 datavisualization.formats.functions
 datavisualization.polar
 datavisualization.sparklines
@@ -141,11 +141,30 @@ decorations.pathreplacing
 decorations.shapes
 decorations.text
 dubins
+ducks
 er
+ext.calendar-plus
+ext.misc
+ext.node-families
+ext.node-families.shapes.geometric
+ext.paths.arcto
+ext.paths.ortho
+ext.paths.timer
+ext.patterns.images
+ext.positioning-plus
+ext.scalepicture
+ext.shapes.circlearrow
+ext.shapes.circlecrosssplit
+ext.shapes.heatmark
+ext.shapes.rectangleroundedcorners
+ext.shapes.superellipse
+ext.shapes.uncenteredrectangle
+ext.topaths.arcthrough
+ext.transformations.mirror
 external
 fadings
-fill.image
 fill.hexagon
+fill.image
 fill.rhombus
 fit
 fixedpointarithmetic
@@ -164,19 +183,15 @@ matrix
 matrix.skeleton
 mindmap
 nef
+ocgx
 optics
 overlay-beamer-styles
-paths.arcto
-paths.ortho
-paths.timer
 patterns
 patterns.images
 patterns.meta
 penrose
 perspective
 petri
-phylogenetics
-pie
 plothandlers
 plotmarks
 positioning
@@ -184,14 +199,13 @@ profiler
 quantikz
 quotes
 rdf
-routing
 rulercompass
 scopes
 shadings
 shadows
+shadows.blur
 shapes
 shapes.arrows
-shadows.blur
 shapes.callouts
 shapes.gates.ee
 shapes.gates.ee.IEC
@@ -210,12 +224,11 @@ switching-architectures
 through
 tikzmark
 topaths
-topaths.arcthrough
 tqft
-transformations.mirror
 trees
 turtle
 views
+zx-calculus
 #endkeyvals
 
 ### < Keys > ###

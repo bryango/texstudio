@@ -1,5 +1,5 @@
 # todonotes.sty
-# Salim 2008/11/09; A. Weder 2010/06/04; Matthew Bertucci 9/21/2021 for v1.1.5
+# Salim 2008/11/09; A. Weder 2010/06/04; Matthew Bertucci 2023/01/31 for v1.1.6
 # http://midtiby.blogspot.com/
 # http://www.ctan.org/tex-archive/help/Catalogue/entries/todonotes.html
 
@@ -7,6 +7,7 @@
 #include:xkeyval
 #include:xcolor
 #include:tikz
+#include:tikzlibrarypositioning
 #include:calc
 
 #keyvals:\usepackage/todonotes#c
@@ -33,6 +34,7 @@ bordercolor=#%color
 tickmarkheight=##L
 textwidth=##L
 textsize=%<fontsize csname%>
+format=%<csname%>
 prependcaption={%<text%>}
 loadshadowlibrary
 shadow
@@ -40,11 +42,16 @@ dvistyle
 figwidth=##L
 #endkeyvals
 
+#ifOption:loadshadowlibrary
+#include:tikzlibraryshadows
+#endif
+
 \todo{text%todo}#D
 \todo[options%keyvals]{text%todo}#D
 \setuptodonotes{options%keyvals}
+\todostyle{name%specialDef}{options%keyvals}#s#%todonotesstyle
 
-#keyvals:\todo,\setuptodonotes
+#keyvals:\todo,\setuptodonotes,\todostyle
 disable
 color=#%color
 backgroundcolor=#%color
@@ -54,6 +61,7 @@ bordercolor=#%color
 shadow
 noshadow
 tickmarkheight=##L
+format=%<csname%>
 line
 noline
 inline
@@ -74,12 +82,18 @@ noinlinepar
 \missingfigure{text%todo}#D
 \missingfigure[options%keyvals]{text%todo}#D
 
-#keyvals:\missingfigure
+#keyvals:\missingfigure,\setuptodonotes,\todostyle
 figwidth=##L
 figheight=##L
 figcolor=#%color
 #endkeyvals
 
+#keyvals:\todo,\missingfigure,\setuptodonotes,\todostyle
+%todonotesstyle
+#endkeyvals
+
 \listoftodos
 \listoftodos[name]
 \todototoc
+
+\todoformat{arg}#*

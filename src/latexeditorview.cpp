@@ -95,6 +95,9 @@ private:
 	QPoint lastMousePressLeft;
 	bool isDoubleClick;  // event sequence of a double click: press, release, double click, release - this is true on the second release
     Qt::KeyboardModifiers modifiersWhenPressed;
+
+    int contextMenu_row=-1;
+    int contextMenu_col=-1;
 };
 
 static const QString LRMStr = QChar(LRM);
@@ -106,6 +109,10 @@ bool DefaultInputBinding::runMacros(QKeyEvent *event, QEditor *editor)
 	QDocumentLine line = editor->cursor().selectionStart().line();
 	int column = editor->cursor().selectionStart().columnNumber();
 	QString prev = line.text().mid(0, column) + event->text(); //TODO: optimize
+    if(event->text().isEmpty() && event->key()==Qt::Key_Tab){
+        // workaround for #2866 (tab as trigger in macro on osx)
+        prev+="\t";
+    }
 	foreach (const Macro &m, completerConfig->userMacros) {
 		if (!m.isActiveForTrigger(Macro::ST_REGEX)) continue;
 		if (!m.isActiveForLanguage(language)) continue;
@@ -208,7 +215,7 @@ bool DefaultInputBinding::keyPressEvent(QKeyEvent *event, QEditor *editor)
 		}
 		return true;
 	}
-	if (!event->text().isEmpty()) {
+    if (!event->text().isEmpty() || event->key()==Qt::Key_Tab) {
 		if (!editor->flag(QEditor::Overwrite) && runMacros(event, editor))
 			return true;
 		if (autoInsertLRM(event, editor))
@@ -300,7 +307,7 @@ bool DefaultInputBinding::mouseReleaseEvent(QMouseEvent *event, QEditor *editor)
 				emit edView->gotoDefinition(cursor);
 				return true;
 			case LinkOverlay::FileOverlay:
-                emit edView->openFile(lo.text());
+                emit edView->openFile(lo.m_link.isEmpty() ? lo.text() : lo.m_link);
 				return true;
 			case LinkOverlay::UrlOverlay:
 				if (!QDesktopServices::openUrl(lo.text())) {
@@ -370,7 +377,10 @@ bool DefaultInputBinding::contextMenuEvent(QContextMenuEvent *event, QEditor *ed
 			bool removePreviewActionFound = false;
 			foreach (QAction *act, baseActions) {
 				if (act->objectName().endsWith("removePreviewLatex")) {
-					act->setData(posInDocCoordinates);
+                    // inline preview context menu supplies the calling point in doc coordinates as data
+                    contextMenu_row = editor->document()->indexOf(editor->lineAtPosition(posInDocCoordinates));
+                    // slight performance penalty for use of lineNumber(), which is not stictly necessary because
+                    // we convert it back to a QDocumentLine, but easier to handle together with the other cases
 					contextMenu->addAction(act);
 					removePreviewActionFound = true;
 					break;
@@ -381,10 +391,15 @@ bool DefaultInputBinding::contextMenuEvent(QContextMenuEvent *event, QEditor *ed
 
 			QVariant vPixmap = cursor.line().getCookie(QDocumentLine::PICTURE_COOKIE);
 			if (vPixmap.isValid()) {
-				(contextMenu->addAction("Copy Image", edView, SLOT(copyImageFromAction())))->setData(vPixmap);
-				(contextMenu->addAction("Save Image As...", edView, SLOT(saveImageFromAction())))->setData(vPixmap);
+                (contextMenu->addAction(LatexEditorView::tr("Copy Image"), edView, SLOT(copyImageFromAction())))->setData(vPixmap);
+                (contextMenu->addAction(LatexEditorView::tr("Save Image As..."), edView, SLOT(saveImageFromAction())))->setData(vPixmap);
 			}
 			contextMenu->exec(event->globalPos());
+
+            // reset context menu position
+            contextMenu_row=-1;
+            contextMenu_col=-1;
+
 			return true;
 		}
 	}
@@ -465,8 +480,19 @@ bool DefaultInputBinding::contextMenuEvent(QContextMenuEvent *event, QEditor *ed
 			tk = tl.at(i);
 
 		if (tk.type == Token::file) {
+            Token cmdTk=Parsing::getCommandTokenFromToken(tl,tk);
+            QString fn=tk.getText();
+            if(cmdTk.getText()=="\\subimport"){
+                int i=tl.indexOf(cmdTk);
+                TokenList tl2=tl.mid(i); // in case of several cmds in one line
+                QString path=Parsing::getArg(tl,Token::definition);
+                if(!path.endsWith("/")){
+                    path+="/";
+                }
+                fn=path+fn;
+            }
 			QAction *act = new QAction(LatexEditorView::tr("Open %1").arg(tk.getText()), contextMenu);
-			act->setData(tk.getText());
+            act->setData(fn);
 			edView->connect(act, SIGNAL(triggered()), edView, SLOT(openExternalFile()));
 			contextMenu->addAction(act);
 		}
@@ -575,6 +601,10 @@ bool DefaultInputBinding::contextMenuEvent(QContextMenuEvent *event, QEditor *ed
 		contextMenu->addSeparator();
 	}
 	contextMenu->addActions(baseActions);
+    // set context menu position
+    contextMenu_row=cursor.anchorLineNumber();
+    contextMenu_col=cursor.anchorColumnNumber();
+
 	if (validPosition) {
 		contextMenu->addSeparator();
 
@@ -591,6 +621,11 @@ bool DefaultInputBinding::contextMenuEvent(QContextMenuEvent *event, QEditor *ed
 		curPoint.ry() += editor->document()->getLineSpacing();
         contextMenu->exec(editor->mapToGlobal(editor->mapFromContents(curPoint.toPoint())));
 	}
+    // reset position of context menu
+    contextMenu_row=-1;
+    contextMenu_col=-1;
+
+
 	event->accept();
 
 	return true;
@@ -630,6 +665,7 @@ LatexEditorView::LatexEditorView(QWidget *parent, LatexEditorViewConfig *aconfig
 	editor->setProperty("latexEditor", QVariant::fromValue<LatexEditorView *>(this));
 
 	lineMarkPanel = new QLineMarkPanel;
+    lineMarkPanel->setCursor(Qt::PointingHandCursor);
 	lineMarkPanelAction = codeeditor->addPanel(lineMarkPanel, QCodeEdit::West, false);
 	lineNumberPanel = new QLineNumberPanel;
     lineNumberPanelAction = codeeditor->addPanel(lineNumberPanel, QCodeEdit::West, false);
@@ -969,12 +1005,30 @@ void LatexEditorView::checkForLinkOverlay(QDocumentCursor cursor)
 	if (validPosition) {
 		QDocumentLineHandle *dlh = cursor.line().handle();
 
+        TokenList tl = dlh->getCookieLocked(QDocumentLine::LEXER_COOKIE).value<TokenList>();
 		Token tk = Parsing::getTokenAtCol(dlh, cursor.columnNumber());
 
 		if (tk.type == Token::labelRef || tk.type == Token::labelRefList) {
 			setLinkOverlay(LinkOverlay(tk, LinkOverlay::RefOverlay));
 		} else if (tk.type == Token::file) {
-			setLinkOverlay(LinkOverlay(tk, LinkOverlay::FileOverlay));
+            Token cmdTk=Parsing::getCommandTokenFromToken(tl,tk);
+            QString fn=tk.getText();
+            if(cmdTk.getText()=="\\subimport"){
+                int i=tl.indexOf(cmdTk);
+                TokenList tl2=tl.mid(i); // in case of several cmds in one line
+                QString path=Parsing::getArg(tl,Token::definition);
+                if(!path.endsWith("/")){
+                    path+="/";
+                }
+                fn=path+fn;
+            }
+            if(document->getStateImportedFile()){
+                fn+="#";  // mark as relative to current file (subimport -> input)
+            }
+
+            LinkOverlay lo(tk, LinkOverlay::FileOverlay);
+            lo.m_link=fn;
+            setLinkOverlay(lo);
 		} else if (tk.type == Token::url) {
 			setLinkOverlay(LinkOverlay(tk, LinkOverlay::UrlOverlay));
 		} else if (tk.type == Token::package) {
@@ -1442,7 +1496,27 @@ QList<QAction *> LatexEditorView::getBaseActions()
 void LatexEditorView::setBaseActions(QList<QAction *> baseActions)
 {
 	if (!defaultInputBinding) return;
-	defaultInputBinding->baseActions = baseActions;
+    defaultInputBinding->baseActions = baseActions;
+}
+/*!
+ * \brief return the line row where context menu was started
+ * DefaultInputBinding only
+ * \return
+ */
+int LatexEditorView::getLineRowforContexMenu()
+{
+    if (!defaultInputBinding) return -1;
+    return defaultInputBinding->contextMenu_row;
+}
+/*!
+ * \brief return the line column where context menu was started
+ * DefaultInputBinding only
+ * \return
+ */
+int LatexEditorView::getLineColforContexMenu()
+{
+    if (!defaultInputBinding) return -1;
+    return defaultInputBinding->contextMenu_col;
 }
 
 void LatexEditorView::setSpellerManager(SpellerManager *manager)
@@ -1784,6 +1858,9 @@ void LatexEditorView::openExternalFile()
 	QAction *act = qobject_cast<QAction *>(sender());
 	QString name = act->data().toString();
     name.replace("\\string~",QDir::homePath());
+    if(document->getStateImportedFile()){
+        name+="#";
+    }
 	if (!name.isEmpty())
 		emit openFile(name);
 }
@@ -2040,33 +2117,7 @@ void LatexEditorView::documentContentChanged(int linenr, int count)
 		for (int i = linenr - lookBehind; i < editor->document()->lineCount(); i++) {
 			QDocumentLine line = editor->document()->line(i);
 			if (!line.isValid()) break;
-			LineInfo temp;
-			temp.line = line.handle();
-			temp.text = line.text();
-            // blank irrelevant content, i.e. commands, non-text, comments, verbatim
-            QDocumentLineHandle *dlh = line.handle();
-            TokenList tl = dlh->getCookieLocked(QDocumentLine::LEXER_COOKIE).value<TokenList>();
-            if(tl.isEmpty()){
-                // special treatment of in verbatim env, as no tokens are generated
-                temp.text.fill(' ',temp.text.length());
-            }
-            foreach(const Token &tk,tl){
-                if(tk.type==Token::word && (tk.subtype==Token::none||tk.subtype==Token::text))
-                    continue;
-                if(tk.type==Token::punctuation && (tk.subtype==Token::none||tk.subtype==Token::text))
-                    continue;
-                if(tk.type==Token::symbol && (tk.subtype==Token::none||tk.subtype==Token::text))
-                    continue; // don't blank symbol like '~'
-                if(tk.type==Token::braces && tk.subtype==Token::text){
-                    //remove braces around text argument
-                    temp.text.replace(tk.start,1,QString(' '));
-                    temp.text.replace(tk.start+tk.length-1,1,QString(' '));
-                    continue;
-                }
-                temp.text.replace(tk.start,tk.length,QString(tk.length,' '));
-            }
-
-			changedLines << temp;
+			changedLines << LineInfo(line.handle());
 			if (line.firstChar() == -1) {
                 emit linesChanged(speller ? speller->name() : "<none>", document, changedLines, truefirst);
 				truefirst += changedLines.size();
@@ -3298,6 +3349,7 @@ LinkOverlay::LinkOverlay(const LinkOverlay &o)
 	if (o.isValid()) {
 		docLine = o.docLine;
 		formatRange = o.formatRange;
+        m_link = o.m_link;
 	}
 }
 

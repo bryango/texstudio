@@ -1,40 +1,85 @@
 # ProfLycee package
-# Matthew Bertucci 2022/11/21 for v2.0.4
+# Matthew Bertucci 2023/01/25 for v2.1.8
 
+#include:mathtools
 #include:xcolor
 # xcolor loaded with table and svgnames options
 #include:tikz
-# loads calc, decorations, decorations.pathreplacing, decorations.markings, arrows,
-# arrows.meta, babel, shapes.geometric, and decorations.pathmorphing tikzlibraries
 #include:tkz-tab
-#include:mathtools
 #include:pgf
 #include:pgffor
 #include:ifthen
-#include:xparse
 #include:xkeyval
 #include:xstring
 #include:xintexpr
 #include:xintbinhex
+#include:xinttools
+#include:randomlist
 #include:simplekv
 #include:listofitems
 #include:tabularray
-#include:hvlogos
+#include:hologo
+#include:fancyvrb
 #include:siunitx
 #include:fontawesome5
-#include:csvsimple-l3
+#include:tikzlibrarycalc
+#include:tikzlibrarydecorations
+#include:tikzlibrarydecorations.pathreplacing
+#include:tikzlibrarydecorations.markings
+#include:tikzlibrarybabel
+#include:tikzlibraryshapes.geometric
+#include:tikzlibrarydecorations.pathmorphing
 #include:tcolorbox
-# tcolorbox loaded with most option and minted library loaded by default
+#include:tcolorboxlibrarymost
+#include:tcolorboxlibraryminted
 #include:iftex
 #include:piton
-#include:fancyvrb
-#include:pythontex
 
 #keyvals:\usepackage/ProfLycee#c
 nonshellescape
 build
-csvii
+pythontex
 #endkeyvals
+
+#ifOption:pythontex
+#include:pythontex
+\begin{CodePythontex}#V
+\begin{CodePythontex}[options%keyvals]#V
+\end{CodePythontex}
+#keyvals:\begin{CodePythontex}
+Largeur=##L
+Centre#true,false
+TaillePolice=%<font commands%>
+EspacementVertical=%<factor%>
+Lignes#true,false
+#endkeyvals
+\begin{ConsolePythontex}#V
+\begin{ConsolePythontex}[options%keyvals]#V
+\end{ConsolePythontex}
+#keyvals:\begin{ConsolePythontex}
+Largeur=##L
+Centre#true,false
+TaillePolice=%<font commands%>
+EspacementVertical=%<factor%>
+Label#true,false
+#endkeyvals
+\begin{pythont}#S
+\begin{tcpythontexcode}#S
+\begin{tcpythontexcode}[width]#S
+\begin{tcpythontexcodeno}#S
+\begin{tcpythontexcodeno}[width]#S
+\CODPYfonte#S
+\CODPYlargeur#S
+\CODPYstretch#S
+\CSPYfonte#S
+\CSPYlargeur#S
+\CSPYstretch#S
+\end{pythont}#S
+\end{tcpythontexcode}#S
+\end{tcpythontexcodeno}#S
+\hookcenterpost#S
+\hookcenterpre#S
+#endif
 
 #ifOption:csvii
 #include:csvsimple-legacy
@@ -65,6 +110,18 @@ Couleur=#%color
 Style={%<TikZ clés%>}
 xl=%<num%>
 xr=%<num%>
+#endkeyvals
+
+## Résolution approchée d’une équation ##
+\ResolutionApprochee{équation}
+\ResolutionApprochee{équation}[macro]
+\ResolutionApprochee[options%keyvals]{équation}
+\ResolutionApprochee[options%keyvals]{équation}[macro]
+
+#keyvals:\ResolutionApprochee
+Precision=%<integer%>
+Intervalle=%<min:max%>
+Variable=%<variable%>
 #endkeyvals
 
 ## Présentation d’une solution d’équation par balayage ##
@@ -106,9 +163,14 @@ Precision=%<nombre%>
 Stretch=%<factor%>
 Balayage#true,false
 Calculatrice#true,false
+Simple#true,false
 Majuscule#true,false
+Exact#true,false
+Conclusion#true,false
 Sens=%<< ou >%>
 #endkeyvals
+
+\CompteurSeuil#*
 
 ## Suites récurrentes et « toile » ##
 \ToileRecurrence[options%keyvals]
@@ -168,10 +230,10 @@ HautRes=%<hauteur%>
 \begin{CodePythonLst}*[largeur%l]{tcolorbox options}#V
 \end{CodePythonLst}
 
-\CodePythonLstFichier{tcolorbox options}{file}#i
-\CodePythonLstFichier[largeur%l]{tcolorbox options}{file}#i
-\CodePythonLstFichier*{tcolorbox options}{file}#i
-\CodePythonLstFichier*[largeur%l]{tcolorbox options}{file}#i
+\CodePythonLstFichier{tcolorbox options}{file}
+\CodePythonLstFichier[largeur%l]{tcolorbox options}{file}
+\CodePythonLstFichier*{tcolorbox options}{file}
+\CodePythonLstFichier*[largeur%l]{tcolorbox options}{file}
 
 ## Code Python via le package piton ##
 \begin{CodePiton}#V
@@ -180,37 +242,18 @@ HautRes=%<hauteur%>
 
 #keyvals:\begin{CodePiton}
 Lignes#true,false
+Gobble#true,false
 Largeur=##L
+TaillePolice=%<font commands%>
 Alignement=#justify,left,flush left,right,flush right,center,flush center
 #endkeyvals
 
 ## Code & Console Python, via les packages Pythontex ou Minted ##
-\begin{CodePythontex}#V
-\begin{CodePythontex}[options%keyvals]#V
-\end{CodePythontex}
-
-#keyvals:\begin{envcodepythontex}
-Largeur=##L
-Centre#true,false
-Lignes#true,false
-#endkeyvals
-
 \begin{CodePythonMinted}#V
 \begin{CodePythonMinted}[largeur%l][tcolorbox options]#V
 \begin{CodePythonMinted}*#V
 \begin{CodePythonMinted}*[largeur%l][tcolorbox options]#V
 \end{CodePythonMinted}
-
-## Code & Console Python, version Pythontex ou Minted ##
-\begin{ConsolePythontex}#V
-\begin{ConsolePythontex}[options%keyvals]#V
-\end{ConsolePythontex}
-
-#keyvals:\begin{ConsolePythontex}
-Largeur=##L
-Centre#true,false
-Label#true,false
-#endkeyvals
 
 ## Pseudo-Code ##
 \begin{PseudoCode}
@@ -238,6 +281,11 @@ Label#true,false
 \CartoucheCapytale*{code capytale}
 \CartoucheCapytale*[prefix]{code capytale}
 
+## Présentation de code LaTeX ##
+\begin{PresentationCode}[color]{tcolorbox options}#V
+\begin{PresentationCode}{tcolorbox options}#V
+\end{PresentationCode}
+
 ## Pavé droit « simple » ##
 \PaveTikz
 \PaveTikz[options%keyvals]
@@ -253,6 +301,7 @@ Epaisseur=%<épaisseur%>
 Aff#true,false
 Plein#true,false
 Cube#true,false
+Math#true,false
 #endkeyvals
 
 ## Tétraèdre « simple » ##
@@ -269,6 +318,7 @@ Sommets=%<A1§...§A8%>
 Epaisseur=%<épaisseur%>
 Aff#true,false
 Plein#true,false
+Math#true,false
 #endkeyvals
 
 ## Cercle trigo ##
@@ -361,6 +411,8 @@ Affs#true,false
 #keyvals:\AxesTikz
 Epaisseur=##L
 Police=%<font commands%>
+ElargirOx=%<num%>
+ElargirOy=%<num%>
 Labelx=%<text%>
 Labely=%<text%>
 AffLabel=#x,y,xy
@@ -386,10 +438,10 @@ Annee#true,false
 #endkeyvals
 
 \FenetreTikz
-\FenetreSimpleTikz{liste abscisses}{liste ordonnées}
-\FenetreSimpleTikz{liste abscisses}<options axe Oy>{liste ordonnées}
-\FenetreSimpleTikz<options axe Ox>{liste abscisses}{liste ordonnées}
-\FenetreSimpleTikz<options axe Ox>{liste abscisses}<options axe Oy>{liste ordonnées}
+\FenetreSimpleTikz{liste valx}{liste valy}
+\FenetreSimpleTikz<opt axe Ox>{liste valx}<opt axe Oy>{liste valy}
+\FenetreSimpleTikz(opt axes)<opt axe Ox>{liste valx}<opt axe Oy>{liste valy}
+\FenetreSimpleTikz[opt](opt axes)<opt axe Ox>{liste valx}<opt axe Oy>{liste valy}
 
 \OrigineTikz#*
 \OrigineTikz[options%keyvals]#*
@@ -561,6 +613,37 @@ AfficheM#true,false
 AfficheCadre#true,false
 #endkeyvals
 
+## Nombres aléatoires ##
+\NbAlea{a}{b}{macro%cmd}#d
+\NbAlea[n]{a}{b}{macro%cmd}#d
+\VarNbAlea{macro%cmd}{calculs}#d
+
+\TirageAleatoireEntiers{macro%cmd}#d
+\TirageAleatoireEntiers[options%keyvals]{macro%cmd}#d
+
+#keyvals:\TirageAleatoireEntiers
+ValMin=%<nombre%>
+ValMax=%<nombre%>
+NbVal=%<nombre%>
+Sep=%<séparateur%>
+Tri=#non,croissant,decroissant
+Repetition#true,false
+#endkeyvals
+
+## Combinatoire ##
+\Arrangement{p}{n}
+\Arrangement[option%keyvals]{p}{n}
+\Arrangement*{p}{n}
+\Arrangement*[option%keyvals]{p}{n}
+\Combinaison{p}{n}
+\Combinaison[option%keyvals]{p}{n}
+\Combinaison*{p}{n}
+\Combinaison*[option%keyvals]{p}{n}
+
+#keyvals:\Arrangement,\Arrangement*,\Combinaison,\Combinaison*
+Formule#true,false
+#endkeyvals
+
 ## Conversions binaire/hexadécimal/décimal ##
 \ConversionDecBin{nombre}
 \ConversionDecBin[options%keyvals]{nombre}
@@ -666,18 +749,16 @@ Alea#true,false
 Anegatif#true,false
 #endkeyvals
 
-## PixelART via un fichier csv, en TikZ ##
-\PixelArtTikz{file}#i
-\PixelArtTikz[options%keyvals]{file}#i
+## Simplification de racines ##
+\SimplificationRacine{expression ou calcul}
 
-#keyvals:\PixelArtTikz
-Codes=%<chaîne%>
-Couleurs={%<couleur1,couleur2,...%>}
-Symboles={%<symbol1,symbol2,...%>}
-Correction#true,false
-Symb#true,false
-BordCases#true,false
-Style=%<font commands%>
+## Mesure principale d’un angle ##
+\MesurePrincipale{angle}
+\MesurePrincipale[options%keyvals]{angle}
+
+#keyvals:\MesurePrincipale
+d#true,false
+Crochets#true,false
 #endkeyvals
 
 ## SudoMaths, en TikZ ##
@@ -862,17 +943,6 @@ Pink#B
 Seashell#B
 Teal#B
 
-# from most option of tcolorbox (repeats removed)
-#include:amsmath
-#include:incgraph
-#include:listings
-#include:listingsutf8
-#include:shellesc
-#include:pdfcol
-
-# from minted tcolorbox library
-#include:minted
-
 PLlinux#B
 PLmgray#B
 PLmpurple#B
@@ -888,6 +958,12 @@ vertcapyt#B
 \algomathttPL{text%plain}#S
 \axesafflabel#S
 \axesechellefleche#S
+\axeselargx#S
+\axeselargy#S
+\axesenlargxD#S
+\axesenlargxG#S
+\axesenlargyD#S
+\axesenlargyG#S
 \axesfont#S
 \axeslabelx#S
 \axeslabely#S
@@ -932,19 +1008,11 @@ vertcapyt#B
 \BaMqu#S
 \BaMRemplissage#S
 \basedepart#S
-\begin{PLstats}#S
-\begin{PLstats}[opt]#S
-\begin{PresentationCode}[color]{tcolorbox options}#SV
-\begin{PresentationCode}{tcolorbox options}#SV
-\begin{pythont}#S
-\begin{tcpythontexcode}#S
-\begin{tcpythontexcode}[width]#S
-\begin{tcpythontexcodeno}#S
-\begin{tcpythontexcodeno}[width]#S
 \BorneInf#S
 \BorneSup#S
 \calculargument#S
 \CalculInterneTermeRecurrence{arg1}{arg2}{arg3}{arg4}#S
+\CalculSeuil{arg1}{arg2}{arg3}{arg4}{arg5}#S
 \CFcoulcmd#S
 \CFcouleur#S
 \CFcoulres#S
@@ -962,8 +1030,8 @@ vertcapyt#B
 \chbrut#S
 \chiffre#S
 \CODPITalign#S
+\CODPITfonte#S
 \CODPITlargeur#S
-\CODPYlargeur#S
 \COEFF#S
 \COEFFA#S
 \Coeffa#S
@@ -972,7 +1040,6 @@ vertcapyt#B
 \convertbasedixtobase{arg1}{arg2}#S
 \convertbasetobasedix{arg1}{arg2}#S
 \cpt#S
-\CSPYlargeur#S
 \denominateur#S
 \densexpo{arg}#S
 \densnorm{arg}#S
@@ -982,11 +1049,9 @@ vertcapyt#B
 \DHTstretch#S
 \DHTva#S
 \DHTvb#S
-\end{PLstats}#S
-\end{PresentationCode}#S
-\end{pythont}#S
-\end{tcpythontexcode}#S
-\end{tcpythontexcodeno}#S
+\DICHOTOinterv#S
+\DICHOTOstep#S
+\DICHOTOvar#S
 \extractcoeff{liste}{numero}#S
 \fctdecx#S
 \fprimea#S
@@ -995,8 +1060,6 @@ vertcapyt#B
 \GRPHPROBcoulsurf#S
 \GRPHPROBhauteur#S
 \GRPHPROBlarg#S
-\hookcenterpost#S
-\hookcenterpre#S
 \ifinal#S
 \iinit#S
 \indice#S
@@ -1013,10 +1076,6 @@ vertcapyt#B
 \NBdepart#S
 \nbgrp#S
 \numerateur#S
-\PATchiffres#S
-\PATcouleurs#S
-\PATlettres#S
-\PATtaille#S
 \PaveA#S
 \PaveB#S
 \PaveC#S
@@ -1041,10 +1100,6 @@ vertcapyt#B
 \PFTetraPf#S
 \PFTetraSommets#S
 \PFTetraThick#S
-\pixchf#S
-\pixcnt#S
-\pixcol#S
-\pixpos#S
 \PLAPeptrait#S
 \PLAPespfeuille#S
 \PLAPespniv#S
@@ -1172,6 +1227,11 @@ vertcapyt#B
 \SRninit#S
 \SRprec#S
 \SRuninit#S
+\TAEEmax#S
+\TAEEmin#S
+\TAEEnb#S
+\TAEEsep#S
+\TAEEtri#S
 \tdscouleur#S
 \tdshaut#S
 \tdslarg#S
@@ -1197,6 +1257,8 @@ vertcapyt#B
 \TGTXL#S
 \TGTXR#S
 \theCFnum#S
+\TriListeCroiss{arg}#S
+\TriListeDecroiss{arg}#S
 \TriPartieA#S
 \TriPartieB#S
 \TriPartieC#S

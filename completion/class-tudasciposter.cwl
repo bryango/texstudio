@@ -6,9 +6,9 @@
 #include:class-scrartcl
 #include:tudafonts
 #include:tikz
-# loads calc tikzlibrary
+#include:tikzlibrarycalc
 #include:tcolorbox
-# loads poster tcolorbox library
+#include:tcolorboxlibraryposter
 #include:pdfcol
 #include:geometry
 #include:tudarules

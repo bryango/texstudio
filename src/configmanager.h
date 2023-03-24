@@ -121,6 +121,7 @@ public:
 	QTranslator *basicTranslator;
 
 	//editor
+	bool onlyMonospacedFonts;
 	LatexEditorViewConfig *const editorConfig;
 	//completion
 	LatexCompleterConfig *const completerConfig;
@@ -371,4 +372,5 @@ private slots:
 private:
 	void updateManagedOptionObjects(ManagedProperty *property);
 };
+Q_DECLARE_METATYPE(ConfigManager::PreviewMode);
 #endif

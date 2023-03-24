@@ -7,25 +7,14 @@
 #include:xparse
 #include:fontawesome5
 #include:tcolorbox
-# loads skins, xparse, breakable, minted, and listings tcolorbox libraries
-# loads shapes.geometric tikzlibrary
+#include:tcolorboxlibraryskins
+#include:tcolorboxlibrarybreakable
+#include:tcolorboxlibraryminted
+#include:tcolorboxlibrarylistings
+#include:tikzlibraryshapes.geometric
 #include:varwidth
 #include:xcolor
 #include:etoolbox
-
-# from skins tcolorbox library
-#include:tikz
-
-# from breakable tcolorbox library
-#include:pdfcol
-
-# from minted tcolorbox library
-#include:minted
-
-# from listings tcolorbox library
-#include:listings
-#include:pdftexcmds
-#include:shellesc
 
 \begin{codebox}{title%text}#V
 \begin{codebox}[options%keyvals]{title%text}#V
@@ -34,10 +23,10 @@
 \begin{codebox*}[options%keyvals]{title%text}#V
 \end{codebox*}
 
-\codefile{title%text}{file}#i
-\codefile[options%keyvals]{title%text}{file}#i
-\codefile*{title%text}{file}#i
-\codefile*[options%keyvals]{title%text}{file}#i
+\codefile{title%text}{file}
+\codefile[options%keyvals]{title%text}{file}
+\codefile*{title%text}{file}
+\codefile*[options%keyvals]{title%text}{file}
 
 \begin{codeview}{title%text}#V
 \begin{codeview}[options%keyvals]{title%text}#V
@@ -46,10 +35,10 @@
 \begin{codeview*}[options%keyvals]{title%text}#V
 \end{codeview*}
 
-\cvfile{title%text}{file}#i
-\cvfile[options%keyvals]{title%text}{file}#i
-\cvfile*{title%text}{file}#i
-\cvfile*[options%keyvals]{title%text}{file}#i
+\cvfile{title%text}{file}
+\cvfile[options%keyvals]{title%text}{file}
+\cvfile*{title%text}{file}
+\cvfile*[options%keyvals]{title%text}{file}
 
 \codeset{options%keyvals}
 

@@ -31,10 +31,10 @@ nowarn#true,false
 #endkeyvals
 
 ## 7.1 Defining Index/Glossary Databases ##
-\loadgidx{file}{title%text}#i
-\loadgidx[options%keyvals]{file}{title%text}#i
-\newgidx{db}{title%text}#s#%db
-\newgidx[options%keyvals]{db}{title%text}#s#%db
+\loadgidx{file}{title%text}
+\loadgidx[options%keyvals]{file}{title%text}
+\newgidx{db%specialDef}{title%text}#s#%db
+\newgidx[options%keyvals]{db%specialDef}{title%text}#s#%db
 
 #keyvals:\loadgidx,\newgidx
 showgroups#true,false
@@ -190,7 +190,7 @@ condition={%<condition%>}
 \datagidxextendedtoascii#*
 \datagidxgroupheader#*
 \datagidxgroupsep#*
-\datagidxhighoptfilename{filename}#*
+\datagidxhighoptfilename{filename%file}#*
 \datagidxindent#*
 \datagidxitem#*
 \datagidxlastlabel#*

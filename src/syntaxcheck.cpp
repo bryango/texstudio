@@ -593,7 +593,7 @@ void SyntaxCheck::checkLine(const QString &line, Ranges &newRanges, StackEnviron
             }else{
                 elem.format=mFormatList["math"];
             }
-            if(tk.type==Token::braces){
+            if(tk.type==Token::braces || tk.type==Token::openBrace){
                 // add to active env
                 Environment env;
                 env.name = "math";
@@ -603,10 +603,18 @@ void SyntaxCheck::checkLine(const QString &line, Ranges &newRanges, StackEnviron
                 env.level = tk.level;
                 env.startingColumn=tk.start+1;
                 env.endingColumn=tk.start+tk.length-1;
+                if(tk.type==Token::openBrace){
+                    env.endingColumn=-1;
+                }
                 // avoid stacking same env (e.g. braces in braces, see #2411 )
                 Environment topEnv=activeEnv.top();
                 if(topEnv.name!=env.name)
                     activeEnv.push(env);
+            }
+            if(tk.type==Token::closeBrace){
+                if(activeEnv.top().name=="math"){
+                    activeEnv.pop();
+                }
             }
             newRanges.append(elem);
         }
@@ -1174,8 +1182,8 @@ void SyntaxCheck::checkLine(const QString &line, Ranges &newRanges, StackEnviron
 		if (tk.subtype == Token::keyVal_val) {
 			//figure out keyval
 			QString word = line.mid(tk.start, tk.length);
-            if(word=="{"){
-                continue; // assume open brace is always valid
+            if(word=="{" || tk.type==Token::braces){
+                continue; // assume open brace is always valid or element in braces can't be checked (will get here again w/o braces)
             }
 			// first get command
             QString command = tk.optionalCommandName;
@@ -1237,6 +1245,13 @@ void SyntaxCheck::checkLine(const QString &line, Ranges &newRanges, StackEnviron
 					}
                     if(options.startsWith("%")){
                         if (!ltxCommands->possibleCommands[options].contains(word)) {
+                            // special treatement for %color (mix)
+                            if(options=="%color"){
+                                if(word=="!") continue;
+                                bool ok;
+                                word.toInt(&ok);
+                                if(ok) continue; // number !
+                            }
                             Error elem;
                             elem.range = QPair<int, int>(tk.start, tk.length);
                             elem.type = ERR_unrecognizedKeyValues;
@@ -1265,7 +1280,11 @@ void SyntaxCheck::checkLine(const QString &line, Ranges &newRanges, StackEnviron
                 if(altEnvs.contains(key)){
                     Error elem;
                     int start= it->dlh==dlh ? it->startingColumn : 0;
-                    elem.range = QPair<int, int>(start, commentStart>=0 ? commentStart-start : line.length()-start);
+                    int length= it->endingColumn-start;
+                    if(length<0){
+                            length= commentStart>=0 ? commentStart-start : line.length()-start;
+                    }
+                    elem.range = QPair<int, int>(start, length);
                     elem.type = ERR_highlight;
                     elem.format=mFormatList.value(key);
                     newRanges.prepend(elem);  // draw this first and then other on top (e.g. keyword highlighting) !

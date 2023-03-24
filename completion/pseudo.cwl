@@ -1,5 +1,5 @@
 # pseudo package
-# Matthew Bertucci 2022/07/16 for v1.2
+# Matthew Bertucci 2023/01/30 for v1.2.2
 
 #include:expl3
 #include:xparse
@@ -10,9 +10,10 @@
 #include:l3keys2e
 #include:aliascnt
 #include:etoolbox
+#include:tcolorboxlibraryhooks
 
 \pseudoset{options%keyvals}
-\pseudodefinestyle{name}{options%keyvals}#s#%pseudostyle
+\pseudodefinestyle{name%specialDef}{options%keyvals}#s#%pseudostyle
 
 \begin{pseudo}
 \begin{pseudo}[options%keyvals]
@@ -60,6 +61,9 @@ indent-mark-color=#%color
 indent-mark-shift=##L
 indent-mark-width=##L
 indent-text=%<text%>
+init=%<commands%>
+init-append=%<commands%>
+init-prepend=%<commands%>
 kw
 kwfont=%<command%>
 label=%<commands%>

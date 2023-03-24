@@ -21,7 +21,7 @@
 #include:titletoc
 #include:caption
 #include:tabularray
-# loads booktabs tblrlibrary
+#include:tabularraylibrarybooktabs
 #include:listings
 #include:amsthm
 #include:thmtools
@@ -430,7 +430,7 @@ lstlistlistingname=%<代码目录标题名%>
 lstlistingname=%<代码题注标题名%>
 #endkeyvals
 
-\deftcbstyle{name}{tcolorbox keys}#s#%easybooktcbstyle
+\deftcbstyle{name%specialDef}{tcolorbox keys}#s#%easybooktcbstyle
 \addtotcbstyle{name}{tcolorbox keys}
 
 #keyvals:\tcbset,\begin{tcolorbox},\tcbsetforeverylayer,\tcbox,\newtcolorbox,\renewtcolorbox,\newtcbox,\renewtcbox,\tcolorboxenvironment,\tcbsubtitle,\tcbsidebyside,\tcbsubskin,\tcbincludegraphics,\tcbincludepdf,\begin{tcbraster},\begin{tcbitemize},\tcbitem,\begin{tcboxedraster},\begin{tcboxeditemize},\begin{tcblisting},\tcbinputlisting,\newtcblisting,\renewtcblisting,\newtcbinputlisting,\renewtcbinputlisting,\newtcbtheorem,\renewtcbtheorem,\tcboxmath,\tcbhighmath,\usetcboxarray,\consumetcboxarray,\posterbox,\begin{posterboxenv},\tcboxfit,\newtcboxfit,\renewtcboxfit,\DeclareTColorBox,\NewTColorBox,\RenewTColorBox,\ProvideTColorBox,\DeclareTotalTColorBox,\NewTotalTColorBox,\RenewTotalTColorBox,\ProvideTotalTColorBox,\DeclareTCBox,\NewTCBox,\RenewTCBox,\ProvideTCBox,\DeclareTotalTCBox,\NewTotalTCBox,\RenewTotalTCBox,\ProvideTotalTCBox,\DeclareTCBListing,\NewTCBListing,\RenewTCBListing,\ProvideTCBListing,\DeclareTCBInputListing,\NewTCBInputListing,\RenewTCBInputListing,\ProvideTCBInputListing,\DeclareTCBoxFit,\NewTCBoxFit,\RenewTCBoxFit,\ProvideTCBoxFit,\DeclareTotalTCBoxFit,\NewTotalTCBoxFit,\RenewTotalTCBoxFit,\ProvideTotalTCBoxFit,\tcboxverb,\begin{docCommand},\begin{docCommand*},\begin{docCommands},\begin{docEnvironment},\begin{docEnvironment*},\begin{docEnvironments},\begin{docKey},\begin{docKey*},\begin{docKeys},\begin{docPathOperation},\begin{docPathOperation*},\begin{docPathOperations},\docValue,\docValue*,\docAuxCommand,\docAuxCommand*,\docAuxEnvironment,\docAuxEnvironment*,\docAuxKey,\docAuxKey*,\docCounter,\docCounter*,\docLength,\docLength*,\docColor,\docColor*,\begin{dispExample*},\begin{dispListing*},\tcbdocmarginnote
@@ -532,30 +532,6 @@ i
 \begin{description*}
 \begin{description*}[options%keyvals]
 \end{description*}
-
-# from booktabs tblrlibrary
-#include:booktabs
-\toprule
-\toprule[options]
-\midrule
-\midrule[options]
-\cmidrule{i-j}
-\cmidrule[options]{i-j}
-\bottomrule
-\bottomrule[options]
-\cmidrulemore{i-j}
-\morecmidrules
-\begin{booktabs}{preamble%keyvals}#\tabular
-\end{booktabs}
-\begin{longtabs}{preamble%keyvals}#\tabular
-\end{longtabs}
-\begin{talltabs}{preamble%keyvals}#\tabular
-\end{talltabs}
-\specialrule{width}{sep1}{sep2}
-\addrowspace
-\addrowspace[space%l]
-\addlinespace
-\addlinespace[space%l]
 
 # from svgnames option of xcolor
 AliceBlue#B

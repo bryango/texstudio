@@ -5,8 +5,8 @@
 #include:keyval
 #include:ifpdf
 
-\movie[options%keyvals]{poster text}{movie filename}
-\movie{poster text}{movie filename}
+\movie[options%keyvals]{poster text%text}{movie filename%file}
+\movie{poster text%text}{movie filename%file}
 #keyvals:\movie
 autostart
 borderwidth=##L
@@ -42,8 +42,8 @@ start=%<time%>s
 stop
 #endkeyvals
 
-\sound[options%keyvals]{sound poster text}{sound filename}
-\sound{sound poster text}{sound filename}
+\sound[options%keyvals]{sound poster text}{sound filename%file}
+\sound{sound poster text}{sound filename%file}
 #keyvals:\sound
 autostart
 automute

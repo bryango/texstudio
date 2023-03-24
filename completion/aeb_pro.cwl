@@ -69,7 +69,7 @@ ocganime
 \autolabelNum[label]{num}
 \autolabelNum*{num}{description%text}
 \autolabelNum*[label]{num}{description%text}
-\labelName{label}{description%text}#s#%unicodestr
+\labelName{label%specialDef}{description%text}#s#%unicodestr
 \ahyperref{target-label}{text%plain}
 \ahyperref[options%keyvals]{target-label}{text%plain}
 \ahyperlink{target-label}{text%plain}
@@ -408,7 +408,7 @@ TransDur=%<seconds%>
 Speed=#Slow,Medium,Fast
 PageDur=%<seconds%>
 #endkeyvals
-\addtoOptAttachments{list-of-files}
+\addtoOptAttachments{list-of-files%file}
 \prjinput{file}#i
 \prjinclude{file}#i
 \prjInputUser{file}#*i

@@ -1,5 +1,5 @@
 # se2thesis class
-# Matthew Bertucci 2022/10/25 for v1.2.0
+# Matthew Bertucci 2023/01/27 for v2.1.0
 
 #include:graphicx
 #include:translations
@@ -21,7 +21,6 @@ logofile={%<path-to-file%>}
 thesistype=#bachelor,bachelorproposal,master,masterproposal,phd,phdproposal
 biblatex#true,false
 colormode=#cmyk,rgb,bw
-fontmode=#original,replacement,auto
 #endkeyvals
 
 #ifOption:class=scrartcl
@@ -66,3 +65,4 @@ fontmode=#original,replacement,auto
 \end{hyp}
 \begin{summary}{label text%text}
 \end{summary}
+\headingdot#*

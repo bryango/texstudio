@@ -12,6 +12,7 @@
 #include "configmanagerinterface.h"
 #include "smallUsefulFunctions.h"
 #include "latexparser/latexparsing.h"
+#include "configmanager.h"
 #include <QtConcurrent>
 
 
@@ -131,7 +132,25 @@ bool LatexDocument::isHidden()
 
 QFileInfo LatexDocument::getFileInfo() const
 {
-	return fileInfo;
+    return fileInfo;
+}
+/*!
+ * \brief declare file as imported file
+ * Imported means imported via \subimport/\import
+ * Included files here are relative to this file
+ * \param state
+ */
+void LatexDocument::setAsImportedFile(bool state)
+{
+    importedFile=state;
+}
+/*!
+ * \brief read state importedFile
+ * \return
+ */
+bool LatexDocument::getStateImportedFile()
+{
+    return importedFile;
 }
 
 QMultiHash<QDocumentLineHandle *, FileNamePair> &LatexDocument::mentionedBibTeXFiles()
@@ -316,7 +335,8 @@ void LatexDocument::patchStructureRemoval(QDocumentLineHandle *dlh, int hint,int
         mUserCommandList.remove(dlh);
 
         QStringList removeIncludes = mIncludedFilesList.values(dlh);
-        if (mIncludedFilesList.remove(dlh) > 0) {
+        removeIncludes.append(mImportedFilesList.values(dlh));
+        if (mIncludedFilesList.remove(dlh) > 0 || mImportedFilesList.remove(dlh)>0) {
             parent->removeDocs(removeIncludes);
             parent->updateMasterSlaveRelations(this);
         }
@@ -420,12 +440,14 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 	/* true means a second run is suggested as packages are loadeed which change the outcome
 	 * e.g. definition of specialDef command, but packages are load at the end of this method.
 	 */
-	//qDebug()<<"begin Patch"<<QTime::currentTime().toString("HH:mm:ss:zzz");
 
 	if (!parent->patchEnabled())
 		return false;
 
 	if (!baseStructure) return false;
+
+    //QElapsedTimer tm ;
+    //tm.start();
 
 	static QRegExp rxMagicTexComment("^%\\ ?!T[eE]X");
 	static QRegExp rxMagicBibComment("^%\\ ?!BIB");
@@ -477,13 +499,14 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 		}
         QtConcurrent::blockingMap(l_dlh,Parsing::simpleLexLatexLine);
 	}
-	QDocumentLineHandle *lastHandle = line(linenr - 1).handle();
-	if (lastHandle) {
-		oldRemainder = lastHandle->getCookieLocked(QDocumentLine::LEXER_REMAINDER_COOKIE).value<TokenStack >();
-		oldCommandStack = lastHandle->getCookieLocked(QDocumentLine::LEXER_COMMANDSTACK_COOKIE).value<CommandStack >();
-	}
     int stoppedAtLine=-1;
-    for (int i = linenr; i < lineCount() && i < linenr + count; i++) {
+    TokenList l_tkFilter;
+    QDocumentLineHandle *lastHandle = line(linenr - 1).handle();
+    if (lastHandle) {
+        oldRemainder = lastHandle->getCookieLocked(QDocumentLine::LEXER_REMAINDER_COOKIE).value<TokenStack >();
+        oldCommandStack = lastHandle->getCookieLocked(QDocumentLine::LEXER_COMMANDSTACK_COOKIE).value<CommandStack >();
+    }
+    for (int i = linenr; i < lineCount() && i < linenr + count; ++i) {
         if (line(i).text() == "\\begin{document}"){
             if(linenr==0 && count==lineCount() && !recheck) {
                 stoppedAtLine=i;
@@ -491,10 +514,51 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
             }
         }
         bool remainderChanged = Parsing::latexDetermineContexts2(line(i).handle(), oldRemainder, oldCommandStack, lp);
-		if (remainderChanged && i + 1 == linenr + count && i + 1 < lineCount()) { // remainder changed in last line which is to be checked
-			count++; // check also next line ...
-		}
-	}
+        bool leaveLoop=false;
+        if(oldRemainder.size()>0){
+            for(int k=0;k<oldRemainder.size();++k){
+                Token tk=oldRemainder.at(k);
+                int idx=l_tkFilter.indexOf(tk);
+                if(idx>=0){
+                    oldRemainder.remove(k); // discard run-away argument
+                    --k;
+                    l_tkFilter.removeAt(idx);
+                    leaveLoop=true;
+                }
+            }
+            if(leaveLoop){
+                // store filtered as remainder into line
+                QDocumentLineHandle *dlh=line(i).handle();
+                dlh->lockForWrite();
+                dlh->setCookie(QDocumentLine::LEXER_REMAINDER_COOKIE, QVariant::fromValue<TokenStack>(oldRemainder));
+                dlh->unlock();
+                continue;
+            }
+
+            for(int k=0;k<oldRemainder.size();++k){
+                Token tk=oldRemainder.at(k);
+                if(tk.type==Token::openBrace && tk.subtype!= Token::text && tk.subtype!= Token::none && tk.argLevel==0){
+                    // redo with filtering out this offending
+                    l_tkFilter.append(tk);
+                }
+            }
+            if(!l_tkFilter.isEmpty()){
+                i=i-ConfigManager::RUNAWAYLIMIT;
+                lastHandle = line(i).handle();
+                if (lastHandle) {
+                    oldRemainder = lastHandle->getCookieLocked(QDocumentLine::LEXER_REMAINDER_COOKIE).value<TokenStack >();
+                    oldCommandStack = lastHandle->getCookieLocked(QDocumentLine::LEXER_COMMANDSTACK_COOKIE).value<CommandStack >();
+                }else{
+                    oldRemainder.clear();
+                    oldCommandStack.clear();
+                }
+                continue;
+            }
+        }
+        if (remainderChanged && i + 1 == linenr + count && i + 1 < lineCount()) { // remainder changed in last line which is to be checked
+            count++; // check also next line ...
+        }
+    }
 	if (linenr >= lineNrStart) {
 		newCount = linenr + count - lineNrStart;
 	}
@@ -564,7 +628,9 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 		}
 		mRefItem.remove(dlh);
 		QStringList removedIncludes = mIncludedFilesList.values(dlh);
+        removedIncludes.append(mImportedFilesList.values(dlh));
 		mIncludedFilesList.remove(dlh);
+        mImportedFilesList.remove(dlh);
 
 		if (mUserCommandList.remove(dlh) > 0) completerNeedsUpdate = true;
 		if (mBibItem.remove(dlh))
@@ -744,6 +810,17 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 				newTodo->setLine(line(i).handle(), i);
                 insertElement(todoList, posTodo++, newTodo);
 			}
+            // specialArg definition
+            if(tk.type == Token::defSpecialArg){
+                QString cmd=Parsing::getCommandFromToken(tk);
+                completerNeedsUpdate = true;
+                QString definition = ltxCommands.specialDefCommands.value(cmd);
+                QString elem = tk.getText();
+                mUserCommandList.insert(line(i).handle(), UserCommandPair(QString(), definition + "%" + elem));
+                if (!removedUserCommands.removeAll(elem)) {
+                    addedUserCommands << elem;
+                }
+            }
 
 			// work on general commands
 			if (tk.type != Token::command && tk.type != Token::commandUnknown)
@@ -939,7 +1016,7 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 			}
 			/// specialDefinition ///
 			/// e.g. definecolor
-			if (ltxCommands.specialDefCommands.contains(cmd)) {
+            /*if (ltxCommands.specialDefCommands.contains(cmd)) {
 				if (!args.isEmpty() ) {
 					completerNeedsUpdate = true;
 					QString definition = ltxCommands.specialDefCommands.value(cmd);
@@ -958,6 +1035,10 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 					foreach (Token mTk, args) {
 						if (mTk.type != type)
 							continue;
+                        if(mTk.subtype == Token::defSpecialArg){
+                            // handled elsewhere
+                            break;
+                        }
 						QString elem = mTk.getText();
 						elem = elem.mid(1, elem.length() - 2); // strip braces
 						mUserCommandList.insert(line(i).handle(), UserCommandPair(QString(), definition + "%" + elem));
@@ -967,47 +1048,49 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 						break;
 					}
 				}
-			}
+            }*/
 
 			///usepackage
-			if (lp.possibleCommands["%usepackage"].contains(cmd)) {
+            if (lp.possibleCommands["%usepackage"].contains(cmd)) {
                 if(firstArg.contains("\\")){
                     // argument contains backslash
                     // hence, invalid and to be ignored
                     continue;
                 }
-				completerNeedsUpdate = true;
-				QStringList packagesHelper = firstArg.split(",");
+                completerNeedsUpdate = true;
+                QStringList packagesHelper = firstArg.split(",");
 
-				if (cmd.endsWith("theme")) { // special treatment for  \usetheme
-					QString preambel = cmd;
-					preambel.remove(0, 4);
-					preambel.prepend("beamer");
+                if (cmd.endsWith("theme")) { // special treatment for \usetheme
+                    QString preambel = cmd;
+                    preambel.remove(0, 4);
+                    preambel.prepend("beamer");
                     packagesHelper.replaceInStrings(QRegularExpression("^"), preambel);
-				}
-                if (cmd=="\\usetikzlibrary") { // special treatment for  \usetheme
+                }
+                if (cmd=="\\usetikzlibrary") { // special treatment for \usetikzlibrary
                     QString preambel = "tikzlibrary";
                     packagesHelper.replaceInStrings(QRegularExpression("^"), preambel);
                 }
+                if (cmd=="\\usepgfplotslibrary") { // special treatment for \usepgfplotslibrary
+                    QString preambel = "pgfplotslibrary";
+                    packagesHelper.replaceInStrings(QRegularExpression("^"), preambel);
+                }
+                if (cmd=="\\tcbuselibrary") { // special treatment for \tcbuselibrary
+                    QString preambel = "tcolorboxlibrary";
+                    packagesHelper.replaceInStrings(QRegularExpression("^"), preambel);
+                }
+                if (cmd=="\\UseTblrLibrary") { // special treatment for \UseTblrLibrary
+                    QString preambel = "tabularraylibrary";
+                    packagesHelper.replaceInStrings(QRegularExpression("^"), preambel);
+                }
 
-				QString firstOptArg = Parsing::getArg(args, dlh, 0, ArgumentList::Optional);
-				if (cmd == "\\documentclass") {
-					//special treatment for documentclass, especially for the class options
-					// at the moment a change here soes not automatically lead to an update of corresponding definitions, here babel
-					mClassOptions = firstOptArg;
-				}
+                QString firstOptArg = Parsing::getArg(args, dlh, 0, ArgumentList::Optional);
+                if (cmd == "\\documentclass") {
+                    //special treatment for documentclass, especially for the class options
+                    // at the moment a change here soes not automatically lead to an update of corresponding definitions, here babel
+                    mClassOptions = firstOptArg;
+                }
 
-				if (firstArg == "babel") {
-					//special treatment for babel
-					if (firstOptArg.isEmpty()) {
-						firstOptArg = mClassOptions;
-					}
-					if (!firstOptArg.isEmpty()) {
-						packagesHelper << firstOptArg.split(",");
-					}
-				}
-
-				QStringList packages;
+                QStringList packages;
 				foreach (QString elem, packagesHelper) {
 					elem = elem.simplified();
 					if (lp.packageAliases.contains(elem))
@@ -1067,22 +1150,20 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
                 QString name=fn;
                 name.replace("\\string~",QDir::homePath());
                 QString fname = findFileName(name);
-				removedIncludes.removeAll(fname);
+                updateSyntaxCheck = (removedIncludes.removeAll(fname) == 0); // don't update syntax if include was removed and reinstated
 				mIncludedFilesList.insert(line(i).handle(), fname);
 				LatexDocument *dc = parent->findDocumentFromName(fname);
 				if (dc) {
 					childDocs.insert(dc);
-					dc->setMasterDocument(this, recheckLabels);
+                    dc->setMasterDocument(this, recheckLabels && updateSyntaxCheck);
 				} else {
 					lstFilesToLoad << fname;
 					//parent->addDocToLoad(fname);
 				}
-
 				newInclude->valid = !fname.isEmpty();
 				newInclude->setLine(line(i).handle(), i);
 				newInclude->columnNumber = cmdStart;
 				flatStructure << newInclude;
-				updateSyntaxCheck = true;
 				continue;
 			}
 
@@ -1095,22 +1176,21 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 				QString file = fi.filePath();
 				newInclude->title = file;
 				QString fname = findFileName(file);
-				removedIncludes.removeAll(fname);
-				mIncludedFilesList.insert(line(i).handle(), fname);
+                updateSyntaxCheck = (removedIncludes.removeAll(fname) == 0); // don't update syntax if include was removed and reinstated
+                mImportedFilesList.insert(line(i).handle(), fname);
 				LatexDocument *dc = parent->findDocumentFromName(fname);
 				if (dc) {
 					childDocs.insert(dc);
-					dc->setMasterDocument(this, recheckLabels);
+                    dc->setMasterDocument(this, recheckLabels && updateSyntaxCheck);
+                    dc->importedFile=true;
 				} else {
 					lstFilesToLoad << fname;
 					//parent->addDocToLoad(fname);
 				}
-
 				newInclude->valid = !fname.isEmpty();
 				newInclude->setLine(line(i).handle(), i);
 				newInclude->columnNumber = cmdStart;
 				flatStructure << newInclude;
-				updateSyntaxCheck = true;
 				continue;
 			}
 
@@ -1246,6 +1326,9 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 
         reRunSuggested = (count > 1) && (!addedUsepackages.isEmpty() || !removedUsepackages.isEmpty());     
         updateLtxCommands = updateCompletionFiles(forceUpdate, false, true);
+        if(!addedUsepackages.isEmpty() || !removedUsepackages.isEmpty()){
+            emit updateCompleterCommands();
+        }
 	}
 	if (bibTeXFilesNeedsUpdate)
 		emit updateBibTeXFiles();
@@ -1273,13 +1356,13 @@ bool LatexDocument::patchStructure(int linenr, int count, bool recheck)
 	foreach (QString fname, lstFilesToLoad) {
 		parent->addDocToLoad(fname);
 	}
-	//qDebug()<<"leave"<< QTime::currentTime().toString("HH:mm:ss:zzz");
 	if (reRunSuggested && !recheck){
 		patchStructure(0, -1, true); // expensive solution for handling changed packages (and hence command definitions)
 	}
 	if(!recheck){
 		reCheckSyntax(lineNrStart, newCount);
 	}
+    //qDebug()<<"fin"<<tm.elapsed();
 
 	return reRunSuggested;
 }
@@ -2739,12 +2822,16 @@ void LatexDocuments::updateMasterSlaveRelations(LatexDocument *doc, bool recheck
 		if (elem == doc)
 			continue;
 		QStringList includedFiles = elem->includedFiles();
+        QStringList importedFiles = elem->includedFiles(true);
         if (includedFiles.contains(fname)) {
             if(!elem->containsChild(doc)){
                 elem->addChild(doc);
             }
             doc->setMasterDocument(elem, false);
 		}
+        if (importedFiles.contains(fname)) {
+            doc->setAsImportedFile(true);
+        }
     }
 
 	// check for already open child documents (included in this file)
@@ -2817,9 +2904,13 @@ LatexDocument *LatexDocument::getRootDocument()
     return const_cast<LatexDocument *>(getRootDocument(nullptr));
 }
 
-QStringList LatexDocument::includedFiles()
+QStringList LatexDocument::includedFiles(bool importsOnly)
 {
-	QStringList helper = mIncludedFilesList.values();
+    QStringList helper;
+    if(!importsOnly){
+        helper.append(mIncludedFilesList.values());
+    }
+    helper.append(mImportedFilesList.values());
 	QStringList result;
 	foreach (const QString elem, helper) {
 		if (!elem.isEmpty() && !result.contains(elem))
@@ -2841,11 +2932,10 @@ QStringList LatexDocument::includedFilesAndParent()
 	return result;
 }
 
-CodeSnippetList LatexDocument::additionalCommandsList()
+CodeSnippetList LatexDocument::additionalCommandsList(QStringList &loadedFiles)
 {
 	LatexPackage pck;
-	QStringList loadedFiles, files;
-    files = mCWLFiles.values();
+    QStringList files = mCWLFiles.values();
 	gatherCompletionFiles(files, loadedFiles, pck, true);
 	return pck.completionWords;
 }
@@ -2957,17 +3047,17 @@ void LatexDocument::emitUpdateCompleter()
 
 void LatexDocument::gatherCompletionFiles(QStringList &files, QStringList &loadedFiles, LatexPackage &pck, bool gatherForCompleter)
 {
-	LatexPackage zw;
-	LatexCompleterConfig *completerConfig = edView->getCompleter()->getConfig();
-	foreach (const QString &elem, files) {
-		if (loadedFiles.contains(elem))
-			continue;
-		if (parent->cachedPackages.contains(elem)) {
-			zw = parent->cachedPackages.value(elem);
-		} else {
+    LatexPackage zw;
+    LatexCompleterConfig *completerConfig = edView->getCompleter()->getConfig();
+    foreach (const QString &elem, files) {
+        if (loadedFiles.contains(elem))
+            continue;
+        if (parent->cachedPackages.contains(elem)) {
+            zw = parent->cachedPackages.value(elem);
+        } else {
             // check if package is actually not depending on options
-			QString fileName = LatexPackage::keyToCwlFilename(elem);
-			QStringList options = LatexPackage::keyToOptions(elem);
+            QString fileName = LatexPackage::keyToCwlFilename(elem);
+            QStringList options = LatexPackage::keyToOptions(elem);
             bool found=false;
             if(parent->cachedPackages.contains(fileName) ){
                 zw = parent->cachedPackages.value(fileName);
@@ -2984,24 +3074,24 @@ void LatexDocument::gatherCompletionFiles(QStringList &files, QStringList &loade
                     parent->cachedPackages.insert(fileName, zw); // cache package as empty/not found package
                 }
             }
-		}
-		if (zw.notFound) {
-			QString name = elem;
-			LatexDocument *masterDoc = getRootDocument();
-			if (masterDoc) {
-				QString fn = masterDoc->getFileInfo().absolutePath();
-				name += "/" + fn;
-				// TODO: oha, the key can be even more complex: option#filename.cwl/masterfile
-				// consider this in the key-handling functions of LatexPackage
-			}
-			emit importPackage(name);
-		} else {
-			pck.unite(zw, gatherForCompleter);
-			loadedFiles.append(elem);
-			if (!zw.requiredPackages.isEmpty())
-				gatherCompletionFiles(zw.requiredPackages, loadedFiles, pck, gatherForCompleter);
-		}
-	}
+        }
+        if (zw.notFound) {
+            QString name = elem;
+            LatexDocument *masterDoc = getRootDocument();
+            if (masterDoc) {
+                QString fn = masterDoc->getFileInfo().absolutePath();
+                name += "/" + fn;
+                // TODO: oha, the key can be even more complex: option#filename.cwl/masterfile
+                // consider this in the key-handling functions of LatexPackage
+            }
+            emit importPackage(name);
+        } else {
+            pck.unite(zw, gatherForCompleter);
+            loadedFiles.append(elem);
+            if (!zw.requiredPackages.isEmpty())
+                gatherCompletionFiles(zw.requiredPackages, loadedFiles, pck, gatherForCompleter);
+        }
+    }
 }
 
 QString LatexDocument::getMagicComment(const QString &name) const

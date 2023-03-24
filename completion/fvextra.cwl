@@ -1,14 +1,13 @@
 # fvextra package
-# Matthew Bertucci 12/28/2021 for v1.4
+# Matthew Bertucci 2022/12/01 for v1.5
 
-#include:ifthen
 #include:etoolbox
 #include:fancyvrb
 #include:upquote
 #include:textcomp
 #include:lineno
 
-#keyvals:\Verb,\Verb*,\begin{Verbatim},\begin{Verbatim*},\begin{BVerbatim},\begin{BVerbatim*},\begin{LVerbatim},\begin{LVerbatim*},\fvset,\DefineVerbatimEnvironment,\CustomVerbatimEnvironment,\RecustomVerbatimEnvironment,\CustomVerbatimCommand,\RecustomVerbatimCommand,\SaveVerb,\SaveVerb*,\UseVerb,\UseVerb*,\begin{SaveVerbatim},\UseVerbatim,\BUseVerbatim,\LUseVerbatim,\VerbatimInput,\BVerbatimInput,\LLVerbatimInput,\fvinlineset,\EscVerb,\EscVerb*,\RobustVerb,\RobustVerb*,\RobustUseVerb,\RobustUseVerb*,\RobustEscVerb,\RobustEscVerb*
+#keyvals:\Verb,\Verb*,\DefineShortVerb,\begin{Verbatim},\begin{Verbatim*},\begin{BVerbatim},\begin{BVerbatim*},\begin{LVerbatim},\begin{LVerbatim*},\fvset,\DefineVerbatimEnvironment,\CustomVerbatimEnvironment,\RecustomVerbatimEnvironment,\CustomVerbatimCommand,\RecustomVerbatimCommand,\SaveVerb,\SaveVerb*,\UseVerb,\UseVerb*,\begin{SaveVerbatim},\UseVerbatim,\BUseVerbatim,\LUseVerbatim,\VerbatimInput,\BVerbatimInput,\LLVerbatimInput,\fvinlineset,\EscVerb,\EscVerb*,\RobustVerb,\RobustVerb*,\RobustUseVerb,\RobustUseVerb*,\RobustEscVerb,\RobustEscVerb*
 beameroverlays#true,false
 curlyquotes#true,false
 extra#true,false
@@ -27,7 +26,7 @@ stepnumberoffsetvalues#true,false
 tab=%<macro%>
 tabcolor=#%color
 breakafter=%<string%>
-breakaftergroup#true,false
+breakafterinrun#true,false
 breakaftersymbolpre=%<string%>
 breakaftersymbolpost=%<string%>
 breakanywhere#true,false
@@ -35,12 +34,13 @@ breakanywheresymbolpre=%<string%>
 breakanywheresymbolpost=%<string%>
 breakautoindent#true,false
 breakbefore=%<string%>
-breakbeforegroup#true,false
+breakbeforeinrun#true,false
 breakbeforesymbolpre=%<string%>
 breakbeforesymbolpost=%<string%>
 breakindent=##L
 breakindentnchars=%<integer%>
 breaklines#true,false
+breaknonspaceingroup#true,false
 breaksymbol=%<string%>
 breaksymbolleft=%<string%>
 breaksymbolright=%<string%>
@@ -67,6 +67,7 @@ breakbytokenanywhere#true,false
 commentchar=%<single char%>
 gobble=%<integer%>
 formatcom=%<commands%>
+formatcom*=%<commands%>
 fontfamily=%<family%>
 fontsize=%<size macro%>
 fontshape=%<shape%>
@@ -80,7 +81,7 @@ label=%<label text%>
 labelposition=#none,topline,bottomline,all
 numbers=#none,left,right
 numbersep=##L
-firstnumber=#auto,last,integer
+firstnumber=%<auto|last|<integer>%>
 stepnumber=%<integer%>
 numberblanklines#true,false
 firstline=%<integer%>
@@ -99,7 +100,11 @@ samepage#true,false
 codes={%<code%>}
 codes*={%<code%>}
 defineactive={%<code%>}
+defineactive*={%<code%>}
 reflabel=##l
+fileext=%<extension%>
+vspace=##L
+listparameters={%<code%>}
 #endkeyvals
 
 # the aftersave key also makes sense in \fvinlineset
@@ -107,12 +112,17 @@ reflabel=##l
 aftersave={%<code%>}
 #endkeyvals
 
+\FancyVerbFormatInline{text%plain}#*
 \FancyVerbFormatText#*
 
 \EscVerb{backslash-escaped text}
 \EscVerb[options%keyvals]{backslash-escaped text}
 \EscVerb*{backslash-escaped text}#*
 \EscVerb*[options%keyvals]{backslash-escaped text}#*
+
+\begin{VerbEnv}#V
+\begin{VerbEnv}[options%keyvals]#V
+\end{VerbEnv}
 
 \FancyVerbBreakStart#*
 \FancyVerbBreakStop#*
@@ -149,6 +159,7 @@ FancyVerbHighlightColor#B
 \FVExtraDetokenizeEscVArg{arg1}{arg2}#*
 \FVExtraDetokenizeREscVArg{arg1}{arg2}#*
 \FVExtraRetokenizeVArg{macro%cmd}{code}{chars}#*d
+\FVExtraUnexpandedReadStarOArgMArgBVArg{arg}#*
 \RobustVerb[options%keyvals]{verbatimSymbol}#S
 \RobustVerb|%<code%>|#*
 \RobustVerb[%<options%>]|%<code%>|#*

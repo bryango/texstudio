@@ -1,5 +1,5 @@
 # luaquotes package
-# Matthew Bertucci 2022/10/29 for v1.1
+# Matthew Bertucci 2023/01/26 for v1.4.0
 
 #include:iftex
 #include:luacode
@@ -9,17 +9,25 @@
 en
 fr
 de
+degm
+dech
 #endkeyvals
 
 \dumbquotes
 \frdumbquotes
 \dedumbquotes
+\degmdumbquotes
+\dechdumbquotes
 \smartquotes
 \frsmartquotes
 \desmartquotes
+\degmsmartquotes
+\dechsmartquotes
 
 \desingle
 \dedouble
+\degmsingle
+\degmdouble
 \dqone
 \dqtwo
 \sqoneleft
@@ -29,8 +37,12 @@ de
 \sqtworight
 \glmtl
 \glmtr
+\degmtl
+\degmtr
 \sglmtl
 \sglmtr
+\desgmtl
+\desgmtr
 \bcktck
 \lqprime
 \lqdoubleprime
@@ -38,12 +50,32 @@ de
 
 \abbrevsingleoff#*
 \abbrevsingleon#*
+\dechdoublequotesoff#*
+\dechdoublequoteson#*
+\dechsinglequotelinestartoff#*
+\dechsinglequotelinestarton#*
+\dechsinglequotescloseoff#*
+\dechsinglequotescloseon#*
+\dechsinglequotespcloseoff#*
+\dechsinglequotespcloseon#*
+\dechsinglequotespoff#*
+\dechsinglequotespon#*
 \dedoublequotesoff#*
 \dedoublequoteson#*
+\degmdoublequotesoff#*
+\degmdoublequoteson#*
+\degmsinglequotelinestartoff#*
+\degmsinglequotelinestarton#*
+\degmsinglequotescloseoff#*
+\degmsinglequotescloseon#*
 \desinglequotelinestartoff#*
 \desinglequotelinestarton#*
 \desinglequotescloseoff#*
 \desinglequotescloseon#*
+\desinglequotespcloseoff#*
+\desinglequotespcloseon#*
+\desinglequotespoff#*
+\desinglequotespon#*
 \doublequotesoff#*
 \doublequoteson#*
 \frdoublequotesoff#*
@@ -52,9 +84,19 @@ de
 \frsinglequotelinestarton#*
 \frsinglequotescloseoff#*
 \frsinglequotescloseon#*
+\frsinglequotespcloseoff#*
+\frsinglequotespcloseon#*
+\frsinglequotespoff#*
+\frsinglequotespon#*
+\sglmtlp#*
+\sglmtlpdech#*
+\sglmtrp#*
+\sglmtrpdech#*
 \singlequotelinestartoff#*
 \singlequotelinestarton#*
 \singlequotesoff#*
 \singlequoteson#*
+\singlequotespoff#*
+\singlequotespon#*
 
 \luaquotesversionnumber#S

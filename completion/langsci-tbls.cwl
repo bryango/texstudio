@@ -3,10 +3,8 @@
 
 #include:etoolbox
 #include:tcolorbox
-# loads breakable, skins, and xparse tcolorbox libraries
-#include:pdfcol
-#include:tikz
-#include:xparse
+#include:tcolorboxlibrarybreakable
+#include:tcolorboxlibraryskins
 
 #keyvals:\usepackage/langsci-tbls#c
 mdframed
@@ -24,12 +22,12 @@ tcolorbox
 \begin{tblsframed}{title%text}[width]
 \begin{tblsframed}{title%text}[width][color]
 \end{tblsframed}
-\begin{tblsfilledsymbol}{title%text}{PDF file}
-\begin{tblsfilledsymbol}{title%text}[color]{PDF file}
+\begin{tblsfilledsymbol}{title%text}{PDF file%file}
+\begin{tblsfilledsymbol}{title%text}[color]{PDF file%file}
 \end{tblsfilledsymbol}
-\begin{tblsframedsymbol}{title%text}{PDF file}
-\begin{tblsframedsymbol}{title%text}[color]{PDF file}
-\begin{tblsframedsymbol}{title%text}[color][width]{PDF file}
+\begin{tblsframedsymbol}{title%text}{PDF file%file}
+\begin{tblsframedsymbol}{title%text}[color]{PDF file%file}
+\begin{tblsframedsymbol}{title%text}[color][width]{PDF file%file}
 \end{tblsframedsymbol}
 
 #ifOption:mdframed

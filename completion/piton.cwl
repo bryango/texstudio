@@ -1,5 +1,5 @@
 # piton package
-# Matthew Bertucci 2022/11/09 for v0.95
+# Matthew Bertucci 2023/01/29 for v1.3
 
 #include:l3keys2e
 #include:luatexbase
@@ -11,6 +11,7 @@ math-comments#true,false
 escape-inside=%<two-chars%>
 footnote
 footnotehyper
+beamer#true,false
 #endkeyvals
 
 #ifOption:footnote
@@ -30,9 +31,14 @@ footnotehyper
 \piton{code%definition}
 \begin{Piton}#V
 \end{Piton}
+# beamer only
+\begin{Piton}<overlay spec>#*V
 
-\PitonInputFile{file}#i
-\PitonInputFile[options%keyvals]{file}#i
+\PitonInputFile{file}
+\PitonInputFile[options%keyvals]{file}
+# beamer only
+\PitonInputFile<overlay spec>{file}#*
+\PitonInputFile<overlay spec>[options%keyvals]{file}#*
 
 #keyvals:\PitonInputFile
 first-line=%<integer%>
@@ -44,16 +50,26 @@ last-line=%<integer%>
 #keyvals:\PitonOptions
 gobble=%<integer%>
 auto-gobble
+tabs-auto-gobble
 line-numbers
 all-line-numbers
 resume
 splittable
 splittable=%<integer%>
 background-color=#%color
+prompt-background-color
 slim#true,false
 left-margin=##L
 tab-size=%<integer%>
 show-spaces
+show-spaces-in-strings
+break-lines-in-Piton
+break-lines-in-piton
+break-lines
+indent-broken-lines
+end-of-broken-line=%<symbol%>
+continuation-symbol=%<symbol%>
+continuation-symbol-on-indentation=%<symbol%>
 #endkeyvals
 
 \SetPitonStyle{options%keyvals}
@@ -85,6 +101,7 @@ Comment.Math=%<formatting%>
 InitialValues=%<formatting%>
 Name.Type=%<formatting%>
 Post.Function=%<formatting%>
+Beamer=%<formatting%>
 #endkeyvals
 
 \NewPitonEnvironment{envname}{xargs}{begdef}{enddef}#N

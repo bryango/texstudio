@@ -13,7 +13,7 @@
  */
 
 SymbolListModel::SymbolListModel(QVariantMap usageCountMap, QStringList favoriteList) :
-    m_darkMode(false)
+	m_darkMode(false)
 {
 	foreach (const QString &key, usageCountMap.keys()) {
 		usageCount.insert(key, usageCountMap.value(key).toInt());
@@ -85,14 +85,12 @@ SymbolItem loadSymbolFromSvg(QString fileName)
 	nl = root.elementsByTagName("desc");
 	if (!nl.isEmpty()) {
 		QDomNode n = nl.at(0);
-		item.packages = n.toElement().attribute("Packages");
-	}
-	nl = root.elementsByTagName("additionalInfo");
-
-	if (!nl.isEmpty()) {
-		QDomNode n = nl.at(0);
-		item.unicode = n.toElement().attribute("CommandUnicode");
-
+		QString pkg = n.toElement().attribute("Packages");
+		if (!pkg.isEmpty())
+			item.packages = pkg;
+		QString cmdUnicode = n.toElement().attribute("CommandUnicode");
+		if (!cmdUnicode.isEmpty())
+			item.unicode = cmdUnicode;
 	}
 
 	item.iconFile = fileName;
@@ -125,7 +123,7 @@ void SymbolListModel::loadSymbols(const QString &category, const QStringList &fi
 			symbolItem.packages = img.text("Packages");
 			symbolItem.unicode = img.text("CommandUnicode");
 			symbolItem.iconFile = fileName;
-            symbolItem.icon = QIcon(fileName);
+			symbolItem.icon = QIcon(fileName);
 		}
 		if (!symbolItem.unicode.isEmpty()) {
 			// convert to real unicode
@@ -135,12 +133,21 @@ void SymbolListModel::loadSymbols(const QString &category, const QStringList &fi
 				QString StrCode = listOfChars.value(i, "");
 				StrCode = StrCode.mid(2); // Remove U+
 				bool ok;
-				int code = StrCode.toInt(&ok);
-				if (ok)
-					helper += QChar(code);
+				int code = StrCode.toInt(&ok, 16);
+				if (ok) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+					helper += QChar::fromUcs4(code);
+#else
+					if (code < 0x10000) {
+						helper += QChar(code); // single utf-16
+					} else if (code <= 0x10FFFF) {
+						helper += QChar((code >> 10) + 0xD7C0); // high surrogate, 1st utf-16
+						helper += QChar((code & 0x3FF) + 0xDC00); // low surrogate, 2nd utf-16
+					}
+#endif
+				}
 			}
 			symbolItem.unicode = helper;
-
 		}
 
 		symbolItem.category = category;
@@ -238,7 +245,7 @@ void SymbolListModel::incrementUsage(const QString &id)
  */
 void SymbolListModel::setDarkmode(bool active)
 {
-    m_darkMode=active;
+	m_darkMode=active;
 }
 /*!
  * \brief add symbol with id to favourite list
@@ -322,8 +329,7 @@ QString SymbolListModel::getTooltip(const SymbolItem &item) const
 {
 	QStringList args, pkgs;
 
-	QString label = item.command;
-	label.replace("<", "&lt;");
+	QString label = item.command.toHtmlEscaped();
 	label = tr("Command: ") + "<b>" + label + "</b>";
 
 	QRegExp rePkgs("(?:\\[(.*)\\])?\\{(.*)\\}");
@@ -350,7 +356,7 @@ QString SymbolListModel::getTooltip(const SymbolItem &item) const
 		}
 	}
 	if (!item.unicode.isEmpty())
-		label += "<br>" + tr("Unicode Character: ") + item.unicode;
+		label += "<br>" + tr("Unicode Character: ") + item.unicode.toHtmlEscaped();
 	return label;
 }
 

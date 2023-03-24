@@ -14,9 +14,11 @@
 \Verb*[%<options%>]|%<code%>|
 \VerbatimFootnotes
 \DefineShortVerb{\%<character%>}
+\DefineShortVerb[%<options%>]{\%<character%>}
 \UndefineShortVerb{\%<character%>}
 # following two lines tell highlighter not to mark args as incorrect
 \DefineShortVerb{definition}#S
+\DefineShortVerb[options%keyvals]{definition}#S
 \UndefineShortVerb{definition}#S
 
 \begin{Verbatim}#V
@@ -76,16 +78,16 @@ aftersave={%<code%>}
 \LUseVerbatim*[options%keyvals]{name}
 
 # writing and reading verbatim files
-\VerbatimInput{file}#i
-\VerbatimInput[options%keyvals]{file}#i
-\BVerbatimInput{file}#i
-\BVerbatimInput[options%keyvals]{file}#i
-\LVerbatimInput{file}#i
-\LVerbatimInput[options%keyvals]{file}#i
-\begin{VerbatimOut}{file name}#V
+\VerbatimInput{file}
+\VerbatimInput[options%keyvals]{file}
+\BVerbatimInput{file}
+\BVerbatimInput[options%keyvals]{file}
+\LVerbatimInput{file}
+\LVerbatimInput[options%keyvals]{file}
+\begin{VerbatimOut}{file name%file}#V
 \end{VerbatimOut}
 
-#keyvals:\Verb,\Verb*,\begin{Verbatim},\begin{Verbatim*},\begin{BVerbatim},\begin{BVerbatim*},\begin{LVerbatim},\begin{LVerbatim*},\fvset,\DefineVerbatimEnvironment,\CustomVerbatimEnvironment,\RecustomVerbatimEnvironment,\CustomVerbatimCommand,\RecustomVerbatimCommand,\SaveVerb,\SaveVerb*,\UseVerb,\UseVerb*,\begin{SaveVerbatim},\UseVerbatim,\BUseVerbatim,\LUseVerbatim,\VerbatimInput,\BVerbatimInput,\LLVerbatimInput
+#keyvals:\Verb,\Verb*,\DefineShortVerb,\begin{Verbatim},\begin{Verbatim*},\begin{BVerbatim},\begin{BVerbatim*},\begin{LVerbatim},\begin{LVerbatim*},\fvset,\DefineVerbatimEnvironment,\CustomVerbatimEnvironment,\RecustomVerbatimEnvironment,\CustomVerbatimCommand,\RecustomVerbatimCommand,\SaveVerb,\SaveVerb*,\UseVerb,\UseVerb*,\begin{SaveVerbatim},\UseVerbatim,\BUseVerbatim,\LUseVerbatim,\VerbatimInput,\BVerbatimInput,\LLVerbatimInput
 commentchar=%<single char%>
 gobble=%<integer%>
 formatcom=%<commands%>

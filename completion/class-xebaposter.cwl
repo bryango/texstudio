@@ -12,7 +12,9 @@
 # loads T1 option of fontenc
 #include:geometry
 #include:pgfpages
-# loads decorations, fadings, snakes, and calc tikzlibraries
+#include:tikzlibrarydecorations
+#include:tikzlibraryfadings
+#include:tikzlibrarycalc
 
 #keyvals:\documentclass/xebaposter#c
 landscape
@@ -62,14 +64,6 @@ latin
 
 #ifOption:table
 #include:colortbl
-## double command as workaround for color args to be recognized properly as colors
-\rowcolors[commands]{row}{even-row-color}{odd-row-color}
-\rowcolors[commands]{row}{color}{color}#S
-\rowcolors*[commands]{row}{even-row-color}{odd-row-color}
-\rowcolors*[commands]{row}{color}{color}#S
-\showrowcolors
-\hiderowcolors
-\rownum
 #endif
 
 \begin{poster}{settings%keyvals}{eyecatcher}{title%text}{author}{logo}

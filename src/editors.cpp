@@ -84,13 +84,8 @@ void Editors::insertEditor(LatexEditorView *edView, int index, bool asCurrent)
 		// index out of range: append
 	}
 
-	// append to last non-empty group
-	for (int group = tabGroups.length() - 1; group >= 0; group--) {
-		if (!tabGroups[group]->isEmpty() || group == 0) {
-			insertEditor(edView, tabGroups[group], -1, asCurrent);
-			break;
-		}
-	}
+	// append to current tab bar
+	insertEditor(edView, currentTabWidget(), -1, asCurrent);
 }
 
 void Editors::moveEditor(LatexEditorView *edView, Editors::Position pos)
@@ -383,23 +378,32 @@ void Editors::tabBarContextMenu(const QPoint &point)
 	if (!tabGroup) return;
 
 	QMenu menu;
+	QAction *act;
 	foreach (LatexEditorView *edView, editors()) {
-		QAction *act = menu.addAction(edView->displayNameForUI());
+		act = menu.addAction(edView->displayNameForUI());
 		act->setData(QVariant::fromValue<LatexEditorView *>(edView));
 		connect(act, SIGNAL(triggered()), SLOT(setCurrentEditorFromAction()));
 	}
 
 	menu.addSeparator();
-	QAction *act = menu.addAction(tr("Move to other view"));
-	LatexEditorView *editorUnderCursor = tabGroup->editorAt(point);
-	act->setData(QVariant::fromValue<LatexEditorView *>(editorUnderCursor));
-	if (!editorUnderCursor) act->setEnabled(false);
-	connect(act, SIGNAL(triggered()), SLOT(moveToOtherTabGroup()));
 
-	act = menu.addAction(tr("Move all to other view"));
-	act->setData(QVariant::fromValue<TxsTabWidget *>(tabGroup));
-	if (!editorUnderCursor) act->setEnabled(false);
-	connect(act, SIGNAL(triggered()), SLOT(moveAllToOtherTabGroup()));
+	LatexEditorView *editorUnderCursor = tabGroup->editorAt(point);
+	if (editorUnderCursor) {
+		act = menu.addAction(tr("Move to other view"));
+		act->setData(QVariant::fromValue<LatexEditorView *>(editorUnderCursor));
+		connect(act, SIGNAL(triggered()), SLOT(moveToOtherTabGroup()));
+
+		if (tabGroups[0] == tabWidgetFromEditor(editorUnderCursor)) {
+			act = menu.addAction(tr("Move all others to other view"));
+			act->setData(QVariant::fromValue<LatexEditorView *>(editorUnderCursor));
+			connect(act, SIGNAL(triggered()), SLOT(moveAllOthersToOtherTabGroup()));
+		}
+		else {
+			act = menu.addAction(tr("Move all to other view"));
+			act->setData(QVariant::fromValue<TxsTabWidget *>(tabGroup));
+			connect(act, SIGNAL(triggered()), SLOT(moveAllToOtherTabGroup()));
+		}
+	}
 
 	act = menu.addAction((splitter->orientation() == Qt::Horizontal) ? tr("Split Vertically") : tr("Split Horizontally"));
 	connect(act, SIGNAL(triggered()), SLOT(changeSplitOrientation()));
@@ -455,8 +459,25 @@ void Editors::moveAllToOtherTabGroup() {
 
 	// NOTE: This code assumes exactly two tabGroups
 	int otherGroupIndex = (tabGroups[0] == tabGroup) ? 1 : 0;
-	foreach (LatexEditorView *edView, tabGroup->editors())
+    foreach (LatexEditorView *edView, tabGroup->editors()){
 		moveToTabGroup(edView, tabGroups[otherGroupIndex], -1);
+    }
+}
+
+void Editors::moveAllOthersToOtherTabGroup() {
+	QAction *act = qobject_cast<QAction *>(sender());
+	REQUIRE(act);
+	LatexEditorView *edViewCurrent = act->data().value<LatexEditorView *>();
+	if (!edViewCurrent) return;
+	TxsTabWidget *tabGroupCurrent = tabWidgetFromEditor(edViewCurrent);
+
+	// NOTE: This code assumes exactly two tabGroups
+	int otherGroupIndex = (tabGroups[0] == tabGroupCurrent) ? 1 : 0;
+    foreach (LatexEditorView *edView, tabGroupCurrent->editors()){
+        if (edView != edViewCurrent){
+            moveToTabGroup(edView, tabGroups[otherGroupIndex], -1);
+        }
+    }
 }
 
 

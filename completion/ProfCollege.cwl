@@ -1,5 +1,5 @@
 # ProfCollege package
-# Matthew Bertucci 2022/11/04 for v0.99-z-b
+# Matthew Bertucci 2023/01/28 for v0.99-z-e
 
 #include:verbatim
 #include:mathtools
@@ -14,6 +14,7 @@
 #include:xinttools
 #include:iftex
 #include:luamplib
+#include:luacas
 #include:gmp
 #include:xintexpr
 #include:listofitems
@@ -22,9 +23,17 @@
 #include:xlop
 #include:xfp
 #include:tcolorbox
-# tcolorbox loaded with most option
+#include:tcolorboxlibrarymost
 #include:tikz
-# loads calc, shapes, arrows, tikzmark, chains, positioning, shapes.symbols, babel, and fit tikzlibraries
+#include:tikzlibrarycalc
+#include:tikzlibraryshapes
+#include:tikzlibrarytikzmark
+#include:tikzlibrarychains
+#include:tikzlibrarypositioning
+#include:tikzlibraryshapes.symbols
+#include:tikzlibrarybabel
+#include:tikzlibraryfit
+#include:tikzlibrarybackgrounds
 #include:suffix
 #include:multicol
 #include:hhline
@@ -332,6 +341,38 @@ MemeEnonce#true,false
 CoinBG={%<(x,y)%>}
 CoinHD={%<(x,y)%>}
 TypeTrace="%<type%>"
+#endkeyvals
+
+## Les solides ##
+\Solide
+\Solide[clés%keyvals]
+
+#keyvals:\Solide
+Phi=%<degrés%>
+Theta=%<degrés%>
+Distance=%<nombre%>
+Aretes#true,false
+Sommets#true,false
+ListeSommets={%<liste%>}
+Traces={%<MP code%>}
+Nom=#pave,cylindre,cone,pyramide,sphere
+Largeur=%<nombre%>
+Hauteur=%<nombre%>
+Profondeur=%<nombre%>
+RayonCylindre=%<nombre%>
+HauteurCylindre=%<nombre%>
+Anglex=%<degrés%>
+Reguliere#true,false
+SommetsPyramide=%<nombre%>
+DecalageSommet={(%<x,y,z%>)}
+RayonCone=%<nombre%>
+HauteurCone=%<nombre%>
+RayonSphere=%<nombre%>
+Section
+PointsSection={%<liste%>}
+CouleurSection=#%color
+CoefSection=%<coef%>
+ObjetSection=
 #endkeyvals
 
 ## Les positions relatives de deux droites ##
@@ -927,10 +968,12 @@ Definition#true,false
 Ecriture#true,false
 Points#true,false
 Tangentes#true,false
+Catmull#true,false
 PasX=%<nombre%>
 PasY=%<nombre%>
 UniteX=%<nombre%>
 UniteY=%<nombre%>
+Epaisseur=
 Prolonge#true,false
 Trace#true,false
 Xmin=%<nombre%>
@@ -953,6 +996,8 @@ Borneb=%<nombre%>
 CouleurTrace=#%color
 NomCourbe=%<nom%>
 LabelC=%<nombre%>
+Traces={%<MP code%>}
+Vide#true,false
 #endkeyvals
 
 ## La distributivité ##
@@ -1044,6 +1089,7 @@ Exact#true,false
 #keyvals:\Calculatrice
 Ecran#true,false
 NbLignes=%<integer%>
+Largeur=%<nombre%>
 #endkeyvals
 
 ## Le tableur ##
@@ -1220,9 +1266,13 @@ Pas=%<integer%>
 Debut=%<integer%>
 Fin=%<integer%>
 EcartVertical=%<nombre%>
+Droites#true,false
+DemiDroites#true,false
+Traces={%<code%>}
 Echelle=%<factor%>
 Solution#true,false
 LignesIdentiques#true,false
+OrigineVariable#true,false
 #endkeyvals
 
 ## Colorilude ##
@@ -1242,8 +1292,8 @@ Resultats#true,false
 \ColoriludeListeCouleur{abbrev1 couleur1 abbrev2 couleur2...}
 
 ## Pixel Art ##
-\PixelArt{file}#i
-\PixelArt[clés%keyvals]{file}#i
+\PixelArt{.csv file%file}
+\PixelArt[clés%keyvals]{.csv file%file}
 
 #keyvals:\PixelArt
 Largeur=%<integer%>
@@ -1521,6 +1571,91 @@ Original#true,false
 Plaques=%<nombre%>
 #endkeyvals
 
+## Des barres de calculs ##
+\BarresCalculs{liste des calculs}{mot clé}
+\BarresCalculs[clés%keyvals]{liste des calculs}{mot clé}
+
+#keyvals:\BarresCalculs
+Litteral#true,false
+Perso#true,false
+Decimaux#true,false
+#endkeyvals
+
+## Enigme et aire ##
+\EnigmeAire
+\EnigmeAire[clés%keyvals]
+
+#keyvals:\EnigmeAire
+Modele=#A,B,C,D,E,F
+Etape=%<nombre%>
+Echelle=##L
+Couleur=#%color
+#endkeyvals
+
+## Tectonic ##
+\Tectonic{description du jeu}
+\Tectonic[clés%keyvals]{description du jeu}
+
+#keyvals:\Tectonic
+TLargeur=%<nombre%>
+THauteur=%<nombre%>
+Taille=%<nombre%>
+Largeur=##L
+Solution#true,false
+CouleurSolution=#%color
+#endkeyvals
+
+## Le jeu du calisson ##
+\Calisson{description du jeu}
+\Calisson[clés%keyvals]{description du jeu}
+
+#keyvals:\Calisson
+Rayon=##L
+Taille=%<nombre%>
+Solution#true,false
+Couleur=#%color
+#endkeyvals
+
+## Puzzle Pyramide ##
+\PuzzlePyramide{c1§c2§...}
+\PuzzlePyramide[clés%keyvals]{c1§c2§...}
+
+#keyvals:\PuzzlePyramide
+Etages=%<integer%>
+Largeur=##L
+NbLignes=%<integer%>
+Solution#true,false
+Graine=%<nombre%>
+Questions#true,false
+#endkeyvals
+
+## Message Caché ##
+\MessageCache{q1/r1§q2/r2§...}{message%text}
+\MessageCache[clés%keyvals]{q1/r1§q2/r2§...}{message%text}
+
+#keyvals:\MessageCache
+TLargeur=%<nombre%>
+THauteur=%<nombre%>
+Largeur=##L
+Hauteur=##L
+Plateau#true,false
+#endkeyvals
+
+## Ronde infernale ##
+\RondeInfernale
+\RondeInfernale[clés%keyvals]
+
+#keyvals:\RondeInfernale
+Rectangle#true,false
+Rayon=##L
+Etapes=%<nombre%>
+Relatifs#true,false
+Vide#true,false
+Cle="%<valeur%>"
+ListeOperations={%<opérations%>}
+ListeNombres={%<nombres%>}
+#endkeyvals
+
 ## Bulles et cartes mentales ##
 \begin{Mind}#\pictureHighlight
 \end{Mind}
@@ -1795,28 +1930,6 @@ Pink#B
 Seashell#B
 Teal#B
 
-# from most option of tcolorbox (repeats removed)
-#include:incgraph
-#include:listings
-#include:listingsutf8
-#include:shellesc
-#include:pdfcol
-
-# from tikzmark library v1.10
-\tikzmark{name}
-\tikzmark[drawing command]{name}
-\tikzmark{name}{coordinate}
-\pgfmark{name}
-\iftikzmark{name}{true}{false}
-\iftikzmarkexists{name}
-\iftikzmarkoncurrentpage{name}
-\iftikzmarkonpage{name}{page}
-\tikzmarknode{name}{contents}
-\tikzmarknode[options]{name}{contents}
-\subnode{name}{contents}
-\subnode[options]{name}{contents}
-\usetikzmarklibrary{library}#*
-
 # not documented
 \addtotok{arg1}{arg2}#S
 \Affichage{arg1}{arg2}{arg3}{arg4}#S
@@ -1875,6 +1988,7 @@ Teal#B
 \BonSortieSmiley#*
 \Brouillon{arg1}{arg2}{arg3}{arg4}#S
 \buildarbreproba#S
+\BuildCalisson{arg1}{arg2}#S
 \builddemidroitenew#S
 \buildechelleproba#S
 \BuildEngrenages{arg}#S
@@ -1887,6 +2001,7 @@ Teal#B
 \BuildPixelArt{arg1}{arg2}{arg3}{arg4}#S
 \buildreperenew#S
 \BuildRLE{arg}#S
+\BuildRondeInfernale{arg1}{arg2}#S
 \buildtabfonction#S
 \buildtabpropor#S
 \Buildtabpropor#S
@@ -2113,7 +2228,6 @@ Teal#B
 \ListeContenuCol#S
 \ListeCouleur#S
 \ListeCouleurEntier#S
-\ListeDefDroites#S
 \ListeDefiTableCode#S
 \ListeDefiTableMax#S
 \ListeDefiTablePhrase#S
@@ -2187,6 +2301,7 @@ Teal#B
 \ListeNombreCollen#S
 \ListeNomsCAN#S
 \ListeNomsMul#S
+\ListeNomSommet#S
 \ListeObjetsCAN#S
 \ListeObjetsSymbolesCAN#S
 \ListePANombre#S
@@ -2266,11 +2381,18 @@ Teal#B
 \MPBillard{arg1}{arg2}{arg3}#S
 \MPBillardSolution{arg1}{arg2}{arg3}#S
 \MPCalculatrice{arg1}{arg2}{arg3}#S
+\MPCatmull{arg1}{arg2}{arg3}{arg4}{arg5}#S
 \MPCinq{arg1}{arg2}{arg3}#S
 \MPCourbe{arg1}{arg2}{arg3}{arg4}{arg5}#S
-\MPCourbePoints{arg1}{arg2}{arg3}{arg4}{arg5}#S
+\MPCourbeNew{arg}#S
 \MPDessineFrise{arg}#S
 \MPEchelleProbaUn{arg1}{arg2}{arg3}{arg4}#S
+\MPEnigmeAireA#S
+\MPEnigmeAireB#S
+\MPEnigmeAireC#S
+\MPEnigmeAireD#S
+\MPEnigmeAireE#S
+\MPEnigmeAireF#S
 \MPEspacePave{arg1}{arg2}{arg3}{arg4}{arg5}#S
 \MPEspaceSphere{arg1}{arg2}#S
 \MPFigReciThales{arg1}{arg2}{arg3}{arg4}{arg5}#S
@@ -2327,6 +2449,11 @@ Teal#B
 \MPPlanTrace{arg1}{arg2}{arg3}{arg4}{arg5}#S
 \MPRadar{arg1}{arg2}{arg3}{arg4}{arg5}{arg6}#S
 \MPSeyes{arg1}{arg2}{arg3}#S
+\MPSolideCone{arg1}{arg2}{arg3}#S
+\MPSolideCylindre{arg1}{arg2}{arg3}#S
+\MPSolidePave{arg1}{arg2}{arg3}{arg4}{arg5}#S
+\MPSolidePyramide{arg1}{arg2}{arg3}{arg4}#S
+\MPSolideSphere{arg1}{arg2}{arg3}#S
 \MPStat{arg1}{arg2}{arg3}{arg4}{arg5}{arg6}{arg7}{arg8}#S
 \MPStatCirculaireQ{arg1}{arg2}{arg3}{arg4}{arg5}#S
 \MPStatNew{arg1}{arg2}#S
@@ -2467,6 +2594,8 @@ Teal#B
 \PfCfooStat#S
 \PfCfrac{arg1}{arg2}#S
 \PfCGraineAlea#S
+\PfCHiddenHeight#S
+\PfCHiddenWidth#S
 \PfCKakuro#S
 \PfCKenKen#S
 \PfCLargeurJury#S
@@ -2474,12 +2603,16 @@ Teal#B
 \PfCLargeurQuestion#S
 \PfCLargeurReponse#S
 \PfCListeATrier#S
+\PfCListeBarresCalculs#S
+\PfCListeCalculsBarre#S
 \PfCListeCCAide#S
 \PfCListeCCAidelen#S
 \PfCListeCCNb#S
 \PfCListeCCOp#S
 \PfCListeCmdTortue#S
 \PfCListeHauteursCubes#S
+\PfCListeResultats#S
+\PfCListeResultatsBarre#S
 \PfCListeRLE#S
 \PfCListeSymbolTrivial#S
 \PfCLongInter#S
@@ -2504,6 +2637,7 @@ Teal#B
 \PfCPCfaa#S
 \PfCPCfoo#S
 \PfCPremiereColonneDecimale#S
+\PfCPuzzleP#S
 \PfCPythaUnit#S
 \PfCQtroisk#S
 \PfCQuartileTrois#S
@@ -2520,6 +2654,7 @@ Teal#B
 \PfCTableurLargeur#S
 \PfCTableurLargeurUn#S
 \PfCTBstrut#S
+\PfCTectonic#S
 \PfCTestBlack#S
 \PfCTestEtoile#S
 \PfCTestMP#S
@@ -2565,6 +2700,7 @@ Teal#B
 \premierun#S
 \PtAlea#S
 \pupils#*
+\PuzzlePyramideListeLettres#S
 \QCMPfC{arg1}{arg2}#S
 \QFDaily#S
 \QFDecimal#S
@@ -2670,6 +2806,7 @@ Teal#B
 \Test#S
 \Testa#S
 \Testb#S
+\TestNombrePremier{arg}#S
 \TexteOrigine#S
 \TexteReference#S
 \theaddxlop#S
@@ -2688,6 +2825,8 @@ Teal#B
 \theNbRelie#S
 \thePfCCompteLignes#S
 \thePfCnexo#S
+\thePfCPuzzlePavcpt#S
+\thePfCPuzzlePcpt#S
 \thePfCShikakuNom#S
 \thePfCTortue#S
 \theQuestionQCM#S
@@ -2702,11 +2841,12 @@ Teal#B
 \TikzPHD#S
 \TikzRB#S
 \TikzRH#S
+\tokcalissonlistetracesd#S
+\tokcalissonlistetracesg#S
 \toklisteaffhor{arg}#S
 \toklistecaseM{arg}#S
 \toklistecaseP{arg}#S
 \toklistecouleur#S
-\toklistedefdroites{arg}#S
 \toklistedefligne{arg}#S
 \toklistedonhor{arg}#S
 \toklistefrise{arg}#S
@@ -2740,6 +2880,8 @@ Teal#B
 \toklisteVueCube#S
 \tokPfCCBRappels#S
 \tokPfCEngrenages#S
+\toksolidelistepointssections#S
+\toksolidelistesommets#S
 \TortueCreationFichier[opt]{arg}#S
 \TortueCreationFichier{arg}#S
 \TortueDessinFinal#S
@@ -2748,10 +2890,7 @@ Teal#B
 \TotalLaby#S
 \TotalP#S
 \toto#S
-\TraceDessinGradue{arg1}{arg2}{arg3}{arg4}#S
-\TraceDessinGradueMul{arg1}#S
-\TraceDessinGradueMulSolution{arg1}{arg2}{arg3}#S
-\TraceDessinGradueSolution{arg1}{arg2}{arg3}{arg4}{arg5}#S
+\TraceDessinGradueComplet{arg1}{arg2}{arg3}#S
 \TraceDoubleSolution{arg1}{arg2}{arg3}{arg4}{arg5}{arg6}#S
 \TraceEchiquierColoreColorilude#S
 \TraceEchiquierColorilude#S
@@ -2771,7 +2910,6 @@ Teal#B
 \Tuile{arg1}{arg2}{arg3}{arg4}#S
 \untest#S
 \UpdateCoul{arg1}#S
-\UpdateDefDroites{arg1}#S
 \UpdateDefLignes{arg1}#S
 \UpdateLegende{arg}#S
 \UpdateLignes{arg1}#S
@@ -2787,6 +2925,10 @@ Teal#B
 \UpdateRemplissage{arg1}#S
 \Updatetoks{arg1}#S
 \updatetoks{arg1}#S
+\UpdatetoksCalissond{arg}#S
+\UpdatetoksCalissondDepart{arg}#S
+\UpdatetoksCalissong{arg}#S
+\UpdatetoksCalissongDepart{arg}#S
 \UpdatetoksCB{arg}#S
 \Updatetoksdemidroite{arg1}#S
 \Updatetoksdroite{arg1}#S
@@ -2810,6 +2952,7 @@ Teal#B
 \Updatetoksq{arg1}#S
 \Updatetoksrepere{arg1}#S
 \UpdatetoksRLE{arg}#S
+\UpdatetoksSolide{arg}#S
 \UpdatetoksTriomino{arg1}#S
 \UpdatetoksVueCube{arg}#S
 \UpdateTraces{arg1}#S

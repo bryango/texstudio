@@ -110,7 +110,6 @@
  */
 
 
-
 const QString APPICON(":appicon");
 
 bool programStopped = false;
@@ -563,7 +562,15 @@ QAction *Texstudio::insertManagedAction(QAction *before, const QString &id, cons
 	QAction *inserted = newManagedAction(menu, id, text, slotName, shortCut, iconFile);
 	menu->removeAction(inserted);
 	menu->insertAction(before, inserted);
-	return inserted;
+    return inserted;
+}
+/*!
+ * \brief loadManagedMenu for script use
+ * \param fn
+ */
+void Texstudio::loadManagedMenu(const QString &fn)
+{
+    configManager.loadManagedMenus(fn);
 }
 
 /*!
@@ -779,19 +786,20 @@ void Texstudio::updateToolBarMenu(const QString &menuName)
 					REQUIRE(combo);
 
 					QStringList actionTexts;
+					QStringList actionInfos;
 					QList<QIcon> actionIcons;
 					int defaultIndex = -1;
-					foreach (const QAction *act, menu->actions())
+					foreach (const QAction *act, menu->actions()) {
 						if (!act->isSeparator()) {
 							actionTexts.append(act->text());
+							actionInfos.append(act->toolTip());
 							actionIcons.append(act->icon());
 							if (menuName == "main/view/documents" && edView == act->data().value<LatexEditorView *>()) {
 								defaultIndex = actionTexts.length() - 1;
 							}
 						}
-
-					//qDebug() << "**" << actionTexts;
-					UtilsUi::createComboToolButton(tb.toolbar, actionTexts, actionIcons, -1, this, SLOT(callToolButtonAction()), defaultIndex, combo);
+					}
+					UtilsUi::createComboToolButton(tb.toolbar, actionTexts, actionInfos, actionIcons, -1, this, SLOT(callToolButtonAction()), defaultIndex, combo);
 
 					if (menuName == "main/view/documents") {
 						// workaround to select the current document
@@ -800,18 +808,9 @@ void Texstudio::updateToolBarMenu(const QString &menuName)
 						// TODO: should this menu be provided by Editors?
 						LatexEditorView *edView = currentEditorView();
 						foreach (QAction* act, menu->actions()) {
-							qDebug() << act->data().value<LatexEditorView *>() << combo;
 							if (edView == act->data().value<LatexEditorView *>()) {
 								int i = menu->actions().indexOf(act);
-								qDebug() << i << combo->menu()->actions().length();
 								if (i < 0 || i>= combo->menu()->actions().length()) continue;
-								foreach (QAction *act, menu->actions()) {
-									qDebug() << "menu" << act->text();
-								}
-								foreach (QAction *act, combo->menu()->actions()) {
-									qDebug() << "cmb" << act->text();
-								}
-
 								combo->setDefaultAction(combo->menu()->actions()[i]);
 							}
 						}
@@ -889,7 +888,7 @@ void Texstudio::setupMenus()
 	newManagedAction(submenu, "revert", tr("&Revert to saved..."), SLOT(fileUtilRevert()));
 	submenu->addSeparator();
 	newManagedAction(submenu, "copyfilename", tr("Copy filename to &clipboard"), SLOT(fileUtilCopyFileName()));
-	newManagedAction(submenu, "copymasterfilename", tr("Copy master filename to clipboard"), SLOT(fileUtilCopyMasterFileName()));
+	newManagedAction(submenu, "copymasterfilename", tr("Copy root filename to clipboard"), SLOT(fileUtilCopyMasterFileName()));
 
     QMenu *svnSubmenu = newManagedMenu(menu, "svn", tr("S&VN/GIT..."));
 	newManagedAction(svnSubmenu, "checkin", tr("Check &in..."), SLOT(fileCheckin()));
@@ -1057,8 +1056,42 @@ void Texstudio::setupMenus()
 	menu->addSeparator();
     newManagedAction(menu, "pasteAsLatex", tr("Pas&te as LaTeX"), SLOT(editPasteLatex()), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_V), "editpaste");
 	newManagedAction(menu, "convertTo", tr("Co&nvert to LaTeX"), SLOT(convertToLatex()));
+
+	menu->addSeparator();
     newManagedAction(menu, "previewLatex", tr("Pre&view Selection/Parentheses"), SLOT(previewLatex()), Qt::ALT | Qt::Key_P);
 	newManagedAction(menu, "removePreviewLatex", tr("C&lear Inline Preview"), SLOT(clearPreview()));
+
+	submenu = newManagedMenu(menu, "previewMode", tr("Preview Dis&play Mode"));
+	QActionGroup *previewModeGroup = new QActionGroup(this);
+	act = newManagedAction(submenu, "PM_TOOLTIP_AS_FALLBACK", tr("Show preview as tooltip if panel is hidden"), SLOT(setPreviewMode()));
+	act->setData(ConfigManager::PM_TOOLTIP_AS_FALLBACK);
+	act->setCheckable(true);
+	previewModeGroup->addAction(act);
+	act = newManagedAction(submenu, "PM_PANEL", tr("Always show preview in preview panel"), SLOT(setPreviewMode()));
+	act->setData(ConfigManager::PM_PANEL);
+	act->setCheckable(true);
+	previewModeGroup->addAction(act);
+	act = newManagedAction(submenu, "PM_TOOLTIP", tr("Always show preview as tool tip"), SLOT(setPreviewMode()));
+	act->setData(ConfigManager::PM_TOOLTIP);
+	act->setCheckable(true);
+	previewModeGroup->addAction(act);
+	act = newManagedAction(submenu, "PM_BOTH", tr("Always show both"), SLOT(setPreviewMode()));
+	act->setData(ConfigManager::PM_BOTH);
+	act->setCheckable(true);
+	previewModeGroup->addAction(act);
+	act = newManagedAction(submenu, "PM_INLINE", tr("Inline"), SLOT(setPreviewMode()));
+	act->setData(ConfigManager::PM_INLINE);
+	act->setCheckable(true);
+	previewModeGroup->addAction(act);
+	// poppler preview
+#ifndef NO_POPPLER_PREVIEW
+	act = newManagedAction(submenu, "PM_EMBEDDED", tr("Show in embedded viewer"), SLOT(setPreviewMode()));
+	act->setData(ConfigManager::PM_EMBEDDED);
+	act->setCheckable(true);
+	previewModeGroup->addAction(act);
+#endif
+
+	setCheckedPreviewModeAction();
 
 	menu->addSeparator();
     newManagedEditorAction(menu, "togglecomment", tr("Toggle &Comment"), "toggleCommentSelection", Qt::CTRL | Qt::Key_T);
@@ -1181,6 +1214,7 @@ void Texstudio::setupMenus()
 	newManagedAction(menu, "htmlexport", tr("C&onvert to Html..."), SLOT(webPublish()));
 	newManagedAction(menu, "htmlsourceexport", tr("C&onvert Source to Html..."), SLOT(webPublishSource()));
 	menu->addSeparator();
+	newManagedAction(menu, "textexport", tr("Convert to Abridged Plaintext"), SLOT(convertToPlainText()));
 	newManagedAction(menu, "analysetext", tr("A&nalyse Text..."), SLOT(analyseText()));
 	newManagedAction(menu, "generaterandomtext", tr("Generate &Random Text..."), SLOT(generateRandomText()));
 	menu->addSeparator();
@@ -1428,6 +1462,42 @@ void Texstudio::setupMenus()
 	configManager.modifyMenuContents();
 	configManager.modifyManagedShortcuts();
 }
+/*! \brief slot for actions from Menu Preview Display Mode
+*/
+void Texstudio::setPreviewMode()
+{
+	QAction *act = qobject_cast<QAction *>(sender());
+	if (act) {
+		configManager.previewMode = act->data().value<ConfigManager::PreviewMode>();
+	}
+}
+/*! \brief set action for Menu Preview Display Mode
+*/
+void Texstudio::setCheckedPreviewModeAction()
+{
+	ConfigManager::PreviewMode pm = configManager.previewMode;
+	switch (pm) {
+		case ConfigManager::PM_TOOLTIP_AS_FALLBACK:
+			getManagedAction("main/edit2/previewMode/PM_TOOLTIP_AS_FALLBACK")->setChecked(true);
+			break;
+		case ConfigManager::PM_PANEL:
+			getManagedAction("main/edit2/previewMode/PM_PANEL")->setChecked(true);
+			break;
+		case ConfigManager::PM_TOOLTIP:
+			getManagedAction("main/edit2/previewMode/PM_TOOLTIP")->setChecked(true);
+			break;
+		case ConfigManager::PM_BOTH:
+			getManagedAction("main/edit2/previewMode/PM_BOTH")->setChecked(true);
+			break;
+#ifndef NO_POPPLER_PREVIEW
+		case ConfigManager::PM_EMBEDDED:
+			getManagedAction("main/edit2/previewMode/PM_EMBEDDED")->setChecked(true);
+			break;
+#endif
+		default:	// PM_INLINE
+			getManagedAction("main/edit2/previewMode/PM_INLINE")->setChecked(true);
+	}
+}
 /*! \brief set-up all tool-bars
  */
 void Texstudio::setupToolBars()
@@ -1468,7 +1538,7 @@ void Texstudio::setupToolBars()
 					tagsWidget->populate();
 				QStringList list = tagsWidget->tagsTxtFromCategory(actionName.mid(tagCategorySep + 1));
 				if (list.isEmpty()) continue;
-				QToolButton *combo = UtilsUi::createComboToolButton(mtb.toolbar, list, QList<QIcon>(), 0, this, SLOT(insertXmlTagFromToolButtonAction()));
+				QToolButton *combo = UtilsUi::createComboToolButton(mtb.toolbar, list, QStringList(), QList<QIcon>(), 0, this, SLOT(insertXmlTagFromToolButtonAction()));
 				combo->setProperty("tagsID", actionName);
 				mtb.toolbar->addWidget(combo);
 			} else {
@@ -1489,14 +1559,16 @@ void Texstudio::setupToolBars()
 					//Case 4: A submenu mapped on a toolbutton
 					configManager.watchedMenus << actionName;
 					QStringList list;
+					QStringList infos;
 					QList<QIcon> icons;
 					foreach (const QAction *act, menu->actions())
 						if (!act->isSeparator()) {
 							list.append(act->text());
+							infos.append(act->toolTip());
 							icons.append(act->icon());
 						}
 					//TODO: Is the callToolButtonAction()-slot really needed? Can't we just add the menu itself as the menu of the qtoolbutton, without creating a copy? (should be much faster)
-					QToolButton *combo = UtilsUi::createComboToolButton(mtb.toolbar, list, icons, 0, this, SLOT(callToolButtonAction()));
+					QToolButton *combo = UtilsUi::createComboToolButton(mtb.toolbar, list, infos, icons, 0, this, SLOT(callToolButtonAction()));
 					combo->setProperty("menuID", actionName);
 					mtb.toolbar->addWidget(combo);
 				}
@@ -1734,10 +1806,11 @@ void Texstudio::updateCaption()
 	updateUndoRedoStatus();
 	cursorPositionChanged();
 	if (documents.singleMode()) {
-		if (currentEditorView()) completerNeedsUpdate();
+        if (currentEditorView()) completerCommandsNeedsUpdate();
 	}
 	QString finame = getCurrentFileName();
 	if (finame != "") configManager.lastDocument = finame;
+    setWindowFilePath(finame);
 }
 
 void Texstudio::updateMasterDocumentCaption()
@@ -1929,7 +2002,8 @@ void Texstudio::configureNewEditorViewEnd(LatexEditorView *edit, bool reloadFrom
     //connect(edit->editor->document(),SIGNAL(contentsChange(int, int)),edit,SLOT(documentContentChanged(int,int))); now directly called by patchStructure
     connect(edit->editor->document(), SIGNAL(linesRemoved(QDocumentLineHandle*,int,int)), edit->document, SLOT(patchStructureRemoval(QDocumentLineHandle*,int,int)));
     //connect(edit->editor->document(), SIGNAL(lineDeleted(QDocumentLineHandle*,int)), edit->document, SLOT(patchStructureRemoval(QDocumentLineHandle*,int)));
-    connect(edit->document, SIGNAL(updateCompleter()), this, SLOT(completerNeedsUpdate()));
+    connect(edit->document, &LatexDocument::updateCompleter, this, &Texstudio::completerNeedsUpdate);
+    connect(edit->document, &LatexDocument::updateCompleterCommands, this, &Texstudio::completerCommandsNeedsUpdate);
     connect(edit->editor, SIGNAL(needUpdatedCompleter()), this, SLOT(needUpdatedCompleter()));
     connect(edit->document, SIGNAL(importPackage(QString)), this, SLOT(importPackage(QString)));
     connect(edit->document, SIGNAL(bookmarkLineUpdated(int)), bookmarks, SLOT(updateLineWithBookmark(int)));
@@ -2247,7 +2321,15 @@ LatexEditorView *Texstudio::load(const QString &f , bool asProject, bool hidden,
 
 void Texstudio::completerNeedsUpdate()
 {
-	mCompleterNeedsUpdate = true;
+    mCompleterNeedsUpdate = true;
+}
+/*!
+ * \brief used packages has changed, completer commands need update
+ */
+void Texstudio::completerCommandsNeedsUpdate()
+{
+    mCompleterCommandsNeedsUpdate = true;
+    mCompleterNeedsUpdate = true;
 }
 
 void Texstudio::needUpdatedCompleter()
@@ -4183,8 +4265,7 @@ void Texstudio::readSettings(bool reread)
     scriptengine::buildManager = &buildManager;
     scriptengine::app = this;
     QSettings *config = configManager.readSettings(reread);
-    completionBaseCommandsUpdated = true;
-
+    mCompleterCommandsNeedsUpdate=true;
     config->beginGroup("texmaker");
 
     QRect screen = QGuiApplication::primaryScreen()->availableGeometry();
@@ -6230,6 +6311,28 @@ void Texstudio::webPublishSource()
 	htmll->resize(300,300);*/
 }
 /*!
+ * Remove latex commands
+ */
+void Texstudio::convertToPlainText(){
+	if (!currentEditorView()) return;
+	QList<LineInfo> inlines;
+	QString plaintext;
+	LatexDocument* doc = currentEditorView()->document;
+	for (int i=0;i<=doc->lines();i++) {
+		if (i != doc->lines() && doc->line(i).firstChar() != -1)
+			inlines << LineInfo(doc->line(i).handle());
+		else if (inlines.count()){
+			//convert to plain text after each paragraph and at the end
+			QList<TokenizedBlock> blocks = tokenizeWords(LatexParser::getInstancePtr(), inlines);
+			foreach (const TokenizedBlock &tb, blocks)
+				plaintext += tb.toString() + "\n\n";
+			inlines.clear();
+		}
+	}
+	fileNew();
+	currentEditor()->setText(plaintext, false);
+}
+/*!
  * \brief open analyse text dialog
  * Makes use of TextAnalysisDialog
  */
@@ -6267,11 +6370,7 @@ void Texstudio::generateRandomText()
 		UtilsUi::txsWarning(tr("The random text generator constructs new texts from existing words, so you have to open some text files"));
 		return;
 	}
-
-	QStringList allLines;
-	foreach (LatexEditorView *edView, editors->editors())
-		allLines << edView->editor->document()->textLines();
-	RandomTextGenerator generator(this, allLines);
+	RandomTextGenerator generator(this, &documents);
 	generator.exec();
 }
 
@@ -6704,7 +6803,7 @@ void Texstudio::generalOptions()
         //custom toolbar
         setupToolBars();
         //completion
-        completionBaseCommandsUpdated = true;
+        mCompleterCommandsNeedsUpdate=true;
         completerNeedsUpdate();
         completer->setConfig(configManager.completerConfig);
         //update changed line mark colors
@@ -6743,6 +6842,8 @@ void Texstudio::generalOptions()
         delete pdfviewerWindow;
     }
 #endif
+    // update action from Menu Preview Display Mode
+	setCheckedPreviewModeAction();
 #ifdef INTERNAL_TERMINAL
     outputView->getTerminalWidget()->updateSettings();
 #endif
@@ -7000,6 +7101,9 @@ void Texstudio::generateAddtionalTranslations()
 			QString text = attribs.namedItem("text").nodeValue();
 			if (!text.isEmpty() && !commandOnly.exactMatch(text))
 				translations << "QT_TRANSLATE_NOOP(\"ConfigManager\", \"" + text.replace("\\", "\\\\").replace("\"", "\\\"") + "\"), ";
+            QString info = attribs.namedItem("info").nodeValue();
+            if (!info.isEmpty() && !commandOnly.exactMatch(info))
+                translations << "QT_TRANSLATE_NOOP(\"ConfigManager\", \"" + info.replace("\\", "\\\\").replace("\"", "\\\"") + "\"), ";
 			QString insert = attribs.namedItem("insert").nodeValue();
 			if (!insert.isEmpty()) {
 				CodeSnippet cs(insert, false);
@@ -7631,6 +7735,10 @@ void Texstudio::updateCompleter(LatexEditorView *edView)
 {
     CodeSnippetList words;
 
+    if(mCompleterCommandsNeedsUpdate){
+        mCompleterWords.clear();
+    }
+
     if (configManager.parseBibTeX) documents.updateBibFiles();
 
     if (!edView)
@@ -7640,6 +7748,7 @@ void Texstudio::updateCompleter(LatexEditorView *edView)
     LatexParser ltxCommands = LatexParser::getInstance();
     LatexCompleterConfig *config = completer->getConfig();
 
+    QStringList loadedFiles; // keep track of loaded files to avoid duplicate loading
     if (edView && edView->document) {
         // determine from which docs data needs to be collected
         docs = edView->document->getListOfDocs();
@@ -7660,12 +7769,13 @@ void Texstudio::updateCompleter(LatexEditorView *edView)
                 }
             }
             words.unite(userList);
-            words.unite(doc->additionalCommandsList());
-
-            ltxCommands.append(doc->ltxCommands);
+            if(mCompleterCommandsNeedsUpdate){
+                mCompleterWords.unite(doc->additionalCommandsList(loadedFiles));
+                ltxCommands.append(doc->ltxCommands);
+            }
         }
+        mCompleterWords.unite(words);
     }
-
     // collect user commands and references
     std::set<QString> collected_labels;
     foreach (const LatexDocument *doc, docs) {
@@ -7675,15 +7785,6 @@ void Texstudio::updateCompleter(LatexEditorView *edView)
         collected_labels.insert(lst.cbegin(),lst.cend());
     }
 
-    /*foreach (const QString &refCommand, latexParser.possibleCommands["%ref"]) {
-        QString temp = refCommand + "{%1}";
-        CodeSnippetList wordsList;
-        foreach (const QString &l, collected_labels)
-            wordsList.insert(temp.arg(l));
-
-
-        words.unite(wordsList);
-    }*/
     if (configManager.parseBibTeX) {
         std::set<QString> bibIds;
 
@@ -7712,38 +7813,36 @@ void Texstudio::updateCompleter(LatexEditorView *edView)
 
     completer->setAdditionalWords(collected_labels, CT_LABELS);
 
-    completionBaseCommandsUpdated = false;
-
-
-    completer->setAdditionalWords(words, CT_COMMANDS);
-
-    // add keyval completion, add special lists
-    foreach (const QString &elem, ltxCommands.possibleCommands.keys()) {
-        if (elem.startsWith("key%")) {
-            QString name = elem.mid(4);
-            if (name.endsWith("#c"))
-                name.chop(2);
-            if (!name.isEmpty()) {
-                completer->setKeyValWords(name, ltxCommands.possibleCommands[elem]);
+    completer->setAdditionalWords(mCompleterWords, CT_COMMANDS);
+    if(mCompleterCommandsNeedsUpdate){
+        // add keyval completion, add special lists
+        foreach (const QString &elem, ltxCommands.possibleCommands.keys()) {
+            if (elem.startsWith("key%")) {
+                QString name = elem.mid(4);
+                if (name.endsWith("#c"))
+                    name.chop(2);
+                if (!name.isEmpty()) {
+                    completer->setKeyValWords(name, ltxCommands.possibleCommands[elem]);
+                }
+            }
+            if (elem.startsWith("%") && latexParser.mapSpecialArgs.values().contains(elem)) {
+                completer->setKeyValWords(elem, ltxCommands.possibleCommands[elem]);
             }
         }
-        if (elem.startsWith("%") && latexParser.mapSpecialArgs.values().contains(elem)) {
-            completer->setKeyValWords(elem, ltxCommands.possibleCommands[elem]);
+        // add context completion
+        if (config) {
+            foreach (const QString &elem, config->specialCompletionKeys) {
+                completer->setContextWords(ltxCommands.possibleCommands[elem], elem);
+            }
         }
     }
-    // add context completion
-    if (config) {
-        foreach (const QString &elem, config->specialCompletionKeys) {
-            completer->setContextWords(ltxCommands.possibleCommands[elem], elem);
-        }
-    }
-
 
     if (edView) edView->viewActivated();
 
     GrammarCheck::staticMetaObject.invokeMethod(grammarCheck, "init", Qt::QueuedConnection, Q_ARG(LatexParser, latexParser), Q_ARG(GrammarCheckerConfig, *configManager.grammarCheckerConfig));
 
     mCompleterNeedsUpdate = false;
+    mCompleterCommandsNeedsUpdate = false;
 }
 
 void Texstudio::outputPageChanged(const QString &id)
@@ -7857,7 +7956,7 @@ void Texstudio::gotoLine(QTreeWidgetItem *item, int)
         }
         if(se->type==StructureEntry::SE_INCLUDE || se->type==StructureEntry::SE_BIBTEX){
             saveCurrentCursorToHistory();
-            bool relativeToCurrentDoc=se->hasContext(StructureEntry::Import);
+            bool relativeToCurrentDoc=se->hasContext(StructureEntry::Import) || se->document->getStateImportedFile();
             QString defaultExt = se->type == StructureEntry::SE_BIBTEX ? ".bib" : ".tex";
             QString name=se->title;
             name.replace("\\string~",QDir::homePath());
@@ -8225,25 +8324,32 @@ void Texstudio::saveEditorCursorToHistory(LatexEditorView *edView)
 void Texstudio::previewLatex()
 {
 	if (!currentEditorView()) return;
+    LatexEditorView *edView=currentEditorView();
+    QEditor *editor=edView->editor;
+
 	// get selection
-	QDocumentCursor c = currentEditorView()->editor->cursor();
+    QDocumentCursor c = editor->cursor();
+
 	QDocumentCursor previewc;
 	if (c.hasSelection()) {
 		previewc = c; //X o riginalText = c.selectedText();
 	} else {
+        if (edView->getLineRowforContexMenu()>=0) {
+            c.moveTo(edView->getLineRowforContexMenu(), edView->getLineColforContexMenu());
+        }
 		// math context
 		QSet<int> mathFormats = QSet<int>() << m_formats->id("numbers") << m_formats->id("math-keyword") << m_formats->id("align-ampersand");
 		QSet<int> lineEndFormats = QSet<int>() << m_formats->id("keyword") /* newline char */ << m_formats->id("comment");
 		mathFormats.remove(0); // keep only valid entries in list
 		lineEndFormats.remove(0);
-		previewc = currentEditorView()->findFormatsBegin(c, mathFormats, lineEndFormats);
-		previewc = currentEditorView()->parenthizedTextSelection(previewc);
+        previewc = edView->findFormatsBegin(c, mathFormats, lineEndFormats);
+        previewc = edView->parenthizedTextSelection(previewc);
 	}
 	if (!previewc.hasSelection()) {
 		// special handling for cusor in the middle of \[ or \]
 		if (c.previousChar() == '\\' && (c.nextChar() == '[' || c.nextChar() == ']')) {
 			c.movePosition(1, QDocumentCursor::PreviousCharacter);
-			previewc = currentEditorView()->parenthizedTextSelection(c);
+            previewc = edView->parenthizedTextSelection(c);
 		}
 	}
         if (!previewc.hasSelection()) {
@@ -8256,16 +8362,16 @@ void Texstudio::previewLatex()
                 TokenList tl = c.line().handle()->getCookieLocked(QDocumentLine::LEXER_COOKIE).value<TokenList>();
                 tk=Parsing::getCommandTokenFromToken(tl,tk);
                 c.setColumnNumber(tk.start);
-                previewc = currentEditorView()->parenthizedTextSelection(c);
+                previewc = edView->parenthizedTextSelection(c);
             }
             if (tk.type == Token::command && (command == "\\begin" || command == "\\end")) {
                 c.setColumnNumber(tk.start);
-                previewc = currentEditorView()->parenthizedTextSelection(c);
+                previewc = edView->parenthizedTextSelection(c);
             }
         }
         if (!previewc.hasSelection()) {
             // already at parenthesis
-            previewc = currentEditorView()->parenthizedTextSelection(currentEditorView()->editor->cursor());
+            previewc = edView->parenthizedTextSelection(editor->cursor());
         }
 	if (!previewc.hasSelection()) return;
 
@@ -8392,17 +8498,21 @@ void Texstudio::clearPreview()
 	int startLine = 0;
 	int endLine = 0;
 
-	QAction *act = qobject_cast<QAction *>(sender());
-	if (act && act->data().isValid()) {
-		// inline preview context menu supplies the calling point in doc coordinates as data
-		startLine = edit->document()->indexOf(edit->lineAtPosition(act->data().toPoint()));
-		// slight performance penalty for use of lineNumber(), which is not stictly necessary because
-		// we convert it back to a QDocumentLine, but easier to handle together with the other cases
-		endLine = startLine;
-		act->setData(QVariant());
-	} else if (edit->cursor().hasSelection()) {
+    LatexEditorView *edView=currentEditorView();
+    int row=edView->getLineRowforContexMenu();
+    int col=edView->getLineColforContexMenu();
+    if(row>=0 && col<0){
+        // context menu position takes precedence when click directly on preview image
+        startLine = row;
+        endLine = startLine;
+    } else if (edit->cursor().hasSelection()) {
 		startLine = edit->cursor().selectionStart().lineNumber();
 		endLine = edit->cursor().selectionEnd().lineNumber();
+	} else if (row>=0) {
+        // inline preview context menu supplies the calling point as row/col in LatexEditorView member variable
+        // That variable is only >-1 when context menu is active
+        startLine = row;
+		endLine = startLine;
 	} else {
 		startLine = edit->cursor().lineNumber();
 		endLine = startLine;
@@ -9214,11 +9324,11 @@ void Texstudio::showOldRevisions()
 	cmbLog->insertItems(0, log);
 	lay->addWidget(cmbLog);
     connect(svndlg, &QDialog::finished, this, &Texstudio::svnDialogClosed);
-	connect(cmbLog, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeToRevision(QString)));
+    connect(cmbLog, SIGNAL(currentTextChanged(QString)), this, SLOT(changeToRevision(QString)));
     connect(currentEditor(), SIGNAL(textEdited(QKeyEvent*)), svndlg, SLOT(close()));
 	currentEditor()->setProperty("Revision", log.first());
 	svndlg->setAttribute(Qt::WA_DeleteOnClose, true);
-	svndlg->show();
+    svndlg->show();
 }
 /*!
  * \brief reset when closing svn old revision dialog
@@ -9483,6 +9593,10 @@ void Texstudio::openExternalFile(QString name, const QString &defaultExt, LatexD
 	}
 	if (!doc) return;
 	name.remove('"');  // ignore quotes (http://sourceforge.net/p/texstudio/bugs/1366/)
+    if(name.endsWith('#')){
+        relativeToCurrentDoc=true;
+        name.chop(1);
+    }
     QStringList curPaths;
     if (defaultExt == "bib") {
         curPaths << configManager.additionalBibPaths.split(getPathListSeparator());
@@ -9521,6 +9635,7 @@ void Texstudio::openExternalFileFromAction()
     QAction *act = qobject_cast<QAction *>(sender());
     QString name = act->data().toString();
     name.replace("\\string~",QDir::homePath());
+
     if (!name.isEmpty())
         openExternalFile(name);
 }
@@ -9921,7 +10036,7 @@ void Texstudio::setClipboardText(const QString &text, const QClipboard::Mode &mo
 
 int Texstudio::getVersion() const
 {
-	return TXSVERSION_NUMERIC;
+    return Version::parseVersionNumberToInt(TXSVERSION);
 }
 
 /*!
@@ -10654,6 +10769,10 @@ void Texstudio::checkCWLs()
 	foreach (QString s, cwls) {
 		res << QString("------------------- Package %1: ---------------------").arg(s);
 		LatexPackage package;
+        int p=s.indexOf('#');
+        if(p>-1 && !documents.cachedPackages.contains(s)){
+            s=s.mid(p+1);
+        }
 		if (!documents.cachedPackages.contains(s)) {
 			res << "Package not cached (normal for global packages)";
 			package = loadCwlFile(s);
@@ -11059,7 +11178,11 @@ void Texstudio::changeSymbolGridIconSize(int value, bool changePanel)
 	int iconWidth=qRound(value*scale);
 
 	if (changePanel) {
-		leftPanel->setCurrentWidget(leftPanel->widget("symbols"));
+		QWidget *sympanel = leftPanel->widget("symbols");
+		if ( !leftPanel->hiddenWidgets().split("|").contains(sympanel->property("id").toString()) ) {
+			leftPanel->setCurrentWidget(sympanel);
+			emit leftPanel->titleChanged(sympanel->property("Name").toString());
+		}
 	}
 	symbolWidget->setSymbolSize(iconWidth);
 }
@@ -11449,7 +11572,11 @@ void Texstudio::customMenuStructure(const QPoint &pos){
     }
     if (contextEntry->type == StructureEntry::SE_INCLUDE) {
         QMenu menu;
-        menu.addAction(tr("Open Document"), this, SLOT(openExternalFileFromAction()))->setData(QVariant::fromValue(contextEntry->title));
+        QString fn=contextEntry->title;
+        if(contextEntry->document->getStateImportedFile()){
+                fn+="#"; // mark as relative to current
+        }
+        menu.addAction(tr("Open Document"), this, SLOT(openExternalFileFromAction()))->setData(fn);
         menu.addAction(tr("Go to Definition"), this, SLOT(gotoLineFromAction()))->setData(QVariant::fromValue(contextEntry));
 
         menu.exec(w->mapToGlobal(pos));

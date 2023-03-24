@@ -1433,9 +1433,9 @@ long-em-noshort-em-desc-noreg
 \glsxtrpostabbrvfootnote{label}{fmt-code}#*
 \glsxtrifhyphenstart{string}{true}{false}#*
 \GlsXtrWarnDeprecatedAbbrStyle{old name}{new name}#*
-\newabbreviationstyle{name}{setup}{definitions}#*s#%abbreviationstyle
+\newabbreviationstyle{name%specialDef}{setup}{definitions}#*s#%abbreviationstyle
 \renewabbreviationstyle{name}{setup}{definitions}#*
-\letabbreviationstyle{new-style}{existing-style}#*s#%abbreviationstyle
+\letabbreviationstyle{new-style%specialDef}{existing-style}#*s#%abbreviationstyle
 \glscategorylabel#*
 \glsxtrorgkeylist#*
 \glsxtrorgshort#*
@@ -2547,8 +2547,8 @@ topicmcols
 \glsifcategoryattributehasitem{category}{attribute}{item}{true}{false}#*
 
 ### 11 bib2gls: Managing Reference Databases ###
-\glsxtrresourcefile{filename}
-\glsxtrresourcefile[options%keyvals]{filename}
+\glsxtrresourcefile{filename%file}
+\glsxtrresourcefile[options%keyvals]{filename%file}
 \GlsXtrLoadResources
 \GlsXtrLoadResources[options%keyvals]
 

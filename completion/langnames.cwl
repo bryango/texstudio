@@ -1,8 +1,5 @@
 # langnames package
-# Matthew Bertucci 2022/09/16 for v2.0
-
-#include:expkv-opt
-#include:expkv-def
+# Matthew Bertucci 2023/01/09 for v2.1
 
 #keyvals:\usepackage/langnames#c
 glottolog
@@ -15,7 +12,7 @@ native
 \liso{ISO code%keyvals}
 \lfam{ISO code%keyvals}
 \langnative{ISO code%keyvals}
-\newlang{code}{name}{family}#s#%langnamescode
+\newlang{code%specialDef}{name}{family}#s#%langnamescode
 \renewlang{dataset}{code}{name}{family}
 \newlangnative{dataset}{code}{name}
 \changetoglottolog

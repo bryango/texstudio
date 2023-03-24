@@ -67,7 +67,7 @@ onmouseall
 
 #ifOption:tikz
 #include:tikz
-# loads calc tikzlibrary
+#include:tikzlibrarycalc
 #keyvals:\tikzset#c,\begin{tikzpicture}#c,\begin{scope}#c,\node#c
 ocg={%<options%>}
 ocmd={%<options%>}
@@ -82,7 +82,7 @@ switch ocg with mark off={%<ocg ref%>}{%<ocg list%>}
 #endif
 #ifOption:tikz=true
 #include:tikz
-# loads calc tikzlibrary
+#include:tikzlibrarycalc
 #keyvals:\tikzset#c,\begin{tikzpicture}#c,\begin{scope}#c,\node#c
 ocg={%<options%>}
 ocmd={%<options%>}

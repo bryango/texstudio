@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2022/11/11 for v7.19.0
+# Matthew Bertucci 2023/01/20 for v8.3.0
 
 #include:ifxetex
 #include:ifluatex
@@ -50,6 +50,7 @@ adobephotoshop
 adobepremierepro
 adobexd
 adonisjs
+adp
 adyen
 aerlingus
 aeroflot
@@ -80,6 +81,7 @@ airtable
 ajv
 alacritty
 albertheijn
+alchemy
 aldinord
 aldisud
 alfaromeo
@@ -136,6 +138,7 @@ angularjs
 angularuniversal
 anilist
 ansible
+answer
 ansys
 anta
 antdesign
@@ -169,7 +172,6 @@ apachetomcat
 aparat
 apollographql
 apostrophe
-appannie
 appian
 apple
 applearcade
@@ -302,6 +304,7 @@ blueprint
 bluetooth
 bmcsoftware
 bmw
+boardgamegeek
 boehringeringelheim
 boeing
 bookalope
@@ -341,6 +344,7 @@ burgerking
 burton
 buymeacoffee
 buzzfeed
+bvg
 byjus
 byte
 bytedance
@@ -370,6 +374,7 @@ centos
 ceph
 cesium
 chai
+chainguard
 chainlink
 chakraui
 chartdotjs
@@ -489,6 +494,7 @@ cratedb
 crayon
 createreactapp
 creativecommons
+creativetechnology
 credly
 crehana
 criticalrole
@@ -502,7 +508,9 @@ csharp
 css3
 cssmodules
 csswizardry
+cts
 cucumber
+cultura
 curl
 curseforge
 cycling74
@@ -531,7 +539,6 @@ datagrip
 dataiku
 datastax
 dataverse
-dataversioncontrol
 datocms
 datto
 dazn
@@ -657,6 +664,7 @@ engadget
 enpass
 enterprisedb
 envato
+envoyproxy
 epel
 epicgames
 epson
@@ -717,6 +725,7 @@ ffmpeg
 fiat
 fidoalliance
 fifa
+fig
 figma
 figshare
 fila
@@ -727,6 +736,7 @@ firebase
 firefox
 firefoxbrowser
 fireship
+firewalla
 first
 fitbit
 fite
@@ -745,6 +755,7 @@ flood
 fluentbit
 fluentd
 flutter
+fluxus
 flyway
 fmod
 fnac
@@ -1002,6 +1013,7 @@ ifood
 ifttt
 iheartradio
 ikea
+iledefrancemobilites
 imagej
 imdb
 imgur
@@ -1012,6 +1024,7 @@ infiniti
 influxdb
 informatica
 infosys
+infracost
 ingress
 inkdrop
 inkscape
@@ -1151,6 +1164,7 @@ kuaishou
 kubernetes
 kubuntu
 kuma
+kuula
 kyocera
 labview
 lada
@@ -1335,6 +1349,7 @@ mlflow
 mobx
 mobxstatetree
 mocha
+modrinth
 modx
 mojangstudios
 moleculer
@@ -1342,6 +1357,7 @@ momenteo
 monero
 moneygram
 mongodb
+monica
 monkeytie
 monogames
 monoprix
@@ -1607,6 +1623,7 @@ podman
 poetry
 pointy
 pokemon
+polars
 polkadot
 poly
 polymerproject
@@ -1731,10 +1748,12 @@ reactos
 reactquery
 reactrouter
 reacttable
+readme
 readthedocs
 realm
 reason
 reasonstudios
+red
 redbubble
 reddit
 redhat
@@ -1916,6 +1935,7 @@ smrt
 smugmug
 snapchat
 snapcraft
+sncf
 snowflake
 snowpack
 snyk
@@ -2088,6 +2108,7 @@ testin
 testinglibrary
 tether
 textpattern
+tga
 thealgorithms
 theconversation
 theirishtimes
@@ -2120,6 +2141,7 @@ tinyletter
 tistory
 tmobile
 tmux
+tnt
 todoist
 toggl
 tokyometro
@@ -2268,6 +2290,7 @@ vultr
 w3c
 wacom
 wagtail
+wails
 wakatime
 walkman
 wallabag
@@ -2279,6 +2302,7 @@ warp
 wasmcloud
 wasmer
 wattpad
+wayland
 waze
 wearos
 weasyl
@@ -2425,4 +2449,4 @@ zyte
 \simpleiconsmapSeven#S
 \simpleiconsmapEight#S
 \simpleiconsmapNine#S
-\simpleiconsmapZero#S
+\simpleiconsmapOneZero#S

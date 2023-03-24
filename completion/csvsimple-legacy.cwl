@@ -7,8 +7,8 @@
 #include:pgfrcs
 #include:shellesc
 
-\csvreader{file}{assignments}{command list%definition}#i
-\csvreader[options%keyvals]{file}{assignments}{command list%definition}#i
+\csvreader{file}{assignments}{command list%definition}
+\csvreader[options%keyvals]{file}{assignments}{command list%definition}
 
 \csvcoli#*
 \csvcolii#*
@@ -18,22 +18,22 @@
 
 \csvloop{options%keyvals}
 
-\csvautotabular{file}#i
-\csvautotabular[options%keyvals]{file}#i
+\csvautotabular{file}
+\csvautotabular[options%keyvals]{file}
 
-\csvautolongtable{file}#i
-\csvautolongtable[options%keyvals]{file}#i
+\csvautolongtable{file}
+\csvautolongtable[options%keyvals]{file}
 
-\csvautobooktabular{file}#i
-\csvautobooktabular[options%keyvals]{file}#i
+\csvautobooktabular{file}
+\csvautobooktabular[options%keyvals]{file}
 
-\csvautobooklongtable{file}#i
-\csvautobooklongtable[options%keyvals]{file}#i
+\csvautobooklongtable{file}
+\csvautobooklongtable[options%keyvals]{file}
 
 \csvset{options%keyvals}
 
-\csvstyle{key name}{options%keyvals}#s#%csvstyle
-\csvnames{key name}{assignments%definition}#s#%csvstyle
+\csvstyle{key name%specialDef}{options%keyvals}#s#%csvstyle
+\csvnames{key name%specialDef}{assignments%definition}#s#%csvstyle
 \csvheadset{assignments%definition}
 
 \csviffirstrow{then}{else}

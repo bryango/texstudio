@@ -1,5 +1,5 @@
 # mismath package
-# Matthew Bertucci 2022/11/11 for v2.0
+# Matthew Bertucci 2023/01/06 for v2.2
 
 #include:amsmath
 #include:esvect
@@ -7,8 +7,9 @@
 #include:xspace
 #include:mathtools
 
-# all options passed to amsmath
 #keyvals:\usepackage/mismath#c
+ibrackets
+# options passed to amsmath
 intlimits
 nointlimits
 sumlimits
@@ -25,6 +26,10 @@ alignedleftspaceyes
 alignedleftspaceno
 alignedleftspaceyesifneg
 #endkeyvals
+
+#ifOption:ibrackets
+#include:ibrackets
+#endif
 
 \enumber
 \inumber
@@ -48,6 +53,7 @@ alignedleftspaceyesifneg
 \boldvect{arg}#m
 \boldvectcommand{arg}#*
 \C#m
+\codim#m
 \Conv#m
 \Cov#m
 \cov#m
@@ -65,6 +71,7 @@ alignedleftspaceyesifneg
 \E#m
 \End#m
 \eqdef#m
+\eqdef*#m
 \erf#m
 \F#m
 \grad#m
@@ -104,12 +111,14 @@ alignedleftspaceyesifneg
 \rot#m
 \sech#m
 \sgn#m
+\sinc#m
 \spa#m
 \then#m
 \tr#m
 \txt{text}#m
 \unbr{arg}#m
 \V#m
+\var#m
 \Var#m
 \vect{arg}#m
 \Z#m

@@ -21,8 +21,8 @@ echo "copy dlls"
 #ldd texstudio.exe | awk '{print $3}'| grep ming | xargs -I{} cp -u {} .
 ldd texstudio.exe | awk '{print $3}'| grep ucrt64 | xargs -I{} cp -u {} .
 # force ssl/crypto copy
-ldd texstudio.exe | awk '{print $3}'| grep libcrypto | xargs -I{} cp -u {} .
-ldd texstudio.exe | awk '{print $3}'| grep libssl | xargs -I{} cp -u {} .
+#ldd texstudio.exe | awk '{print $3}'| grep libcrypto | xargs -I{} cp -u {} .
+#ldd texstudio.exe | awk '{print $3}'| grep libssl | xargs -I{} cp -u {} .
 # check copied dlls
 echo "check dlls"
 ldd texstudio.exe
@@ -31,7 +31,9 @@ echo "copy directories"
 mkdir -p ./package-zip/translations
 cp -r ../translation/* ./package-zip/translations
 cp -r ../templates package-zip
-cp -r ../utilities/manual package-zip/help
+mkdir -p ./package-zip/help
+cp -r ../utilities/manual/build package-zip/help
+cp ../utilities/manual/CHANGELOG.txt package-zip/help
 cp ../utilities/latex2e.css package-zip/help
 cp ../utilities/latex2e.html package-zip/help
 cp -r ../utilities/dictionaries package-zip/dictionaries

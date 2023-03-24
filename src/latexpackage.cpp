@@ -50,6 +50,7 @@ QStringList LatexPackage::keyToOptions(const QString &key)
 			elem = elem.left(i);
 		}
 		elem = elem.simplified();
+        elem = elem.remove(QChar(' '));
 		result[k] = elem;
 	}
 	return result;
@@ -626,7 +627,7 @@ LatexPackage loadCwlFile(const QString fileName, LatexCompleterConfig *config, Q
 }
 
 
-Token::TokenType tokenTypeFromCwlArg(QString arg, QString definition)
+Token::TokenType tokenTypeFromCwlArg(QString arg, QString &definition)
 {
 	int i = arg.indexOf('%');
 	// type from suffix
@@ -637,6 +638,7 @@ Token::TokenType tokenTypeFromCwlArg(QString arg, QString definition)
 		if (suffix == "%title") return Token::title;
 		if (suffix == "%short title") return Token::shorttitle;
 		if (suffix == "%todo") return Token::todo;
+        if (suffix == "%file") return Token::file;
 		if (suffix == "%l") return Token::width;
 		if (suffix == "%cmd") return Token::def;
         if (suffix == "%definition") return Token::definition;
@@ -645,6 +647,9 @@ Token::TokenType tokenTypeFromCwlArg(QString arg, QString definition)
 		if ((suffix == "%envname") && definition.contains('N')) return Token::newTheorem;
 		if (suffix == "%ref") return Token::labelRef;
 		if (suffix == "%labeldef") return Token::label;
+        if (suffix == "%specialDef"){
+            return Token::defSpecialArg;
+        }
 		if (suffix == "%special") {
 			Token::TokenType type = Token::specialArg;
 			arg.chop(8);
@@ -693,6 +698,7 @@ Token::TokenType tokenTypeFromCwlArg(QString arg, QString definition)
 	if (arg == "labellist") return Token::labelRefList;
     if (arg == "verbatimSymbol") return Token::verbatimStart;
 	if (arg.contains("overlay specification")) return Token::overlay;
+
 	return Token::generalArg;
 }
 

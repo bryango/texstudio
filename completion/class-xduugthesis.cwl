@@ -1,5 +1,5 @@
 # xduugthesis class
-# Matthew Bertucci 2022/11/23 for v2.14.1.3
+# Matthew Bertucci 2023/01/28 for v4.3.0.0
 
 #include:expl3
 #include:xparse
@@ -17,17 +17,18 @@
 #include:xspace
 #include:biblatex
 # loads style=gb7714-2015 option of biblatex
-#include:environ
 
 \xdusetup{options%keyvals}
 
 #keyvals:\xdusetup#c
 style={%<keyvals%>}
-style/cjk-font=#win,adobe,founder,sinotype,fandol,none
+style/cjk-font=#adobe,fandol,founder,sinotype,win,none
 style/cjk-fake-bold=%<伪粗体粗细程度%>
 style/cjk-fake-slant=%<伪斜体倾斜程度%>
 style/latin-font=#tac,tacn,thcs,gyre,none
-style/math-font=#asana,cambria,cm,fira,garamond,lm,libertinus,stix,bonum,dejavu,pagella,schola,termes,xits,erewhon,none
+style/latin-sans-scale=#upper,lower,off
+style/latin-mono-scale=#upper,lower,off
+style/math-font=#asana,cambria,cm,concrete,erewhon,euler,fira,garamond,gfsneohellenic,kp,libertinus,lm,newcm,stix2,stix,xcharter,xits,bonum,dejavu,pagella,schola,termes,none
 style/unicode-math={%<unicode-math宏包选项%>}
 style/font-type=#font,file
 style/font-path={%<路径%>}
@@ -43,9 +44,15 @@ style/fix-include#true,false
 style/fix-includegraphics#true,false
 style/ref-add-space#true,false
 style/caption-label-sep={%<间距%>}
+style/caption-format=#plain,hang
+style/ft-caption-format=#plain,hang
+style/ft-caption-align=#left,centering,centering-left
 style/table-small-font#true,false
 style/algorithm-small-caption#true,false
 style/algorithm-small-font#true,false
+style/alg-caption-format=#plain,hang
+style/alg-caption-align=#left,centering,centering-left
+add-alg-rule-vspace#true,false
 style/before-skip={%<间距列表%>}
 style/after-skip={%<间距列表%>}
 style/chap-zihao=#0,-0,1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,8
@@ -72,12 +79,11 @@ info/keywords*={%<英文关键词%>}
 info/los={%<符号对照表文件路径%>}
 info/loa={%<缩略语对照表文件路径%>}
 info/bib-resource={%<参考文献文件路径%>}
+info/appendix={%<附录文件路径%>}
 info/acknowledgements={%<致谢文件路径%>}
 info/bio={%<作者简介路径%>}
 #endkeyvals
 
-\begin{appendixes}
-\end{appendixes}
 \noauxwrite{参考文献引用命令}
 \figname#*
 \tabname#*

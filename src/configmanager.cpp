@@ -435,7 +435,7 @@ ConfigManager::ConfigManager(QObject *parent): QObject (parent),
 	managedToolBars.append(ManagedToolBar("Diff", QStringList() << "main/file/svn/prevdiff" << "main/file/svn/nextdiff"  ));
     managedToolBars.append(ManagedToolBar("Review", QStringList() << "main/latex/review/alert" << "main/latex/review/comment" << "main/latex/review/add" << "main/latex/review/delete" << "main/latex/review/replace" ));
 	managedToolBars.append(ManagedToolBar("Central", QStringList() << "main/edit/goto/goback" << "main/edit/goto/goforward" << "separator" << "main/latex/fontstyles/textbf" << "main/latex/fontstyles/textit" << "main/latex/fontstyles/underline" << "main/latex/environment/flushleft" << "main/latex/environment/center" << "main/latex/environment/flushright" << "separator" <<
-	                                      "main/latex/spacing/newline" << "separator" <<
+	                                      "main/latex/verticalSpacing/newline" << "separator" <<
 	                                      "main/math/mathmode" << "main/math/subscript" << "main/math/superscript" << "main/math/frac" << "main/math/dfrac" << "main/math/sqrt"));
 
     Ui::ConfigDialog *pseudoDialog = static_cast<Ui::ConfigDialog *>(nullptr);
@@ -477,7 +477,7 @@ ConfigManager::ConfigManager(QObject *parent): QObject (parent),
 	registerOption("Files/Last Document", &lastDocument);
 	registerOption("Files/Parse BibTeX", &parseBibTeX, true, &pseudoDialog->checkBoxParseBibTeX);
 	registerOption("Bibliography/BibFileEncoding", &bibFileEncoding, "UTF-8", &pseudoDialog->comboBoxBibFileEncoding);
-	registerOption("Files/Parse Master", &parseMaster, true, &pseudoDialog->checkBoxParseMaster);
+	registerOption("Files/Parse Master", &parseMaster, true, &pseudoDialog->checkBoxParseRootDoc);
 	registerOption("Files/Autosave", &autosaveEveryMinutes, 0);
     registerOption("Files/Autoload", &autoLoadChildren, true, &pseudoDialog->checkBoxAutoLoad);
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -565,6 +565,7 @@ ConfigManager::ConfigManager(QObject *parent): QObject (parent),
 	registerOption("Editor/Auto Replace Commands", &CodeSnippet::autoReplaceCommands, true, &pseudoDialog->checkBoxAutoReplaceCommands);
 
 
+	registerOption("Editor/OnlyMonospacedFonts", &onlyMonospacedFonts, false, &pseudoDialog->checkBoxShowOnlyMonospacedFonts);
 	registerOption("Editor/Font Family", &editorConfig->fontFamily, "", &pseudoDialog->comboBoxFont);
 	registerOption("Editor/Font Size", &editorConfig->fontSize, -1, &pseudoDialog->spinBoxSize);
 	registerOption("Editor/Line Spacing Percent", &editorConfig->lineSpacingPercent, 100, &pseudoDialog->spinBoxLineSpacingPercent);
@@ -666,11 +667,8 @@ ConfigManager::ConfigManager(QObject *parent): QObject (parent),
 	registerOption("Tools/SupportShellStyleLiteralQuotes", &BuildManager::m_supportShellStyleLiteralQuotes, true);
 
 	//Paths
-#ifdef Q_OS_MAC
-	QString defaultSearchPaths = "/usr/local/texlive/2012/bin/x86_64-darwin"; //workaround for xelatex
-#else
 	QString defaultSearchPaths;
-#endif
+
 	registerOption("Tools/Search Paths", &BuildManager::additionalSearchPaths, defaultSearchPaths, &pseudoDialog->lineEditPathCommands);
 	registerOption("Tools/Log Paths", &BuildManager::additionalLogPaths, "", &pseudoDialog->lineEditPathLog);
 	registerOption("Tools/PDF Paths", &BuildManager::additionalPdfPaths, "", &pseudoDialog->lineEditPathPDF);
@@ -760,7 +758,8 @@ ConfigManager::ConfigManager(QObject *parent): QObject (parent),
 	registerOption("Preview/", &pdfDocumentConfig->disableHorizontalScrollingForFitToTextWidth, true, &pseudoDialog->checkBoxDisableHorizontalScrollingForFitToTextWidth);
 	registerOption("Preview/ZoomStepFactor", &pdfDocumentConfig->zoomStepFactor, 1.4142135); // sqrt(2)
 	registerOption("Preview/Magnifier Size", &pdfDocumentConfig->magnifierSize, 300, &pseudoDialog->spinBoxPreviewMagnifierSize);
-    registerOption("Preview/Magnifier Shape", reinterpret_cast<int *>(&pdfDocumentConfig->magnifierShape), static_cast<int>(PDFDocumentConfig::CircleWithShadow), &pseudoDialog->comboBoxPreviewMagnifierShape);
+	registerOption("Preview/Magnifier Shape", reinterpret_cast<int *>(&pdfDocumentConfig->magnifierShape), static_cast<int>(PDFDocumentConfig::Circle), &pseudoDialog->comboBoxPreviewMagnifierShape);
+	registerOption("Preview/Magnifier Shadow", &pdfDocumentConfig->magnifierShadow, true, &pseudoDialog->checkBoxPreviewMagnifierShadow);
 	registerOption("Preview/Magnifier Border", &pdfDocumentConfig->magnifierBorder, false, &pseudoDialog->checkBoxPreviewMagnifierBorder);
 
 	registerOption("Preview/Laser Pointer Size", &pdfDocumentConfig->laserPointerSize, 25, &pseudoDialog->spinBoxPreviewLaserPointerSize);
@@ -884,7 +883,7 @@ QSettings *ConfigManager::readSettings(bool reread)
 	//----------------------------dictionaries-------------------------
 
 	if (spellDictDir.isEmpty()) {
-		// non-exeistent or invalid settings for dictionary
+        // non-existent or invalid settings for dictionary
 		// try restore from old format where there was only one dictionary - spell_dic can be removed later when users have migrated to the new version
 		QString dic = spell_dic;
         if (!QFileInfo::exists(dic)) {
@@ -903,13 +902,13 @@ QSettings *ConfigManager::readSettings(bool reread)
                           << parseDir("[txs-app-dir]/../share/texstudio") ;
 #endif
 #ifdef Q_OS_MAC
-			fallBackPaths << parseDir("[txs-app-dir]/Contents/Resources") << "/Applications/texstudio.app/Contents/Resources";
+            fallBackPaths << parseDir("[txs-app-dir]/../Resources") << "/Applications/texstudio.app/Contents/Resources";
 #endif
 			dic = findResourceFile(QString(QLocale::system().name()) + ".dic", true, temp, fallBackPaths);
-			if (dic == "") spell_dic = findResourceFile("en_US.dic", true, temp, fallBackPaths);
-			if (dic == "") spell_dic = findResourceFile("en_GB.dic", true, temp, fallBackPaths);
-			if (dic == "") spell_dic = findResourceFile("fr_FR.dic", true, temp, fallBackPaths);
-			if (dic == "") spell_dic = findResourceFile("de_DE.dic", true, temp, fallBackPaths);
+            if (dic == "") dic = findResourceFile("en_US.dic", true, temp, fallBackPaths);
+            if (dic == "") dic = findResourceFile("en_GB.dic", true, temp, fallBackPaths);
+            if (dic == "") dic = findResourceFile("fr_FR.dic", true, temp, fallBackPaths);
+            if (dic == "") dic = findResourceFile("de_DE.dic", true, temp, fallBackPaths);
 		}
 		QFileInfo fi(dic);
 		if (fi.exists()) {
@@ -1391,7 +1390,6 @@ void ConfigManager::saveMacros()
 bool ConfigManager::execConfigDialog(QWidget *parentToDialog)
 {
 	ConfigDialog *confDlg = new ConfigDialog(parentToDialog);
-	UtilsUi::resizeInFontHeight(confDlg, 86, 52);
 
     if(showConfigMaximized){
         confDlg->showMaximized();
@@ -1642,6 +1640,7 @@ bool ConfigManager::execConfigDialog(QWidget *parentToDialog)
 	connect(confDlg->ui.horizontalSliderSymbol, SIGNAL(valueChanged(int)), SIGNAL(symbolGridIconSizeChanged(int)));
 
 	//EXECUTE IT
+	confDlg->showAndLimitSize();
 	bool executed = confDlg->exec();
 	configRiddled = confDlg->riddled;
 
@@ -1985,7 +1984,7 @@ void ConfigManager::updateRecentFiles(bool alwaysRecreateMenuItems)
 			act->setVisible(true);
 			QString temp = recentProjectList.at(i);
 			temp.replace("&", "&&");
-            act->setText(tr("Master Document: ") + (i <= 13 ? QString("&%1 ").arg(static_cast<char>('M' + i)) : "") + QDir::toNativeSeparators(temp));
+            act->setText(tr("Root Document: ") + (i <= 13 ? QString("&%1 ").arg(static_cast<char>('M' + i)) : "") + QDir::toNativeSeparators(temp));
 			act->setData(recentProjectList.at(i));
 		} else act->setVisible(false);
 	}
@@ -2692,9 +2691,9 @@ void ConfigManager::loadManagedMenu(QMenu *parent, const QDomElement &f)
 			                                tr(qPrintable(att.namedItem("text").nodeValue())), slotfunc,
 											QList<QKeySequence>() << shortcut,
 			                                att.namedItem("icon").nodeValue());
-			act->setWhatsThis(att.namedItem("info").nodeValue());
-            act->setStatusTip(att.namedItem("info").nodeValue());
-            act->setToolTip(att.namedItem("info").nodeValue());
+            act->setWhatsThis(tr(qPrintable(att.namedItem("info").nodeValue())));
+            act->setStatusTip(tr(qPrintable(att.namedItem("info").nodeValue())));
+            act->setToolTip(tr(qPrintable(att.namedItem("info").nodeValue())));
 			act->setData(att.namedItem("insert").nodeValue());
 		} else if (c.nodeName() == "separator") menu->addSeparator();
 	}
@@ -2775,15 +2774,20 @@ void ConfigManager::loadTranslations(QString locale)
 		locale = QString(QLocale::system().name()).left(2);
 		if (locale.length() < 2) locale = "en";
 	}
-	QString txsTranslationFile = findResourceFile("texstudio_" + locale + ".qm");
-
+	QString txsSourceFile = "texstudio_" + locale + ".qm";
+	QString txsTranslationFile = findResourceFile(txsSourceFile);
     if (txsTranslationFile.isEmpty()) {
-        txsTranslationFile = findResourceFile("translation/texstudio_" + locale + ".qm");
+        txsSourceFile = "translation/texstudio_" + locale + ".qm";
+        txsTranslationFile = findResourceFile(txsSourceFile);
     }
+    QString qtSourceFile = "qt_" + locale + ".qm";
+    QString qtTranslationFile = findResourceFile(qtSourceFile);
     bool result0=appTranslator->load(txsTranslationFile);
-    bool result1=basicTranslator->load(findResourceFile("qt_" + locale + ".qm"));
-    if(!result0 || !result1 ){
-        qDebug()<<"loading translations failed !";
+    bool result1=basicTranslator->load(qtTranslationFile);
+    if(locale!="en" && (!result0 || !result1) ){
+        qDebug().noquote() << "loading translations: "
+                + (txsTranslationFile != "" ? ("\"" + txsTranslationFile + "\"" + (result0 ? " loaded" : " not loaded")) : "\"" + txsSourceFile + "\" not found") + ", "
+                + (qtTranslationFile  != "" ? ("\"" + qtTranslationFile  + "\"" + (result1 ? " loaded" : " not loaded")) : "\"" + qtSourceFile  + "\" not found");
     }
 }
 /*!

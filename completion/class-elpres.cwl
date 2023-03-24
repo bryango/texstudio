@@ -105,7 +105,7 @@ hideerrors
 #endif
 
 \distance{number}
-\auvimm{text}{media file}
+\auvimm{text}{media file%file}
 \fromlinktext{text}{link label}
 \totargettext{text}{link label}
 \slidetitlecolor{color}
@@ -135,13 +135,6 @@ eptitlecolor#B
 # from xcolor options
 #ifOption:table
 #include:colortbl
-\rowcolors[commands]{row}{even-row-color}{odd-row-color}
-\rowcolors[commands]{row}{color}{color}#S
-\rowcolors*[commands]{row}{even-row-color}{odd-row-color}
-\rowcolors*[commands]{row}{color}{color}#S
-\showrowcolors
-\hiderowcolors
-\rownum
 #endif
 #ifOption:fixpdftex
 #include:pdfcolmk

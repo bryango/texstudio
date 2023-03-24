@@ -1,15 +1,15 @@
 # minimalist-plain package
-# Matthew Bertucci 2022/09/05 for 2022/09/03 release
+# Matthew Bertucci 2023/01/02 for 2023/01/02 release
 
 #include:relsize
 #include:anyfontsize
 #include:tikz
-# loads calc and shadings tikzlibraries
+#include:tikzlibrarycalc
+#include:tikzlibraryshadings
 #include:tikzpagenodes
 #include:geometry
 #include:fancyhdr
 #include:extramarks
-#include:linenoamsmath
 #include:titlesec
 #include:ulem
 #include:titletoc
@@ -26,9 +26,7 @@
 # loads amsfashion options of projlib-author
 #include:projlib-titlepage
 #include:tcolorbox
-# loads many option of tcolorbox
-#include:amsmath
-#include:pdfcol
+#include:tcolorboxlibrarymany
 
 \LocallyStopLineNumbers
 \ResumeLineNumbers

@@ -26,6 +26,7 @@
 #include "latexdocument.h"
 #include "latexeditorview.h"
 #include "latexcompleter.h"
+#include "usermacro.h"
 #include "xmltagslistwidget.h"
 #include "spellerdialog.h"
 #include "textanalysis.h"
@@ -110,6 +111,9 @@ protected:
 	Q_INVOKABLE inline QAction *getManagedAction(const QString &id) { return configManager.getManagedAction(id); }
 	Q_INVOKABLE inline QList<QAction *> getManagedActions(const QStringList &ids, const QString &commonPrefix = "") { return configManager.getManagedActions(ids, commonPrefix); }
     Q_INVOKABLE QAction *insertManagedAction(QAction *before, const QString &id, const QString &text, const char *slotName = nullptr, const QKeySequence &shortCut = 0, const QString &iconFile = "");
+    Q_INVOKABLE void loadManagedMenu(const QString &fn);
+
+    Q_INVOKABLE void setupToolBars();
 
 	void addTagList(const QString &id, const QString &iconName, const QString &text, const QString &tagFile);
     void addMacrosAsTagList();
@@ -123,7 +127,6 @@ private:
 	void generateAddtionalTranslations();
 	void setupMenus();
 	void setupDockWidgets();
-	void setupToolBars();
 	void createStatusBar();
 	bool activateEditorForFile(QString f, bool checkTemporaryNames = false, bool setFocus = true);
 	bool saveAllFilesForClosing(); ///< checks for unsaved files and asks the user if they should be saved
@@ -368,6 +371,8 @@ protected slots:
 	void editSpell();
 	void editThesaurus(int line = -1, int col = -1);
 	void editChangeLineEnding();
+	void setPreviewMode();
+	void setCheckedPreviewModeAction();
 	void editSetupEncoding();
 	void editInsertUnicode(); ///< open dialog to insert a unicode character
 	void editInsertRefToNextLabel(const QString &refCmd = "\\ref", bool backward = false);
@@ -499,6 +504,7 @@ protected slots:
 
 	void webPublish();
 	void webPublishSource();
+	void convertToPlainText();
 	void analyseText();
 	void analyseTextFormDestroyed();
 	void generateRandomText();
@@ -556,6 +562,7 @@ protected slots:
 
     void updateCompleter(LatexEditorView *edView = nullptr);
 	void completerNeedsUpdate();
+    void completerCommandsNeedsUpdate();
 	void needUpdatedCompleter();
 
 	void outputPageChanged(const QString &id);
@@ -644,6 +651,8 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 	bool mCompleterNeedsUpdate;
+    bool mCompleterCommandsNeedsUpdate=false;
+    CodeSnippetList mCompleterWords;
 
 	int currentLine;
 	QBrush oldBackground;
@@ -658,8 +667,6 @@ protected:
 	QStringList m_columnCutBuffer;
 
 	QTimer autosaveTimer,previewDelayTimer,previewFullCompileDelayTimer;
-
-	bool completionBaseCommandsUpdated;
 
 	QSet<int> previewQueue;
 	LatexEditorView *previewQueueOwner;

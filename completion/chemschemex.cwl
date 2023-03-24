@@ -9,7 +9,10 @@
 #include:fancylabel
 #include:graphicx
 #include:tikz
-# loads shapes.multipart, decorations, decorations.markings, positioning, and arrows.meta tikzlibraries
+#include:tikzlibraryshapes.multipart
+#include:tikzlibrarydecorations
+#include:tikzlibrarydecorations.markings
+#include:tikzlibrarypositioning
 
 #keyvals:\usepackage/chemschemex#c
 image={%<\includegraphics options%>}
@@ -39,18 +42,18 @@ arrowadvance=##L
 \struct-[caption%text][options%keyvals]{imagefile}#g
 \struct-[caption%text][options%keyvals][capt TikZ keys]{imagefile}#g
 \struct-[caption%text][options%keyvals][capt TikZ keys][obj TikZ keys]{imagefile}#g
-\structalt{imagefile}{alt imagefile%definition}#g
-\structalt[caption%text]{imagefile}{alt imagefile%definition}#g
-\structalt[caption%text][family]{imagefile}{alt imagefile%definition}#g
-\structalt[caption%text][family][options%keyvals]{imagefile}{alt imagefile%definition}#g
-\structalt[caption%text][family][options%keyvals][capt TikZ keys]{imagefile}{alt imagefile%definition}#g
-\structalt[caption%text][family][options%keyvals][capt TikZ keys][obj TikZ keys]{imagefile}{alt imagefile%definition}#g
-\structalt*{imagefile}{alt imagefile%definition}#g
-\structalt*[caption%text]{imagefile}{alt imagefile%definition}#g
-\structalt*[caption%text][family]{imagefile}{alt imagefile%definition}#g
-\structalt*[caption%text][family][options%keyvals]{imagefile}{alt imagefile%definition}#g
-\structalt*[caption%text][family][options%keyvals][capt TikZ keys]{imagefile}{alt imagefile%definition}#g
-\structalt*[caption%text][family][options%keyvals][capt TikZ keys][obj TikZ keys]{imagefile}{alt imagefile%definition}#g
+\structalt{imagefile}{alt imagefile%file}#g
+\structalt[caption%text]{imagefile}{alt imagefile%file}#g
+\structalt[caption%text][family]{imagefile}{alt imagefile%file}#g
+\structalt[caption%text][family][options%keyvals]{imagefile}{alt imagefile%file}#g
+\structalt[caption%text][family][options%keyvals][capt TikZ keys]{imagefile}{alt imagefile%file}#g
+\structalt[caption%text][family][options%keyvals][capt TikZ keys][obj TikZ keys]{imagefile}{alt imagefile%file}#g
+\structalt*{imagefile}{alt imagefile%file}#g
+\structalt*[caption%text]{imagefile}{alt imagefile%file}#g
+\structalt*[caption%text][family]{imagefile}{alt imagefile%file}#g
+\structalt*[caption%text][family][options%keyvals]{imagefile}{alt imagefile%file}#g
+\structalt*[caption%text][family][options%keyvals][capt TikZ keys]{imagefile}{alt imagefile%file}#g
+\structalt*[caption%text][family][options%keyvals][capt TikZ keys][obj TikZ keys]{imagefile}{alt imagefile%file}#g
 \newstruct{imagefile}{structname}{Structname}{abbr}#g
 \newstruct[sublabels]{imagefile}{structname}{Structname}{abbr}#g
 \Struct{sublabels}{imagefile}#g
@@ -63,16 +66,16 @@ arrowadvance=##L
 \Struct*[family][options%keyvals]{sublabels}{imagefile}#g
 \Struct*[family][options%keyvals][capt TikZ keys]{sublabels}{imagefile}#g
 \Struct*[family][options%keyvals][capt TikZ keys][obj TikZ keys]{sublabels}{imagefile}#g
-\Structalt{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt[family]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt[family][options%keyvals]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt[family][options%keyvals][capt TikZ keys]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt[family][options%keyvals][capt TikZ keys][obj TikZ keys]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt*{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt*[family]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt*[family][options%keyvals]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt*[family][options%keyvals][capt TikZ keys]{sublabels}{imagefile}{alt imagefile%definition}#g
-\Structalt*[family][options%keyvals][capt TikZ keys][obj TikZ keys]{sublabels}{imagefile}{alt imagefile%definition}#g
+\Structalt{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt[family]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt[family][options%keyvals]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt[family][options%keyvals][capt TikZ keys]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt[family][options%keyvals][capt TikZ keys][obj TikZ keys]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt*{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt*[family]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt*[family][options%keyvals]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt*[family][options%keyvals][capt TikZ keys]{sublabels}{imagefile}{alt imagefile%file}#g
+\Structalt*[family][options%keyvals][capt TikZ keys][obj TikZ keys]{sublabels}{imagefile}{alt imagefile%file}#g
 \structname{img}
 \Structname{img}
 \structabbr{img}

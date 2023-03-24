@@ -1,5 +1,5 @@
 # automultiplechoice package
-# Matthew Bertucci 2022/10/04 for v1.5.2
+# Matthew Bertucci 2022/10/04 for v1.6.0
 
 #include:xcolor
 #include:fancyhdr
@@ -62,7 +62,10 @@ survey
 
 #ifOption:survey
 #include:tikz 
-# loads positioning, shapes, arrows, tikzmark, and decorations.pathreplacing tikzlibraries
+#include:tikzlibrarypositioning
+#include:tikzlibraryshapes
+#include:tikzlibrarytikzmark
+#include:tikzlibrarydecorations.pathreplacing
 # not documented
 \answer[opt]{arg1}{arg2}{arg3}{arg4}#S
 \answer{arg1}{arg2}{arg3}{arg4}#S
@@ -158,6 +161,7 @@ survey
 \AMCotextReserved#*
 \AMCoutsideLabelFormat{text}#*
 \AMCpageref{label}#r
+\AMCpostNquest#L
 \AMCpostOquest#L
 \AMCquestionNumberfalse
 \AMCquestionNumbertrue#*
@@ -283,6 +287,7 @@ exact=%<num%>
 scoreapprox=%<num%>
 approx=%<num%>
 scorewrong=%<num%>
+ignoreblank#true,false
 keepas=%<text%>
 alsocorrect=%<text%>
 #endkeyvals

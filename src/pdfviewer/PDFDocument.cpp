@@ -318,15 +318,14 @@ void PDFMagnifier::reshape()
 	if (!globalConfig || globalConfig->magnifierShape == oldshape) return;
 
 	switch (globalConfig->magnifierShape) {
-    case 2: [[clang::fallthrough]];
 	case 1: { //circular
-	        int side = qMin(width(), height());
+		int side = qMin(width(), height());
 		QRegion maskedRegion(width() / 2 - side / 2, height() / 2 - side / 2, side, side, QRegion::Ellipse);
 		setMask(maskedRegion);
 		break;
 	}
-	default:
-		setMask(QRect(0, 0, width(), height())); //rectangular
+	default: //rectangular
+		setMask(QRect(0, 0, width(), height()));
 	}
 }
 
@@ -341,37 +340,164 @@ void PDFMagnifier::setImage(const QPixmap &img, int pageNr)
 	update();
 }
 
-void PDFDraggableTool::drawCircleGradient(QPainter& painter, const QRect& outline, QColor color, int padding)
+void PDFDraggableTool::drawGradient(QPainter& painter, const QRect& outline, QColor color, int padding, int magnifierShape)
 {
-	QRadialGradient gradient(outline.center(), outline.width() / 2.0 , outline.center());
-	color.setAlpha(0);
-	gradient.setColorAt(1.0, color);
-	color.setAlpha(64);
-	gradient.setColorAt(1.0 - padding * 2.0 / (outline.width()), color);
+	painter.save();
 
-	painter.fillRect(outline, gradient);
+	if(magnifierShape == PDFDocumentConfig::Circle) {
+		QRadialGradient gradient(outline.center(), outline.width() / 2.0 , outline.center());
+		color.setAlpha(0);
+		gradient.setColorAt(1.0, color);
+		color.setAlpha(64);
+		gradient.setColorAt(1.0 - padding * 2.0 / (outline.width()), color);
+		painter.fillRect(outline, gradient);
+	} else { // rectangle
+		color.setAlpha(64);
+
+		// A rectangular shadow is constructed by drawing
+		// four quarter circles at the corners, and 
+		// linking them with four rectangles.
+
+		// limit draw region at the four edges to construct
+		// quarter circles from the drawn full circles
+		QPainterPath edgePath;
+		edgePath.addRect(0, 0, padding, padding);
+		edgePath.addRect(0, outline.height() - padding, padding, padding);
+		edgePath.addRect(outline.width() - padding, 0, padding, padding);
+		edgePath.addRect(outline.width() - padding, outline.height() - padding, padding, padding);
+		painter.setClipPath(edgePath);
+
+		// draw the four circles
+		QRadialGradient circle1(padding,padding,padding,padding,padding);
+		circle1.setColorAt(0, color);
+		circle1.setColorAt(1, QColor("transparent"));
+		painter.fillRect(outline, circle1);
+
+		QRadialGradient circle2(padding,outline.height() - padding,padding,padding,outline.height() - padding);
+		circle2.setColorAt(0, color);
+		circle2.setColorAt(1, QColor("transparent"));
+		painter.fillRect(outline, circle2);
+
+		QRadialGradient circle3(outline.width() - padding,padding,padding,outline.width() - padding,padding);
+		circle3.setColorAt(0, color);
+		circle3.setColorAt(1, QColor("transparent"));
+		painter.fillRect(outline, circle3);
+
+		QRadialGradient circle4(outline.width() - padding,outline.height() - padding,padding,outline.width() - padding,outline.height() - padding);
+		circle4.setColorAt(0, color);
+		circle4.setColorAt(1, QColor("transparent"));
+		painter.fillRect(outline, circle4);
+
+
+		// now the four rectangular sides of the shadow are drawn:
+		QLinearGradient sideGradient;
+		sideGradient.setColorAt(0, color);
+		sideGradient.setColorAt(1, QColor("transparent"));
+
+		// draw the top rectangle
+		edgePath = QPainterPath();
+		edgePath.addRect(padding, 0, outline.width() - 2*padding, padding);
+		sideGradient.setStart(0, padding);
+		sideGradient.setFinalStop(0, 0);
+		painter.setClipPath(edgePath);
+		painter.fillRect(outline, sideGradient);
+
+		// draw the bottom rectangle
+		edgePath = QPainterPath();
+		edgePath.addRect(padding, outline.height() - padding, outline.width() - 2*padding, padding);
+		sideGradient.setStart(0, outline.height() - padding);
+		sideGradient.setFinalStop(0, outline.height());
+		painter.setClipPath(edgePath);
+		painter.fillRect(outline, sideGradient);
+
+		// draw the left rectangle
+		edgePath = QPainterPath();
+		edgePath.addRect(0, padding, padding, outline.height() - 2*padding);
+		sideGradient.setStart(padding, 0);
+		sideGradient.setFinalStop(0, 0);
+		painter.setClipPath(edgePath);
+		painter.fillRect(outline, sideGradient);
+
+		// draw the right rectangle
+		edgePath = QPainterPath();
+		edgePath.addRect(outline.width() - padding, padding, padding, outline.height() - 2*padding);
+		sideGradient.setStart(outline.width()-padding, 0);
+		sideGradient.setFinalStop(outline.width(), 0);
+		painter.setClipPath(edgePath);
+		painter.fillRect(outline, sideGradient);
+
+		// fill background
+		edgePath = QPainterPath();
+		edgePath.addRect(padding, padding, outline.width() - 2*padding, outline.height() - 2*padding);
+		painter.setClipPath(edgePath);
+		painter.fillRect(outline, color);
+	}
+
+	painter.restore();
 }
 
 void PDFMagnifier::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
 	drawFrame(&painter);
+
 	QRect tmpRect(event->rect().x()*overScale, event->rect().y()*overScale, event->rect().width()*overScale, event->rect().height()*overScale);
-	int side = qMin(width(), height()) ;
-	QRect outline(width() / 2 - side / 2 + 1, height() / 2 - side / 2 + 1, side - 2, side - 2);
+	const int side = qMin(width(), height()) ;
 
-	if(globalConfig->magnifierShape==PDFDocumentConfig::CircleWithShadow){
-		// circular magnifier, add transparent shadow
-		const int padding=10;
-		drawCircleGradient(painter, outline, QColor(Qt::black), padding);
+	// Define a path that specifies the border of the magnifier.
+	// This path is also later reused to draw the actual border.
+	QPainterPath borderPath;
+	if(globalConfig->magnifierShadow) {
+		if(globalConfig->magnifierShape == PDFDocumentConfig::Circle) {
+			// circular magnifier with transparent shadow
+			const int shadowWidth=13;
+			const int magnifierWidth = side - 2*shadowWidth + 2;
+	
+			// draw transparent shadow
+			QRect outline(width() / 2 - side / 2 + 1, height() / 2 - side / 2 + 1, side - 2, side - 2);
+			drawGradient(painter, outline, QColor(Qt::black), shadowWidth, globalConfig->magnifierShape);
+	
+			borderPath.addRoundedRect(
+				width()/2 - side/2 + shadowWidth - 2, 
+				height()/2 - side/2 + shadowWidth - 5, // magnifier moved upwards for 3D effect
+				magnifierWidth, 
+				magnifierWidth, 
+				magnifierWidth/2, 
+				magnifierWidth/2
+			);
+		} else {
+			// rectangular magnifier with transparent shadow
+			const int shadowWidth = 7;
+	
+			// draw transparent shadow
+			QRect outline(0, 0, width(), height());
+			drawGradient(painter, outline, QColor(Qt::black), shadowWidth, globalConfig->magnifierShape);
+	
+			borderPath.addRect(5, 5, width() - shadowWidth - 3, height() - shadowWidth - 6);
 
-		outline.adjust(padding,padding,-padding,-padding);
-		QRegion maskedRegion(outline, QRegion::Ellipse);
-		painter.setClipRegion(maskedRegion);
+		}
+	} else {
+		if(globalConfig->magnifierShape == PDFDocumentConfig::Circle) {
+			// circular magnifier without shadow
+			const int magnifierWidth = side - 4;
+	
+			borderPath.addRoundedRect(
+				width()/2 - side/2 + 2, 
+				height()/2 - side/2 + 2, 
+				magnifierWidth, 
+				magnifierWidth, 
+				magnifierWidth/2, 
+				magnifierWidth/2
+			);
+		} else {
+			// rectangular magnifier without shadow
+			borderPath.addRect(1, 1, width() - 2, height() - 2);
+		}
 	}
 
-	// draw highlight if necessary
-
+	// draw contents inside the magnifier
+	painter.setClipPath(borderPath);
 	painter.drawPixmap(event->rect(), getConvertedImage(), tmpRect.translated(kMagFactor * overScale * pos() + mouseTranslate * overScale));
 
 	// draw highlight if necessary
@@ -381,7 +507,6 @@ void PDFMagnifier::paintEvent(QPaintEvent *event)
 		if(page == parent->highlightPage){
 		    if (!parent->highlightPath.isEmpty()) {
 			    painter.save();
-			    painter.setRenderHint(QPainter::Antialiasing);
 			    painter.translate(-kMagFactor  * pos()- mouseTranslate -imageLoc );
 			    painter.scale(imageDpi/72.0, imageDpi/72.0);
 			    painter.setPen(QColor(0, 0, 0, 0));
@@ -396,24 +521,16 @@ void PDFMagnifier::paintEvent(QPaintEvent *event)
 	    }
 	}
 
+	// draw a border around the magnifier
 	if (globalConfig->magnifierBorder) {
-		painter.setPen(QPalette().mid().color());
-		switch (globalConfig->magnifierShape) {
-        case PDFDocumentConfig::CircleWithShadow: { //circular
-		        //int side = qMin(width(), height()) ;
-		        //painter.drawEllipse(width() / 2 - side / 2 + 1, height() / 2 - side / 2 + 1, side - 2, side - 2);
-		        painter.drawEllipse(outline);
-			break;
+		if(globalConfig->magnifierShadow) {
+			painter.setPen(QPen(QPalette().shadow().color(), 2)); // black outline
+		} else {
+			painter.setPen(QPen(QPalette().mid().color(), 2)); // gray outline
 		}
-        case PDFDocumentConfig::Circle: { //circular without shadow
-		        int side = qMin(width(), height()) ;
-			painter.drawEllipse(width() / 2 - side / 2 + 1, height() / 2 - side / 2 + 1, side - 2, side - 2);
-			break;
-		}
-		default:
-			painter.drawRect(0, 0, width() - 1, height() - 1); //rectangular
-		}
+		painter.drawPath(borderPath);
 	}
+
 }
 
 /* lazy evaluation of image convertion */
@@ -451,33 +568,61 @@ void PDFLaserPointer::paintEvent(QPaintEvent *event)
 	int side = qMin(width(), height()) ;
 	QRect outline(width() / 2 - side / 2 + 1, height() / 2 - side / 2 + 1, side - 2, side - 2);
 
-	drawCircleGradient(painter, outline, QColor(globalConfig ? globalConfig->laserPointerColor : "#ff0000"), 5);
+	drawGradient(painter, outline, QColor(globalConfig ? globalConfig->laserPointerColor : "#ff0000"), 5, PDFDocumentConfig::Circle);
 }
 
-#ifdef PHONON
-PDFMovie::PDFMovie(PDFWidget *parent, QSharedPointer<Poppler::MovieAnnotation> annot, int page): VideoPlayer(parent), page(page)
+#ifdef MEDIAPLAYER
+// TODO: migrate to QTMM
+PDFVideoWidget::PDFVideoWidget(PDFWidget *parent, PDFMovie *movie): QVideoWidget(parent), movie(movie)
+{
+	REQUIRE(parent && movie);
+
+	if(popup) delete popup;
+	popup = new QMenu(this);
+	popup->addAction(tr("&Play"), movie, SLOT(realPlay()));
+	popup->addAction(tr("P&ause"), movie, SLOT(pause()));
+	popup->addAction(tr("&Stop"), movie, SLOT(stop()));
+	popup->addSeparator();
+	popup->addAction(tr("S&eek"), movie, SLOT(seekDialog()));
+	popup->addAction(tr("Set &volume"), movie, SLOT(setVolumeDialog()));
+}
+
+PDFVideoWidget::~PDFVideoWidget()
+{
+	if(popup) delete popup;
+}
+
+PDFMovie::PDFMovie(PDFWidget *parent, QSharedPointer<Poppler::MovieAnnotation> annot, int page): QMediaPlayer(parent), page(page)
 {
 	REQUIRE(parent && annot && parent->getPDFDocument());
 	REQUIRE(annot->subType() == Poppler::Annotation::AMovie);
 	REQUIRE(annot->movie());
 	boundary = annot->boundary();
+
 	QString url = annot->movie()->url();
 	url = QFileInfo(parent->getPDFDocument()->fileName()).dir().absoluteFilePath(url);
 	if (!QFileInfo(url).exists()) {
-		QMessageBox::warning(this, "", tr("File %1 does not exists").arg(url));
+		QMessageBox::warning(videoWidget, "", tr("File %1 does not exists").arg(url));
 		return;
 	}
-	this->load(QUrl::fromLocalFile(url));
+#if QT_VERSION_MAJOR>=6
+    setSource(QUrl::fromLocalFile(url));
+    audioOutput = new QAudioOutput;
+    this->setAudioOutput(audioOutput);
+#else
+	this->setMedia(QUrl::fromLocalFile(url));
+#endif
 
-	popup = new QMenu(this);
-	popup->addAction(tr("&Play"), this, SLOT(realPlay()));
-	popup->addAction(tr("P&ause"), this, SLOT(pause()));
-	popup->addAction(tr("&Stop"), this, SLOT(stop()));
-	popup->addSeparator();
-	popup->addAction(tr("S&eek"), this, SLOT(seekDialog()));
-	popup->addAction(tr("Set &volume"), this, SLOT(setVolumeDialog()));
+	if(videoWidget) delete videoWidget;
+	videoWidget = new PDFVideoWidget(parent, this);
+	this->setVideoOutput(videoWidget);
+	videoWidget->setCursor(Qt::PointingHandCursor);
+}
 
-	setCursor(Qt::PointingHandCursor);
+PDFMovie::~PDFMovie()
+{
+	delete audioOutput;
+	delete videoWidget;
 }
 
 void PDFMovie::place()
@@ -486,50 +631,77 @@ void PDFMovie::place()
 	REQUIRE(pdf);
 	QPointF tl = pdf->mapFromScaledPosition(page, boundary.topLeft());
 	QPointF br = pdf->mapFromScaledPosition(page, boundary.bottomRight());
-	setFixedSize(br.x() - tl.x(), br.y() - tl.y());
-	move(tl.toPoint());
+	videoWidget->setFixedSize(br.x() - tl.x(), br.y() - tl.y());
+	videoWidget->move(tl.toPoint());
 }
 
-void PDFMovie::contextMenuEvent(QContextMenuEvent *e)
+void PDFMovie::show()
+{
+	videoWidget->show();
+}
+
+void PDFVideoWidget::contextMenuEvent(QContextMenuEvent *e)
 {
 	popup->popup(e->globalPos());
 	e->accept();
 }
 
-void PDFMovie::mouseReleaseEvent(QMouseEvent *e)
+void PDFVideoWidget::mouseReleaseEvent(QMouseEvent *e)
 {
 	//qDebug() << "click: "<<isPaused() << " == !" << isPlaying() << " " << currentTime() << " / " << totalTime();
-	if (isPlaying()) pause();
-	else realPlay();
+#if QT_VERSION_MAJOR>=6
+    if (movie->playbackState() == QMediaPlayer::PlayingState) movie->pause();
+    else movie->realPlay();
+#else
+    if (movie->state() == QMediaPlayer::PlayingState) movie->pause();
+    else movie->realPlay();
+#endif
 	e->accept();
 }
 
 void PDFMovie::realPlay()
 {
-	if (isPlaying()) return;
-	if (isPaused() && currentTime() < totalTime()) play();
+#if QT_VERSION_MAJOR>=6
+    if (this->playbackState() == QMediaPlayer::PlayingState) return;
+    if (this->playbackState() == QMediaPlayer::PausedState && position() < duration()) this->play();
+    else {
+        setPosition(0);
+        QTimer::singleShot(500, this, SLOT(play()));
+    }
+#else
+    if (this->state() == QMediaPlayer::PlayingState) return;
+	if (this->state() == QMediaPlayer::PausedState && position() < duration()) this->play();
 	else {
-		seek(0);
+		setPosition(0);
 		QTimer::singleShot(500, this, SLOT(play()));
 	}
+#endif
 }
 
 void PDFMovie::setVolumeDialog()
 {
-	float vol = volume();
-	UniversalInputDialog uid;
-	uid.addVariable(&vol, tr("Volume:"));
-	if (!uid.exec()) return;
-	setVolume(vol);
+#if QT_VERSION_MAJOR>=6
+    float vol = audioOutput->volume();
+    UniversalInputDialog uid;
+    uid.addVariable(&vol, tr("Volume:"));
+    if (!uid.exec()) return;
+    audioOutput->setVolume(vol);
+#else
+    float vol = volume();
+    UniversalInputDialog uid;
+    uid.addVariable(&vol, tr("Volume:"));
+    if (!uid.exec()) return;
+    setVolume(vol);
+#endif
 }
 
 void PDFMovie::seekDialog()
 {
-	float pos = currentTime() * 0.001;
+	float pos = position() * 0.001;
 	UniversalInputDialog uid;
 	uid.addVariable(&pos, tr("Time:"));
 	if (!uid.exec()) return;
-	seek(pos * 1000LL);
+	setPosition(pos * 1000LL);
 }
 #endif
 
@@ -551,6 +723,8 @@ PDFWidget::PDFWidget(bool embedded)
 	, docPages(0)
 	, saveScaleFactor(1.0)
 	, saveScaleOption(kFitWidth)
+	, pinchZoomXPos(0.0)
+	, pinchZoomYPos(0.0)
     , ctxZoomInAction(nullptr)
     , ctxZoomOutAction(nullptr)
     , shortcutUp(nullptr)
@@ -573,8 +747,8 @@ PDFWidget::PDFWidget(bool embedded)
 	Q_ASSERT(globalConfig);
 	if (!globalConfig) return;
 
-#ifdef PHONON
-	movie = 0;
+#ifdef MEDIAPLAYER
+	movie = nullptr;
 #endif
 	maxPageSize.setHeight(-1.0);
 	maxPageSize.setWidth(-1.0);
@@ -593,6 +767,11 @@ PDFWidget::PDFWidget(bool embedded)
 	grabGesture(Qt::PinchGesture);
 	grabGesture(Qt::TapGesture);
 
+	// needed for pinch zoom fix for macOS
+	#ifdef Q_OS_MAC
+	setAttribute(Qt::WA_AcceptTouchEvents);
+	#endif
+
 	switch (globalConfig->scaleOption) {
 	default:
 		fixedScale(1.0);
@@ -609,6 +788,12 @@ PDFWidget::PDFWidget(bool embedded)
 	case 4:
 		fitTextWidth(true);
 		break;
+	}
+
+	if (globalConfig->magnifierShape != PDFDocumentConfig::Rectangle && globalConfig->magnifierShape != PDFDocumentConfig::Circle) {
+		//map outdated heighest index 2 (circle without a shadow) to 1 (circle) and no shadow
+		globalConfig->magnifierShape = PDFDocumentConfig::Circle;
+		globalConfig->magnifierShadow = false;
 	}
 
     if (magnifierCursor == nullptr) {
@@ -711,13 +896,13 @@ void PDFWidget::setDocument(const QSharedPointer<Poppler::Document> &doc)
 		setSinglePageStep(globalConfig->singlepagestep);
 	} else
 		docPages = 0;
-#ifdef PHONON
+#ifdef MEDIAPLAYER
 	if (movie) {
 		delete movie;
 		movie = 0;
 	}
 #endif
-    reloadPage();
+	reloadPage();
 	windowResized();
 }
 
@@ -736,7 +921,7 @@ void PDFWidget::windowResized()
 		fitWindow(true);
 		break;
 	}
-    delayedUpdate();
+	delayedUpdate();
 }
 
 void fillRectBorder(QPainter &painter, const QRect &inner, const QRect &outer)
@@ -755,7 +940,7 @@ void PDFWidget::paintEvent(QPaintEvent *event)
 
 	qreal newDpi = dpi * scaleFactor;
 
-    qreal overScale = painter.device()->devicePixelRatio();
+	qreal overScale = painter.device()->devicePixelRatio();
 
 	QRect newRect = rect();
 	PDFDocument *doc = getPDFDocument();
@@ -1034,15 +1219,15 @@ void PDFWidget::annotationClicked(QSharedPointer<Poppler::Annotation> annotation
 {
 	switch (annotation->subType()) {
 	case Poppler::Annotation::AMovie: {
-#ifdef PHONON
+#ifdef MEDIAPLAYER
 		if (movie) delete movie;
 		movie = new PDFMovie(this, qSharedPointerDynamicCast<Poppler::MovieAnnotation>(annotation), page);
 		movie->place();
 		movie->show();
-		movie->play();
+		movie->realPlay();
 #else
 		Q_UNUSED(page)
-		UtilsUi::txsWarning("You clicked on a video, but the video playing mode was disabled by you or the package creator.\nRecompile TeXstudio with the option PHONON=true");
+		UtilsUi::txsWarning("You clicked on a video, but the video playing mode was disabled by you or the package creator.\nRecompile TeXstudio with the option -DTEXSTUDIO_ENABLE_MEDIAPLAYER=on (cmake)");
 #endif
 		break;
 	}
@@ -1404,9 +1589,45 @@ void PDFWidget::contextMenuEvent(QContextMenuEvent *event)
 
 bool PDFWidget::event(QEvent *event)
 {
+	#ifndef Q_OS_MAC
 	if (event->type() == QEvent::Gesture)
 		return gestureEvent(static_cast<QGestureEvent *>(event));
 	return QLabel::event(event);
+	#endif
+	
+	// pinch zoom fix for macOS
+	#ifdef Q_OS_MAC
+	switch (event->type()) {
+    	case QEvent::TouchBegin:
+    	case QEvent::TouchUpdate:
+    	case QEvent::TouchEnd:
+	      	return touchEvent(static_cast<QTouchEvent *>(event));
+    	case QEvent::Gesture:
+        	return gestureEvent(static_cast<QGestureEvent *>(event));
+    	default:
+        	return QLabel::event(event);
+	}
+	#endif
+}
+
+// used in pinch zoom fix for macOS
+bool PDFWidget::touchEvent(QTouchEvent *event)
+{
+    event->accept();
+    QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
+
+    QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+    if (touchPoints.count() == 1) {
+    	pinchZoomXPos = touchPoints.first().pos().x();
+    	pinchZoomYPos = touchPoints.first().pos().y();
+    } else if (touchPoints.count() == 2) {
+        const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+        const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+
+    	pinchZoomXPos = (touchPoint0.pos().x() + touchPoint1.pos().x()) /2;
+		pinchZoomYPos = (touchPoint0.pos().y() + touchPoint1.pos().y()) /2;
+    }
+    return true;
 }
 
 bool PDFWidget::gestureEvent(QGestureEvent *event)
@@ -1420,7 +1641,15 @@ bool PDFWidget::gestureEvent(QGestureEvent *event)
 
 void PDFWidget::pinchEvent(QPinchGesture *gesture)
 {
+	#ifndef Q_OS_MAC
 	doZoom(mapFromGlobal(gesture->centerPoint().toPoint()), 0, gesture->scaleFactor()*scaleFactor);
+	#endif
+
+	// pinch zoom fix for macOS
+	#ifdef Q_OS_MAC
+	const QPoint pinchZoomPoint(pinchZoomXPos, pinchZoomYPos);
+	doZoom(pinchZoomPoint, 0, gesture->scaleFactor()*scaleFactor);
+	#endif
 }
 
 void PDFWidget::tapEvent(QTapGesture *gesture)
@@ -1822,7 +2051,7 @@ void PDFWidget::updateStatusBar()
 		doc->showPage(realPageIndex + 1);
 		doc->showScale(scaleFactor);
 	}
-#ifdef PHONON
+#ifdef MEDIAPLAYER
 	if (movie) movie->place();
 #endif
 }
