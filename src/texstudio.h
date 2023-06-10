@@ -134,6 +134,9 @@ private:
 	void closeAllFiles();
 	bool canCloseNow(bool saveSettings = true); ///< asks the user and close all files, and prepares to exit txs
 	void closeEvent(QCloseEvent *e);
+    void setStructureSectionIcons();
+    void updateStatusBarIcons();
+    void updatePDFIcons();
 
 	void updateUserMacros(bool updateMenu = true);
 
@@ -237,6 +240,7 @@ private:
 #endif
 private slots:
     void updateTOCs();
+    void updateAllTOCs();
 
     void updateTOC();
     void updateCurrentPosInTOC(QTreeWidgetItem *root=nullptr,StructureEntry *old=nullptr,StructureEntry *selected=nullptr);
@@ -261,7 +265,7 @@ private slots:
     void collapseSubitems();
     StructureEntry *labelForStructureEntry(const StructureEntry *entry);
 
-    void updateStructureLocally();
+    void updateStructureLocally(bool updateAll=false);
     void customMenuStructure(const QPoint &pos);
     void createLabelFromAction();
 
@@ -322,7 +326,7 @@ private slots:
 	void fileUpdate(QString filename = "");
 	void fileUpdateCWD(QString filename = "");
 	void checkinAfterSave(QString filename, int checkIn = 0);
-	void checkin(QString fn, QString text = "txs auto checkin", bool blocking = false);
+    void checkin(QString fn, QString text = "txs auto checkin", bool push = false);
 	bool svnadd(QString fn, int stage = 0);
 	void svnUndo(bool redo = false);
 	void svnPatch(QEditor *ed, QString diff);
@@ -390,6 +394,9 @@ protected slots:
 	void LTErrorMessage(QString message);
 
     void paletteChanged(const QPalette &palette);
+#if (QT_VERSION >= 0x060500) && (defined( Q_OS_WIN )||defined( Q_OS_LINUX ))
+    void colorSchemeChanged(Qt::ColorScheme  colorScheme);
+#endif
 
 private slots:
 	void readSettings(bool reread = false); ///< read configured/default settings from ini
@@ -459,7 +466,7 @@ protected slots:
     void addMagicBibliography();
     void addMagicProgram();
 
-	void quickTabular(); ///< start quick tabular wizard
+    void quickTabular(const QMimeData *d=nullptr); ///< start quick tabular wizard
 	void quickArray(); ///< start quick array wizard
 	void quickTabbing(); ///< start quick tabbing wizard
 	void quickLetter(); ///< start quick leter wizard

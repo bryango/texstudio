@@ -1,5 +1,5 @@
 # nicematrix package
-# Matthew Bertucci 2022/10/08 for v6.13b
+# Matthew Bertucci 2023/03/07 for v6.16
 
 #include:amsmath
 #include:array
@@ -199,14 +199,18 @@ rounded-corners
 rounded-corners=##L
 borders={%<borders options%>}
 hvlines
+v-center
 t
 b
+T
+B
 L
 R
 C
 tikz={%<TikZ options%>}
 name=%<name%>
 respect-arraystretch
+transparent
 #endkeyvals
 
 \Hline#t
@@ -350,6 +354,7 @@ hlines
 hlines=
 hvlines
 name=%<name%>
+code=%<code%>
 #endkeyvals
 
 \OverBrace{i-j}{k-l}{label}#t

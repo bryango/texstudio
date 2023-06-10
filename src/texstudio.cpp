@@ -85,7 +85,7 @@
 
 #include "PDFDocument_config.h"
 #include <set>
-
+#include <QStyleHints>
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
@@ -428,7 +428,11 @@ Texstudio::Texstudio(QWidget *parent, Qt::WindowFlags flags, QSplashScreen *spla
     connect(&help, SIGNAL(runCommand(QString,QString*)), this, SLOT(runCommandNoSpecialChars(QString,QString*)));
     connect(&help, SIGNAL(runCommandAsync(QString,const char*)), this, SLOT(runCommandAsync(QString,const char*)));
 
-    connect(static_cast<QGuiApplication *>(QGuiApplication::instance()),&QGuiApplication::paletteChanged,this,&Texstudio::paletteChanged);
+    connect(qGuiApp,&QGuiApplication::paletteChanged,this,&Texstudio::paletteChanged);
+#if (QT_VERSION >= 0x060500) && (defined( Q_OS_WIN )||defined( Q_OS_LINUX ))
+    connect(qGuiApp->styleHints(),&QStyleHints::colorSchemeChanged,this,&Texstudio::colorSchemeChanged);
+#endif
+
 
 	QStringList filters;
 	filters << tr("TeX files") + " (*.tex *.bib *.sty *.cls *.mp *.dtx *.cfg *.ins *.ltx *.tikz *.pdf_tex *.ctx)";
@@ -593,7 +597,10 @@ void Texstudio::addTagList(const QString &id, const QString &iconName, const QSt
         connect(list, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(insertXmlTag(QListWidgetItem*)));
 		leftPanel->addWidget(list, id, text, iconName);
 		//(*list)->setProperty("mType",2);
-	} else leftPanel->setWidgetText(list, text);
+    } else {
+        leftPanel->setWidgetText(list, text);
+        leftPanel->setWidgetIcon(list,iconName);
+    }
 }
 
 /*!
@@ -624,8 +631,12 @@ void Texstudio::addMacrosAsTagList()
     }
     UtilsUi::enableTouchScrolling(list);
     connect(list, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(insertFromTagList(QListWidgetItem*)),Qt::UniqueConnection);
-    if(addToPanel)
+    if(addToPanel){
         leftPanel->addWidget(list, "txs-macros", tr("Macros"), getRealIconFile("executeMacro"));
+    }else{
+        leftPanel->setWidgetText(list,tr("Macros"));
+        leftPanel->setWidgetIcon(list,getRealIconFile("executeMacro"));
+    }
 }
 
 /*! set-up side- and bottom-panel
@@ -648,6 +659,8 @@ void Texstudio::setupDockWidgets()
         sidePanelSplitter->insertWidget(0, sidePanel);
         sidePanelSplitter->setStretchFactor(0, 0);  // panel does not get rescaled
         sidePanelSplitter->setStretchFactor(1, 1);
+    }else{
+        sidePanel->toggleViewAction()->setIcon(getRealIcon("sidebar"));
     }
 
     //Structure panel
@@ -666,10 +679,7 @@ void Texstudio::setupDockWidgets()
     }
 
     // load icons for structure view
-    QStringList structureIconNames = QStringList() << "part" << "chapter" << "section" << "subsection" << "subsubsection" << "paragraph" << "subparagraph";
-    iconSection.resize(structureIconNames.length());
-    for (int i = 0; i < structureIconNames.length(); i++)
-        iconSection[i] = getRealIconCached(structureIconNames[i]);
+    setStructureSectionIcons();
 
     if(!structureTreeWidget){
         structureTreeWidget = new QTreeWidget();
@@ -681,7 +691,10 @@ void Texstudio::setupDockWidgets()
         structureTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
         structureTreeWidget->installEventFilter(this);
         leftPanel->addWidget(structureTreeWidget, "structureTreeWidget", tr("Structure"), getRealIconFile("structure"));
-    } else leftPanel->setWidgetText(topTOCTreeWidget, tr("TOC"));
+    } else {
+        leftPanel->setWidgetText(structureTreeWidget, tr("Structure"));
+        leftPanel->setWidgetIcon(structureTreeWidget, getRealIconFile("structure"));
+    }
     if(!topTOCTreeWidget){
         topTOCTreeWidget = new QTreeWidget();
         connect(topTOCTreeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(gotoLine(QTreeWidgetItem*,int)));
@@ -692,14 +705,21 @@ void Texstudio::setupDockWidgets()
         topTOCTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
         topTOCTreeWidget->installEventFilter(this);
         leftPanel->addWidget(topTOCTreeWidget, "topTOCTreeWidget", tr("TOC"), getRealIconFile("toc"));
-    } else leftPanel->setWidgetText(topTOCTreeWidget, tr("TOC"));
+    } else {
+        leftPanel->setWidgetText(topTOCTreeWidget, tr("TOC"));
+        leftPanel->setWidgetIcon(topTOCTreeWidget, getRealIconFile("toc"));
+    }
     if (!leftPanel->widget("bookmarks")) {
         QListWidget *bookmarksWidget = bookmarks->widget();
         bookmarks->setDarkMode(darkMode);
         connect(bookmarks, SIGNAL(loadFileRequest(QString)), this, SLOT(load(QString)));
         connect(bookmarks, SIGNAL(gotoLineRequest(int,int,LatexEditorView*)), this, SLOT(gotoLine(int,int,LatexEditorView*)));
         leftPanel->addWidget(bookmarksWidget, "bookmarks", tr("Bookmarks"), getRealIconFile("bookmarks"));
-    } else leftPanel->setWidgetText("bookmarks", tr("Bookmarks"));
+    } else {
+        leftPanel->setWidgetText("bookmarks", tr("Bookmarks"));
+        leftPanel->setWidgetIcon("bookmarks", getRealIconFile("bookmarks"));
+        bookmarks->setDarkMode(darkMode);
+    }
 
     if (!leftPanel->widget("symbols")) {
         symbolWidget = new SymbolWidget(symbolListModel, configManager.insertSymbolsAsUnicode, this);
@@ -707,7 +727,12 @@ void Texstudio::setupDockWidgets()
         symbolWidget->setSymbolSize(qRound(configManager.guiSymbolGridIconSize*scale));
         connect(symbolWidget, SIGNAL(insertSymbol(QString)), this, SLOT(insertSymbol(QString)));
         leftPanel->addWidget(symbolWidget, "symbols", tr("Symbols"), getRealIconFile("symbols"));
-    } else leftPanel->setWidgetText("symbols", tr("Symbols"));
+    } else {
+        leftPanel->setWidgetText("symbols", tr("Symbols"));
+        leftPanel->setWidgetIcon("symbols", getRealIconFile("symbols"));
+        symbolListModel->setDarkmode(darkMode);
+        symbolWidget->reloadData();
+    }
 
     addTagList("brackets", getRealIconFile("leftright"), tr("Left/Right Brackets"), "brackets_tags.xml");
     addTagList("pstricks", getRealIconFile("pstricks"), tr("PSTricks Commands"), "pstricks_tags.xml");
@@ -739,7 +764,7 @@ void Texstudio::setupDockWidgets()
 
     // OUTPUT WIDGETS
     if (!outputView) {
-			  outputView = new OutputViewWidget(this, configManager.terminalConfig);
+        outputView = new OutputViewWidget(this, configManager.terminalConfig);
         outputView->setObjectName("OutputView");
         centralVSplitter->addWidget(outputView);
         outputView->toggleViewAction()->setChecked(configManager.getOption("GUI/outputView/visible", true).toBool());
@@ -769,6 +794,8 @@ void Texstudio::setupDockWidgets()
         QAction *temp = new QAction(this);
         temp->setSeparator(true);
         addAction(temp);
+    }else{
+        outputView->updateIcon();
     }
     sidePanelSplitter->restoreState(configManager.getOption("GUI/sidePanelSplitter/state").toByteArray());
 }
@@ -797,6 +824,11 @@ void Texstudio::updateToolBarMenu(const QString &menuName)
 							if (menuName == "main/view/documents" && edView == act->data().value<LatexEditorView *>()) {
 								defaultIndex = actionTexts.length() - 1;
 							}
+						}
+						else {
+							actionTexts.append("");
+							actionInfos.append("");
+							actionIcons.append(QIcon());
 						}
 					}
 					UtilsUi::createComboToolButton(tb.toolbar, actionTexts, actionInfos, actionIcons, -1, this, SLOT(callToolButtonAction()), defaultIndex, combo);
@@ -1567,6 +1599,11 @@ void Texstudio::setupToolBars()
 							infos.append(act->toolTip());
 							icons.append(act->icon());
 						}
+						else {
+							list.append("");
+							infos.append("");
+							icons.append(QIcon());
+						}
 					//TODO: Is the callToolButtonAction()-slot really needed? Can't we just add the menu itself as the menu of the qtoolbutton, without creating a copy? (should be much faster)
 					QToolButton *combo = UtilsUi::createComboToolButton(mtb.toolbar, list, infos, icons, 0, this, SLOT(callToolButtonAction()));
 					combo->setProperty("menuID", actionName);
@@ -1688,6 +1725,7 @@ void Texstudio::createStatusBar()
 		tb->setIcon(act->icon());
 		tb->setIconSize(iconSize);
 		tb->setToolTip(act->toolTip());
+        tb->setObjectName("structureViewToggle");
 		connect(tb, SIGNAL(clicked()), act, SLOT(trigger()));
 		connect(act, SIGNAL(toggled(bool)), tb, SLOT(setChecked(bool)));
 		status->addPermanentWidget(tb, 0);
@@ -1701,6 +1739,7 @@ void Texstudio::createStatusBar()
 		tb->setIcon(act->icon());
 		tb->setIconSize(iconSize);
 		tb->setToolTip(act->toolTip());
+        tb->setObjectName("outputViewToggle");
 		connect(tb, SIGNAL(clicked()), act, SLOT(trigger()));
 		connect(act, SIGNAL(toggled(bool)), tb, SLOT(setChecked(bool)));
 		status->addPermanentWidget(tb, 0);
@@ -3169,20 +3208,20 @@ repeatAfterFileSavingFailed:
 		if (edView->editor->isContentModified()) {
             if(!doc->isHidden())
                 editors->setCurrentEditor(edView);
-			switch (QMessageBox::warning(this, TEXSTUDIO,
-			                             tr("The document \"%1\" contains unsaved work. "
-			                                "Do you want to save it before closing?").arg(edView->displayName()),
-			                             tr("Save and Close"), tr("Close without Saving"), tr("Cancel"),
-			                             0,
-			                             2)) {
-			case 0:
+            int ret=QMessageBox::warning(this, TEXSTUDIO,
+                                           tr("The document \"%1\" contains unsaved work. "
+                                              "Do you want to save it before closing?").arg(edView->displayName()),
+                                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+                                           QMessageBox::Save);
+            switch (ret) {
+            case QMessageBox::Save:
                 fileSave(false,edView->editor);
                 if (currentEditorView() && currentEditorView()->editor->isContentModified())
 					goto repeatAfterFileSavingFailed;
 				break;
-			case 1:
+            case QMessageBox::Discard:
 				break;
-			case 2:
+            case QMessageBox::Cancel:
 			default:
 				editors->setCurrentEditor(savedCurrentEditorView);
 				return false;
@@ -3235,6 +3274,46 @@ void Texstudio::closeEvent(QCloseEvent *e)
     } else {
         e->ignore();
     }
+}
+
+/*!
+ * \brief set icons for structure/TOC pane
+ * Needs to be rerun on style change (light/dark mode change)
+ */
+void Texstudio::setStructureSectionIcons()
+{
+    // load icons for structure view
+    QStringList structureIconNames = QStringList() << "part" << "chapter" << "section" << "subsection" << "subsubsection" << "paragraph" << "subparagraph";
+    iconSection.resize(structureIconNames.length());
+    for (int i = 0; i < structureIconNames.length(); i++)
+        iconSection[i] = getRealIconCached(structureIconNames[i],true);
+}
+
+/*!
+ * \brief update icons in statusbar
+ * Necessary on pallete/color scheme change
+ */
+void Texstudio::updateStatusBarIcons()
+{
+    QStatusBar *status = statusBar();
+    QToolButton *tb = status->findChild<QToolButton *>("structureViewToggle");
+    QAction *act = getManagedAction("main/view/show/structureview");
+    tb->setIcon(act->icon());
+    act = getManagedAction("main/view/show/outputview");
+    tb = status->findChild<QToolButton *>("outputViewToggle");
+    tb->setIcon(act->icon());
+}
+/*!
+ * \brief update toolbar/statusbar icon in pdf viewer
+ * Called on colorSchemeChanged
+ */
+void Texstudio::updatePDFIcons()
+{
+#ifndef NO_POPPLER_PREVIEW
+    if (PDFDocument::documentList().isEmpty())
+        return;
+    PDFDocument::documentList().at(0)->updateIcons();
+#endif
 }
 
 void Texstudio::updateUserMacros(bool updateMenu)
@@ -3643,7 +3722,20 @@ void Texstudio::editPaste()
 	const QMimeData *d = QApplication::clipboard()->mimeData();
     if ((d->hasFormat("application/x-openoffice-embed-source-xml;windows_formatname=\"Star Embed Source (XML)\"")||d->hasFormat("application/x-qt-windows-mime;value=\"Star Embed Source (XML)\"")) && d->hasFormat("text/plain")) {
 		// workaround for LibreOffice (im "application/x-qt-image" has a higher priority for them than "text/plain")
-		currentEditorView()->paste();
+        QDocumentCursor cur = currentEditorView()->editor->cursor();
+        if (LatexTables::inTableEnv(cur)){
+            // table is defined
+            // Insert with "&" as separator
+            QString txt = d->text();
+            txt = txt.replace("\t", " & ");
+            txt = txt.replace("\n", " \\\\\n");
+            QMimeData md;
+            md.setText(txt);
+            currentEditorView()->editor->insertFromMimeData(&md);
+        }else{
+            // no table defined, call wizard
+            quickTabular(d);
+        }
 		return;
 	}
 
@@ -4538,7 +4630,7 @@ void Texstudio::saveSettings(const QString &configName)
 
 void Texstudio::restoreDefaultSettings()
 {
-	if (!UtilsUi::txsConfirmWarning("This will reset all settings to their defaults. At the end, TeXstudio will be closed. Please start TeXstudio manually anew afterwards.\n\nDo you want to continue?")) {
+	if (!UtilsUi::txsConfirmWarning(tr("This will reset all settings to their defaults. At the end, TeXstudio will be closed. Please start TeXstudio manually anew afterwards.\n\nDo you want to continue?"))) {
 		return;
 	}
 	if (canCloseNow(false)) {
@@ -5214,10 +5306,13 @@ void Texstudio::insertBib()
 	                       "TeXstudio inserts automatically the base name of the TeX file");
 }
 
-void Texstudio::quickTabular()
+void Texstudio::quickTabular(const QMimeData *d)
 {
 	if ( !currentEditorView() )	return;
 	TabDialog *tabDialog = new TabDialog(this, "Tabular");
+    if(d && d->hasFormat("text/plain")){
+        tabDialog->insertTextIntoTable(d->text());
+    }
 	if ( tabDialog->exec() ) {
 		QString latexText = tabDialog->getLatexText();
 		QSet<QString> usedPackages = currentEditorView()->document->usedPackages();
@@ -5984,15 +6079,15 @@ bool Texstudio::checkProgramPermission(const QString &program, const QString &cm
 	int t = QMessageBox::warning(nullptr, TEXSTUDIO,
 	                             tr("The document \"%1\" wants to override the command \"%2\" with \"%3\".\n\n"
 	                                "Do you want to allow and run the new, overriding command?\n\n"
-	                                "(a) Yes, allow the new command for this document (only if you trust this document)\n"
+                                    "(a) Yes, allow the new command for this document (only if you trust this document)\n"
 	                                "(b) Yes, allow the new command to be used for all documents (only if you trust the new command to handle arbitrary documents)\n"
 	                                "(c) No, do not use the command \"%3\" and run the default \"%2\" command"
                                    ).arg(master ? master->getFileName() : "",cmdId,program),
-	                             tr("(a) allow for this document"),
-	                             tr("(b) allow for all documents"),
-	                             tr("(c) use the default command"), 0, 2);
-	if (t == 2) return false;
-	if (t == 1) {
+                                 QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No,
+                                 QMessageBox::No
+                                 );
+    if (t == QMessageBox::No) return false;
+    if (t == QMessageBox::YesToAll) {
 		programWhiteList.append(program);
 		return true;
 	}
@@ -8963,8 +9058,11 @@ void Texstudio::fileCheckin(QString filename)
 	QString text;
 	dialog.addTextEdit(&text, tr("commit comment:"));
     bool wholeDirectory=false;
+    bool push=false;
     if(configManager.useVCS==0){ // SVN only
         dialog.addVariable(&wholeDirectory, tr("check in whole directory ?"));
+    }else{
+        dialog.addVariable(&push, tr("Push to repository ?"));
     }
 	if (dialog.exec() == QDialog::Accepted) {
 		fileSave(true);
@@ -8973,7 +9071,7 @@ void Texstudio::fileCheckin(QString filename)
 		}
 		//checkin(fn,text);
 		if (svnadd(fn)) {
-			checkin(fn, text, configManager.svnKeywordSubstitution);
+            checkin(fn, text,push);
 		} else {
             if(configManager.useVCS==0){
                 svn.createRepository(fn);
@@ -8981,7 +9079,7 @@ void Texstudio::fileCheckin(QString filename)
                 git.createRepository(fn);
             }
 			svnadd(fn);
-			checkin(fn, text, configManager.svnKeywordSubstitution);
+            checkin(fn, text);
 		}
 	}
 }
@@ -9083,7 +9181,7 @@ void Texstudio::checkinAfterSave(QString filename, int checkIn)
 	if (checkIn == 0) { // from fileSaveAs
 		if (configManager.autoCheckinAfterSaveLevel > 1) {
 			if (svnadd(filename)) {
-				checkin(filename, "txs auto checkin", configManager.svnKeywordSubstitution);
+                checkin(filename, "txs auto checkin");
 			} else {
 				//create simple repository
                 if(configManager.useVCS==0){
@@ -9092,7 +9190,7 @@ void Texstudio::checkinAfterSave(QString filename, int checkIn)
                     git.createRepository(filename);
                 }
 				svnadd(filename);
-				checkin(filename, "txs auto checkin", configManager.svnKeywordSubstitution);
+                checkin(filename, "txs auto checkin");
 			}
 			// set SVN Properties if desired
 			if (configManager.svnKeywordSubstitution) {
@@ -9102,13 +9200,16 @@ void Texstudio::checkinAfterSave(QString filename, int checkIn)
 	}
 }
 
-void Texstudio::checkin(QString fn, QString text, bool blocking)
+void Texstudio::checkin(QString fn, QString text, bool push)
 {
-	Q_UNUSED(blocking)
     if(configManager.useVCS==0){
         svn.commit(fn, text);
     }else{
         git.commit(fn, text);
+        if(push){
+            QFileInfo fi(fn);
+            git.push(fi.absolutePath());
+        }
     }
 	LatexEditorView *edView = getEditorViewFromFileName(fn);
 	if (edView)
@@ -10514,7 +10615,7 @@ void Texstudio::recoverFromCrash()
 		while (!programStopped) {
 			ThreadBreaker::sleep(1);
 			if (t &&  t == killAtCrashedThread) {
-                name += QString(" forced kill in %1").arg(reinterpret_cast<long int>(t), sizeof(long int) * 2, 16, QChar('0'));
+                name += QString(" forced kill in %1").arg(reinterpret_cast<uintptr_t>(t), sizeof(uintptr_t) * 2, 16, QChar('0'));
                 name += QString(" (TXS-Version %1 %2 )").arg(TEXSTUDIO_GIT_REVISION,COMPILED_DEBUG_OR_RELEASE);
 				backtraceFilename = print_backtrace(name);
 				exit(1);
@@ -10638,7 +10739,7 @@ void Texstudio::threadCrashed()
 	QThread *thread = lastCrashedThread;
 
 	QString threadName = "<unknown>";
-    QString threadId = QString("%1").arg(reinterpret_cast<long>(thread), sizeof(long int) * 2, 16, QChar('0'));
+    QString threadId = QString("%1").arg(reinterpret_cast<uintptr_t>(thread), sizeof(uintptr_t) * 2, 16, QChar('0'));
 	if (qobject_cast<QThread *>(static_cast<QObject *>(thread)))
 		threadName = QString("%1 %2").arg(threadId).arg(qobject_cast<QThread *>(thread)->objectName());
 
@@ -10646,8 +10747,8 @@ void Texstudio::threadCrashed()
 
 	int btn = QMessageBox::warning(this, tr("TeXstudio Emergency"),
                                    tr("TeXstudio has CRASHED due to a %1 in thread %2.\nThe thread has been stopped.\nDo you want to keep TeXstudio running? This may cause data corruption.").arg(signal,threadId),
-	                               tr("Yes"), tr("No, kill the program"));
-	if (btn) {
+                                   QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+    if (btn == QMessageBox::No) {
 		killAtCrashedThread = thread;
 		ThreadBreaker::sleep(10);
 		QMessageBox::warning(this, tr("TeXstudio Emergency"), tr("I tried to die, but nothing happened."));
@@ -11211,17 +11312,25 @@ void Texstudio::LTErrorMessage(QString message){
  */
 void Texstudio::paletteChanged(const QPalette &palette){
     bool oldDarkMode=darkMode;
-    bool newDarkMode=systemUsesDarkMode(palette);
-    if(newDarkMode != oldDarkMode && !configManager.useTexmakerPalette){
-        darkMode=newDarkMode;
-        // load appropriate syntax highlighting scheme
-        QSettings *config=configManager.getSettings();
-        config->beginGroup(darkMode ? "formatsDark" : "formats");
-        m_formats = new QFormatFactory(darkMode ? ":/qxs/defaultFormatsDark.qxf" : ":/qxs/defaultFormats.qxf", this); //load default formats from resource file
-        m_formats->load(*config, true); //load customized formats
-        QDocument::setDefaultFormatScheme(m_formats);
-        //m_formats->modified=true;
-        config->endGroup();
+    bool newDarkMode=configManager.systemUsesDarkMode(palette);
+    if(newDarkMode != oldDarkMode){
+        if(!configManager.useTexmakerPalette){
+            darkMode=newDarkMode;
+            // load appropriate syntax highlighting scheme
+            QSettings *config=configManager.getSettings();
+            config->beginGroup(darkMode ? "formatsDark" : "formats");
+            m_formats = new QFormatFactory(darkMode ? ":/qxs/defaultFormatsDark.qxf" : ":/qxs/defaultFormats.qxf", this); //load default formats from resource file
+            m_formats->load(*config, true); //load customized formats
+            QDocument::setDefaultFormatScheme(m_formats);
+            //m_formats->modified=true;
+            config->endGroup();
+        }
+        setupMenus(); // reload actions for new icons !
+        setupDockWidgets();
+        setStructureSectionIcons();
+        updateStatusBarIcons();
+        updateAllTOCs();
+        updatePDFIcons();
     }
     foreach (LatexEditorView *edView, editors->editors()) {
         QEditor *ed = edView->editor;
@@ -11232,6 +11341,48 @@ void Texstudio::paletteChanged(const QPalette &palette){
         searchpanel->updateIcon();
     }
 }
+
+#if (QT_VERSION >= 0x060500) && (defined( Q_OS_WIN )||defined( Q_OS_LINUX ))
+/*!
+ * \brief react to changed palette
+ * i.e. change form light- to dark-mode and vice-versa
+ * \param palette new palette
+ */
+void Texstudio::colorSchemeChanged(Qt::ColorScheme colorScheme)
+{
+    // only style Fusion & Windows support autochange
+    if(configManager.interfaceStyle!="Fusion" && configManager.interfaceStyle!="Windows") return;
+    bool oldDarkMode=darkMode;
+    bool newDarkMode=(colorScheme == Qt::ColorScheme::Dark);
+    if(newDarkMode != oldDarkMode){
+        if(!configManager.useTexmakerPalette){
+            darkMode=newDarkMode;
+            // load appropriate syntax highlighting scheme
+            QSettings *config=configManager.getSettings();
+            config->beginGroup(darkMode ? "formatsDark" : "formats");
+            m_formats = new QFormatFactory(darkMode ? ":/qxs/defaultFormatsDark.qxf" : ":/qxs/defaultFormats.qxf", this); //load default formats from resource file
+            m_formats->load(*config, true); //load customized formats
+            QDocument::setDefaultFormatScheme(m_formats);
+            //m_formats->modified=true;
+            config->endGroup();
+        }
+        setupMenus(); // reload actions for new icons !
+        setupDockWidgets();
+        setStructureSectionIcons();
+        updateStatusBarIcons();
+        updateAllTOCs();
+        updatePDFIcons();
+    }
+    foreach (LatexEditorView *edView, editors->editors()) {
+        QEditor *ed = edView->editor;
+        //edView->updatePalette(palette); // adapt ?
+        ed->document()->markFormatCacheDirty();
+        ed->update();
+        QSearchReplacePanel *searchpanel = qobject_cast<QSearchReplacePanel *>(edView->codeeditor->panels("Search")[0]);
+        searchpanel->updateIcon();
+    }
+}
+#endif
 /*!
  * \brief open webpage with txs issue submit
  */
@@ -11244,6 +11395,16 @@ void Texstudio::openBugsAndFeatures() {
 void Texstudio::updateTOCs(){
     updateTOC();
     updateStructureLocally();
+}
+
+/*!
+ * \brief update global TOC and *all* local structure view
+ * Otherwise only current doc is updated
+ */
+void Texstudio::updateAllTOCs()
+{
+    updateTOC();
+    updateStructureLocally(true);
 }
 
 /*!
@@ -11445,7 +11606,7 @@ bool Texstudio::parseStruct(StructureEntry* se, QVector<QTreeWidgetItem *> &root
                 item->setData(0,Qt::UserRole,QVariant::fromValue<StructureEntry *>(elem));
                 item->setText(0,elem->title);
                 item->setToolTip(0,tr("Document: ")+docName);
-                item->setIcon(0,QIcon(":/images/include.png"));
+                item->setIcon(0,getRealIcon("include"));
                 if(configManager.globalTOCbackgroundOptions>0){
                     item->setBackground(0,colors[currentColor]);
                 }
@@ -11907,7 +12068,7 @@ void Texstudio::gotoLineFromAction()
  * This approach avoid the model/view which repeatedly led to crashes because the view component caches info from the actual model and is not kept up-to-date properly
  *
  */
-void Texstudio::updateStructureLocally(){
+void Texstudio::updateStructureLocally(bool updateAll){
     if(!structureTreeWidget->isVisible()) return; // don't update if TOC is not shown, save unnecessary effort
     QTreeWidgetItem *root= nullptr;
 
@@ -11919,195 +12080,201 @@ void Texstudio::updateStructureLocally(){
         return;
     }
 
-    LatexDocument *master = documents.getMasterDocument();
-    bool showHiddenMasterFirst=false;
-    bool hiddenMasterStructureIsVisible=false;
-    if(configManager.parseMaster && master && master->isHidden()){
-        showHiddenMasterFirst=true;
+    QList<LatexDocument*> docs{doc};
+    if(updateAll){
+        docs=documents.documents; // only visible documents
     }
-    if(configManager.structureShowSingleDoc){
-        root= structureTreeWidget->topLevelItem(0);
-        if(structureTreeWidget->topLevelItemCount()>1){
-            for(int i=1;structureTreeWidget->topLevelItemCount()>1;){
-                QTreeWidgetItem *item=structureTreeWidget->takeTopLevelItem(i);
-                delete item;
-            }
+    for(LatexDocument *doc:docs){
+        LatexDocument *master = documents.getMasterDocument();
+        bool showHiddenMasterFirst=false;
+        bool hiddenMasterStructureIsVisible=false;
+        if(configManager.parseMaster && master && master->isHidden()){
+            showHiddenMasterFirst=true;
         }
-    }else{
-        for(int i=0;i<structureTreeWidget->topLevelItemCount();++i){
-            QTreeWidgetItem *item = structureTreeWidget->topLevelItem(i);
-            StructureEntry *contextEntry = item->data(0,Qt::UserRole).value<StructureEntry *>();
-            if (!contextEntry){
-                structureTreeWidget->takeTopLevelItem(i);
-                delete item;
-                --i;
-                continue;
+        if(configManager.structureShowSingleDoc){
+            root= structureTreeWidget->topLevelItem(0);
+            if(structureTreeWidget->topLevelItemCount()>1){
+                for(int i=1;structureTreeWidget->topLevelItemCount()>1;){
+                    QTreeWidgetItem *item=structureTreeWidget->takeTopLevelItem(i);
+                    delete item;
+                }
             }
-            if (contextEntry->type == StructureEntry::SE_DOCUMENT_ROOT) {
-                if(contextEntry->document == doc){
-                    root=item;
-                }else{
-                    QFont font=item->font(0);
-                    font.setBold(false);
-                    item->setFont(0,font);
-                    if(!documents.documents.contains(contextEntry->document) || documents.hiddenDocuments.contains(contextEntry->document)){
-                        if(showHiddenMasterFirst && contextEntry->document == master && !hiddenMasterStructureIsVisible){
-                            // run only once
-                            // reload may add more structure views
-                            hiddenMasterStructureIsVisible=true;
-                            continue; // keep showing master document regardless
+        }else{
+            for(int i=0;i<structureTreeWidget->topLevelItemCount();++i){
+                QTreeWidgetItem *item = structureTreeWidget->topLevelItem(i);
+                StructureEntry *contextEntry = item->data(0,Qt::UserRole).value<StructureEntry *>();
+                if (!contextEntry){
+                    structureTreeWidget->takeTopLevelItem(i);
+                    delete item;
+                    --i;
+                    continue;
+                }
+                if (contextEntry->type == StructureEntry::SE_DOCUMENT_ROOT) {
+                    if(contextEntry->document == doc){
+                        root=item;
+                    }else{
+                        QFont font=item->font(0);
+                        font.setBold(false);
+                        item->setFont(0,font);
+                        if(!documents.documents.contains(contextEntry->document) || documents.hiddenDocuments.contains(contextEntry->document)){
+                            if(showHiddenMasterFirst && contextEntry->document == master && !hiddenMasterStructureIsVisible){
+                                // run only once
+                                // reload may add more structure views
+                                hiddenMasterStructureIsVisible=true;
+                                continue; // keep showing master document regardless
+                            }
+                            structureTreeWidget->takeTopLevelItem(i);
+                            delete item;
+                            --i;
                         }
-                        structureTreeWidget->takeTopLevelItem(i);
-                        delete item;
-                        --i;
+                    }
+                }else{
+                    // remove invalid
+                    structureTreeWidget->takeTopLevelItem(i);
+                    delete item;
+                    --i;
+                }
+            }
+            // reorder documents
+            for(int i=0;i<documents.documents.length();++i){
+                bool found=false;
+                int j=i;
+                StructureEntry *contextEntry;
+                for(;j<structureTreeWidget->topLevelItemCount();++j){
+                    QTreeWidgetItem *item = structureTreeWidget->topLevelItem(j);
+                    contextEntry = item->data(0,Qt::UserRole).value<StructureEntry *>();
+                    if(contextEntry->document == documents.documents.value(i)){
+                        found=true;
+                        break;
                     }
                 }
-            }else{
-                // remove invalid
-                structureTreeWidget->takeTopLevelItem(i);
-                delete item;
-                --i;
-            }
-        }
-        // reorder documents
-        for(int i=0;i<documents.documents.length();++i){
-            bool found=false;
-            int j=i;
-            StructureEntry *contextEntry;
-            for(;j<structureTreeWidget->topLevelItemCount();++j){
-                QTreeWidgetItem *item = structureTreeWidget->topLevelItem(j);
-                contextEntry = item->data(0,Qt::UserRole).value<StructureEntry *>();
-                if(contextEntry->document == documents.documents.value(i)){
-                    found=true;
-                    break;
+                if(found && i<j){
+                    QTreeWidgetItem *item = structureTreeWidget->takeTopLevelItem(j);
+                    if(contextEntry->document==master){
+                        item->setIcon(0,getRealIcon("masterdoc"));
+                    }else{
+                        item->setIcon(0,getRealIcon("doc"));
+                    }
+                    structureTreeWidget->insertTopLevelItem(i,item);
                 }
-            }
-            if(found && i<j){
-                QTreeWidgetItem *item = structureTreeWidget->takeTopLevelItem(j);
-                if(contextEntry->document==master){
-                    item->setIcon(0,QIcon(":/images/masterdoc.png"));
-                }else{
-                    item->setIcon(0,QIcon(":/images/doc.png"));
-                }
-                structureTreeWidget->insertTopLevelItem(i,item);
-            }
-            if(!found){
-                QTreeWidgetItem *item=new QTreeWidgetItem();
-                LatexDocument *doc=documents.documents.value(i);
-                StructureEntry *base=doc->baseStructure;
+                if(!found){
+                    QTreeWidgetItem *item=new QTreeWidgetItem();
+                    LatexDocument *doc=documents.documents.value(i);
+                    StructureEntry *base=doc->baseStructure;
 
-                item->setText(0,doc->getFileInfo().fileName());
-                item->setData(0,Qt::UserRole,QVariant::fromValue<StructureEntry *>(base));
-                if(doc==master){
-                    item->setIcon(0,QIcon(":/images/masterdoc.png"));
-                }else{
-                    item->setIcon(0,QIcon(":/images/doc.png"));
-                }
-                structureTreeWidget->insertTopLevelItem(i,item);
-                if(doc==documents.getCurrentDocument()){
-                    root=item;
+                    item->setText(0,doc->getFileInfo().fileName());
+                    item->setData(0,Qt::UserRole,QVariant::fromValue<StructureEntry *>(base));
+                    if(doc==master){
+                        item->setIcon(0,getRealIcon("masterdoc"));
+                    }else{
+                        item->setIcon(0,getRealIcon("doc"));
+                    }
+                    structureTreeWidget->insertTopLevelItem(i,item);
+                    if(doc==documents.getCurrentDocument()){
+                        root=item;
+                    }
                 }
             }
         }
-    }
-    StructureEntry *selectedEntry=nullptr;
-    bool itemExpandedLABEL=false;
-    bool itemExpandedTODO=false;
-    bool itemExpandedMAGIC=false;
-    bool itemExpandedBIBLIO=false;
-    bool addToTopLevel=false;
-    if(!root){
-        root=new QTreeWidgetItem();
-        addToTopLevel=true;
-    }else{
-        // get current selected item, check only first and deduce structureEntry
-        QList<QTreeWidgetItem*> selected=structureTreeWidget->selectedItems();
-        if(!selected.isEmpty()){
-            QTreeWidgetItem *item=selected.first();
-            if(item){
-                selectedEntry = item->data(0,Qt::UserRole).value<StructureEntry *>();
+        StructureEntry *selectedEntry=nullptr;
+        bool itemExpandedLABEL=false;
+        bool itemExpandedTODO=false;
+        bool itemExpandedMAGIC=false;
+        bool itemExpandedBIBLIO=false;
+        bool addToTopLevel=false;
+        if(!root){
+            root=new QTreeWidgetItem();
+            addToTopLevel=true;
+        }else{
+            // get current selected item, check only first and deduce structureEntry
+            QList<QTreeWidgetItem*> selected=structureTreeWidget->selectedItems();
+            if(!selected.isEmpty()){
+                QTreeWidgetItem *item=selected.first();
+                if(item){
+                    selectedEntry = item->data(0,Qt::UserRole).value<StructureEntry *>();
+                }
             }
+            // remove all item in topTOC but keep itemTODO
+            for(int i=0;i<root->childCount();++i){
+                QTreeWidgetItem *item=root->child(i);
+                if(item->data(0,Qt::UserRole+1).toString()=="TODO"){
+                    itemExpandedTODO=item->isExpanded();
+                }
+                if(item->data(0,Qt::UserRole+1).toString()=="LABEL"){
+                    itemExpandedLABEL=item->isExpanded();
+                }
+                if(item->data(0,Qt::UserRole+1).toString()=="MAGIC"){
+                    itemExpandedMAGIC=item->isExpanded();
+                }
+                if(item->data(0,Qt::UserRole+1).toString()=="BIBLIO"){
+                    itemExpandedBIBLIO=item->isExpanded();
+                }
+            }
+            QList<QTreeWidgetItem*> items=root->takeChildren();
+            qDeleteAll(items);
         }
-        // remove all item in topTOC but keep itemTODO
-        for(int i=0;i<root->childCount();++i){
-            QTreeWidgetItem *item=root->child(i);
-            if(item->data(0,Qt::UserRole+1).toString()=="TODO"){
-                itemExpandedTODO=item->isExpanded();
-            }
-            if(item->data(0,Qt::UserRole+1).toString()=="LABEL"){
-                itemExpandedLABEL=item->isExpanded();
-            }
-            if(item->data(0,Qt::UserRole+1).toString()=="MAGIC"){
-                itemExpandedMAGIC=item->isExpanded();
-            }
-            if(item->data(0,Qt::UserRole+1).toString()=="BIBLIO"){
-                itemExpandedBIBLIO=item->isExpanded();
-            }
+        QVector<QTreeWidgetItem *>rootVector(latexParser.MAX_STRUCTURE_LEVEL,root);
+        // fill TOC, starting by current master/top
+
+
+        StructureEntry *base=doc->baseStructure;
+
+        root->setText(0,doc->getFileInfo().fileName());
+        root->setData(0,Qt::UserRole,QVariant::fromValue<StructureEntry *>(base));
+        if(doc==master){
+            root->setIcon(0,getRealIcon("masterdoc"));
+        }else{
+            root->setIcon(0,getRealIcon("doc"));
         }
-        QList<QTreeWidgetItem*> items=root->takeChildren();
-        qDeleteAll(items);
-    }
-    QVector<QTreeWidgetItem *>rootVector(latexParser.MAX_STRUCTURE_LEVEL,root);
-    // fill TOC, starting by current master/top
+        QFont font=root->font(0);
+        font.setBold(true);
+        root->setFont(0,font);
 
+        QList<QTreeWidgetItem*> todoList;
+        QList<QTreeWidgetItem*> labelList;
+        QList<QTreeWidgetItem*> magicList;
+        QList<QTreeWidgetItem*> biblioList;
+        parseStructLocally(base,rootVector,&todoList,&labelList,&magicList,&biblioList);
+        if(addToTopLevel)
+            structureTreeWidget->addTopLevelItem(root);
 
-    StructureEntry *base=doc->baseStructure;
+        if(!biblioList.isEmpty()){
+            QTreeWidgetItem *itemBIBLIO=new QTreeWidgetItem();
+            itemBIBLIO->setText(0,tr("BIBLIOGRAPHY"));
+            itemBIBLIO->setData(0,Qt::UserRole+1,"BIBLIO");
+            itemBIBLIO->insertChildren(0,biblioList);
+            root->insertChild(0,itemBIBLIO);
+            itemBIBLIO->setExpanded(itemExpandedBIBLIO);
+        }
+        if(!magicList.isEmpty()){
+            QTreeWidgetItem *itemTODO=new QTreeWidgetItem();
+            itemTODO->setText(0,tr("MAGIC_COMMENTS"));
+            itemTODO->setData(0,Qt::UserRole+1,"MAGIC");
+            itemTODO->insertChildren(0,magicList);
+            root->insertChild(0,itemTODO);
+            itemTODO->setExpanded(itemExpandedMAGIC);
+        }
+        if(!todoList.isEmpty()){
+            QTreeWidgetItem *itemTODO=new QTreeWidgetItem();
+            itemTODO->setText(0,tr("TODO"));
+            itemTODO->setData(0,Qt::UserRole+1,"TODO");
+            itemTODO->insertChildren(0,todoList);
+            root->insertChild(0,itemTODO);
+            itemTODO->setExpanded(itemExpandedTODO);
+        }
+        if(!labelList.isEmpty()){
+            QTreeWidgetItem *itemLABEL=new QTreeWidgetItem();
+            itemLABEL->setText(0,tr("LABELS"));
+            itemLABEL->setData(0,Qt::UserRole+1,"LABEL");
+            itemLABEL->insertChildren(0,labelList);
+            root->insertChild(0,itemLABEL);
+            itemLABEL->setExpanded(itemExpandedLABEL);
+        }
 
-    root->setText(0,doc->getFileInfo().fileName());
-    root->setData(0,Qt::UserRole,QVariant::fromValue<StructureEntry *>(base));
-    if(doc==master){
-        root->setIcon(0,QIcon(":/images/masterdoc.png"));
-    }else{
-        root->setIcon(0,QIcon(":/images/doc.png"));
+        root->setExpanded(true);
+        root->setSelected(false);
+        updateCurrentPosInTOC(nullptr,nullptr,selectedEntry);
     }
-    QFont font=root->font(0);
-    font.setBold(true);
-    root->setFont(0,font);
-
-    QList<QTreeWidgetItem*> todoList;
-    QList<QTreeWidgetItem*> labelList;
-    QList<QTreeWidgetItem*> magicList;
-    QList<QTreeWidgetItem*> biblioList;
-    parseStructLocally(base,rootVector,&todoList,&labelList,&magicList,&biblioList);
-    if(addToTopLevel)
-        structureTreeWidget->addTopLevelItem(root);
-
-    if(!biblioList.isEmpty()){
-        QTreeWidgetItem *itemBIBLIO=new QTreeWidgetItem();
-        itemBIBLIO->setText(0,tr("BIBLIOGRAPHY"));
-        itemBIBLIO->setData(0,Qt::UserRole+1,"BIBLIO");
-        itemBIBLIO->insertChildren(0,biblioList);
-        root->insertChild(0,itemBIBLIO);
-        itemBIBLIO->setExpanded(itemExpandedBIBLIO);
-    }
-    if(!magicList.isEmpty()){
-        QTreeWidgetItem *itemTODO=new QTreeWidgetItem();
-        itemTODO->setText(0,tr("MAGIC_COMMENTS"));
-        itemTODO->setData(0,Qt::UserRole+1,"MAGIC");
-        itemTODO->insertChildren(0,magicList);
-        root->insertChild(0,itemTODO);
-        itemTODO->setExpanded(itemExpandedMAGIC);
-    }
-    if(!todoList.isEmpty()){
-        QTreeWidgetItem *itemTODO=new QTreeWidgetItem();
-        itemTODO->setText(0,tr("TODO"));
-        itemTODO->setData(0,Qt::UserRole+1,"TODO");
-        itemTODO->insertChildren(0,todoList);
-        root->insertChild(0,itemTODO);
-        itemTODO->setExpanded(itemExpandedTODO);
-    }
-    if(!labelList.isEmpty()){
-        QTreeWidgetItem *itemLABEL=new QTreeWidgetItem();
-        itemLABEL->setText(0,tr("LABELS"));
-        itemLABEL->setData(0,Qt::UserRole+1,"LABEL");
-        itemLABEL->insertChildren(0,labelList);
-        root->insertChild(0,itemLABEL);
-        itemLABEL->setExpanded(itemExpandedLABEL);
-    }
-
-    root->setExpanded(true);
-    root->setSelected(false);
-    updateCurrentPosInTOC(nullptr,nullptr,selectedEntry);
 }
 
 /*!
@@ -12118,8 +12285,8 @@ void Texstudio::updateStructureLocally(){
  * \param rootVector
  */
 void Texstudio::parseStructLocally(StructureEntry* se, QVector<QTreeWidgetItem *> &rootVector, QList<QTreeWidgetItem *> *todoList, QList<QTreeWidgetItem *> *labelList, QList<QTreeWidgetItem *> *magicList, QList<QTreeWidgetItem *> *biblioList) {
-    static const QColor beyondEndColor(255, 170, 0);
-    static const QColor inAppendixColor(200, 230, 200);
+    const QColor beyondEndColor = darkMode ? QColor(255, 170, 0)  : QColor(255, 170, 0);
+    const QColor inAppendixColor= darkMode ? QColor(0, 102,   0): QColor(200, 230, 200);
 
     foreach(StructureEntry* elem,se->children){
         if(todoList && (elem->type == StructureEntry::SE_OVERVIEW)){
@@ -12171,7 +12338,7 @@ void Texstudio::parseStructLocally(StructureEntry* se, QVector<QTreeWidgetItem *
             if(!elem->valid){
                 item->setForeground(0,Qt::red);
             }
-            item->setIcon(0,QIcon(":/images/include.png"));
+            item->setIcon(0,getRealIcon("include"));
             if(configManager.indentIncludesInStructure){
                 rootVector[latexParser.MAX_STRUCTURE_LEVEL-1]->addChild(item);
             }else{

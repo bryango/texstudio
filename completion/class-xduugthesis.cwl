@@ -1,8 +1,6 @@
 # xduugthesis class
-# Matthew Bertucci 2023/01/28 for v4.3.0.0
+# Matthew Bertucci 2023/03/05 for v6.1.0.1
 
-#include:expl3
-#include:xparse
 #include:l3keys2e
 #include:class-ctexbook
 #include:xeCJK
@@ -22,10 +20,10 @@
 
 #keyvals:\xdusetup#c
 style={%<keyvals%>}
-style/cjk-font=#adobe,fandol,founder,sinotype,win,none
+style/cjk-font=#adobe,fandol,founder,hanyi,sinotype,win,none
 style/cjk-fake-bold=%<伪粗体粗细程度%>
 style/cjk-fake-slant=%<伪斜体倾斜程度%>
-style/latin-font=#tac,tacn,thcs,gyre,none
+style/latin-font=#gyre,tac,tacn,tcc,thcs,tll,none
 style/latin-sans-scale=#upper,lower,off
 style/latin-mono-scale=#upper,lower,off
 style/math-font=#asana,cambria,cm,concrete,erewhon,euler,fira,garamond,gfsneohellenic,kp,libertinus,lm,newcm,stix2,stix,xcharter,xits,bonum,dejavu,pagella,schola,termes,none
@@ -33,6 +31,7 @@ style/unicode-math={%<unicode-math宏包选项%>}
 style/font-type=#font,file
 style/font-path={%<路径%>}
 style/en-cjk-font#true,false
+style/title-bold-math#true,false
 style/language=#zh,en
 style/bib-backend=#bibtex,biblatex
 style/biblatex-option={%<biblatex宏包选项%>}
@@ -47,9 +46,11 @@ style/caption-label-sep={%<间距%>}
 style/caption-format=#plain,hang
 style/ft-caption-format=#plain,hang
 style/ft-caption-align=#left,centering,centering-left
+style/figure-align=#left,centering,right
+style/table-align=#left,centering,right
 style/table-small-font#true,false
-style/algorithm-small-caption#true,false
-style/algorithm-small-font#true,false
+style/alg-small-caption#true,false
+style/alg-small-font#true,false
 style/alg-caption-format=#plain,hang
 style/alg-caption-align=#left,centering,centering-left
 add-alg-rule-vspace#true,false
@@ -67,9 +68,9 @@ info/department={%<院系名称%>}
 info/major={%<专业名称/一级学科名称%>}
 info/author={%<作者姓名%>}
 info/supervisor={%<导师姓名%>}
-info/supervisor-department={%<院内导师姓名%>}
-info/supervisor-enterprise={%<校外导师姓名%>}
-info/supervisor-school={%<校内导师姓名%>}
+info/supv-dept={%<院内导师姓名%>}
+info/supv-ent={%<校外导师姓名%>}
+info/supv-school={%<校内导师姓名%>}
 info/class-id={%<作者班级号%>}
 info/student-id={%<作者学号%>}
 info/abstract={%<中文摘要文件路径%>}

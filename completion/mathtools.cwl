@@ -196,7 +196,7 @@ rl
 \end{lgathered}
 \end{rgathered}
 \newgathered{envname}{pre line}{post line}{after}#N
-\renewgathered{envname}{pre line}{post line}{after}#N
+\renewgathered{envname}{pre line}{post line}{after}
 \begin{multlined}#m
 \begin{multlined}[pos][width]#m
 \end{multlined}
@@ -224,9 +224,9 @@ rl
 \intertext{text}#m
 \DeclarePairedDelimiter{cmd}{left delim%formula}{right delim%formula}#nd
 \DeclarePairedDelimiterX{cmd}[args]{left delim%formula}{right delim%formula}{body%formula}#nd
-\DeclarePairedDelimiterXPP{cmd}[args]{pre code}{left delim%formula}{right delim%formula}{post code%formula}{body%formula}#nd
+\DeclarePairedDelimiterXPP{cmd}[args]{pre code%formula}{left delim%formula}{right delim%formula}{post code%formula}{body%formula}#nd
 
-\reDeclarePairedDelimiterInnerWrapper{macro name}{star option%keyvals}{code}#m
+\reDeclarePairedDelimiterInnerWrapper{cmd}{star option%keyvals}{code%definition}
 #keyvals:\reDeclarePairedDelimiterInnerWrapper
 star
 nostarnonscaled
@@ -267,7 +267,7 @@ nostarscaled
 \xmathstrut{increase}#m
 \xmathstrut[depth increase]{increase}#m
 \newcases{envname}{sep}{preamble}{left}{right}#*N
-\renewcases{envname}{sep}{preamble}{left}{right}#*N
+\renewcases{envname}{sep}{preamble}{left}{right}#*
 \upbracketfill{arg1}{arg2}#S
 \upbracketend{arg1}{arg2}#S
 \downbracketfill{arg1}{arg2}#S

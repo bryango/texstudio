@@ -281,7 +281,7 @@ QString getRealIconFile(const QString &icon)
 
         iconNames << ":/symbols-ng/icons/" + icon + suffix + ".svg";
         iconNames << ":/symbols-ng/icons/" + icon + suffix + ".png";
-        iconNames << ":/images/" + icon + ".png";
+		iconNames << ":/images/" + icon + ".png";
 
 		// fallback
 		iconNames
@@ -352,20 +352,6 @@ QIcon getRealIconCached(const QString &icon, bool forceReload)
 	QIcon *icn = new QIcon(getRealIconFile(icon));
 	iconCache.insert(icon, icn);
 	return *icn;
-}
-
-/*!
- * \brief Tries to determine if the system uses dark mode
- *
- * This function tries to determine if a system uses "dark mode" by looking up general text color and converting it into gray-scale value.
- * A value above 200 (scale is 0 .. 255 ) is considered as light text color on probably dark background, hence a dark mode is detected.
- * This approach is independent on specific on different systems.
- * \return true -> uses dark mode
- */
-bool systemUsesDarkMode(const QPalette &pal)
-{
-    QColor clr=pal.color(QPalette::Text);
-    return qGray(clr.rgb())>200;
 }
 
 bool isFileRealWritable(const QString &filename)

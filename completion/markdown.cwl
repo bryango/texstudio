@@ -1,5 +1,5 @@
 # markdown package
-# Matthew Bertucci 2023/02/02 for v2.20.0
+# Matthew Bertucci 2023/04/03 for v2.22.0-0-g5a3d0fe
 
 #include:paralist
 #include:amsmath
@@ -34,7 +34,7 @@
 
 #keyvals:\usepackage/markdown#c,\begin{markdown*}#c,\markdownInput#c,\markdownSetup#c,\markdownSetupSnippet#c
 plain#true,false
-theme=#witiko/dot,witiko/graphicx/http,witiko/tilde,witiko/markdown/techdoc
+import=#witiko/dot,witiko/graphicx/http,witiko/tilde,witiko/markdown/techdoc
 snippet=#%markdownsnippet
 helperScriptFileName=%<file name%>
 inputTempFileName=%<file name%>
@@ -63,14 +63,15 @@ fancyLists#true,false
 fencedCode#true,false
 fencedCodeAttributes#true,false
 fencedDivs#true,false
-jekyllData#true,false
-lineBlocks#true,false
-hardLineBreaks#true,false
 hashEnumerators#true,false
 headerAttributes#true,false
 html#true,false
 hybrid#true,false
+inlineCodeAttributes#true,false
 inlineNotes#true,false
+jekyllData#true,false
+linkAttributes#true,false
+lineBlocks#true,false
 notes#true,false
 pipeTables#true,false
 preserveTabs#true,false
@@ -87,6 +88,9 @@ superscripts#true,false
 tableCaptions#true,false
 taskLists#true,false
 texComments#true,false
+texMathDollars#true,false
+texMathDoubleBackslash#true,false
+texMathSingleBackslash#true,false
 tightLists#true,false
 underscores#true,false
 stripPercentSigns#true,false
@@ -247,6 +251,10 @@ jekyllDataRenderers={%<keyvals%>}
 \markdownRendererCite#*
 \markdownRendererCitePrototype{arg1}#*
 \markdownRendererCodeSpan#*
+\markdownRendererCodeSpanAttributeContextBegin#*
+\markdownRendererCodeSpanAttributeContextBeginPrototype#*
+\markdownRendererCodeSpanAttributeContextEnd#*
+\markdownRendererCodeSpanAttributeContextEndPrototype#*
 \markdownRendererCodeSpanPrototype{arg1}#*
 \markdownRendererContentBlock#*
 \markdownRendererContentBlockCode#*
@@ -255,6 +263,8 @@ jekyllDataRenderers={%<keyvals%>}
 \markdownRendererContentBlockOnlineImagePrototype#*
 \markdownRendererContentBlockOnlineImagePrototype{arg1}{arg2}{arg3}{arg4}#*
 \markdownRendererContentBlockPrototype{arg1}{arg2}{arg3}{arg4}#*
+\markdownRendererDisplayMath#*
+\markdownRendererDisplayMathPrototype#*
 \markdownRendererDlBegin#*
 \markdownRendererDlBeginPrototype#*
 \markdownRendererDlBeginTight#*
@@ -322,10 +332,16 @@ jekyllDataRenderers={%<keyvals%>}
 \markdownRendererHeadingTwo#*
 \markdownRendererHeadingTwoPrototype{arg1}#*
 \markdownRendererImage#*
+\markdownRendererImageAttributeContextBegin#*
+\markdownRendererImageAttributeContextBeginPrototype#*
+\markdownRendererImageAttributeContextEnd#*
+\markdownRendererImageAttributeContextEndPrototype#*
 \markdownRendererImagePrototype{arg1}{arg2}{arg3}{arg4}#*
 \markdownRendererInlineHtmlComment#*
 \markdownRendererInlineHtmlCommentPrototype{arg1}#*
 \markdownRendererInlineHtmlTag#*
+\markdownRendererInlineMath#*
+\markdownRendererInlineMathPrototype#*
 \markdownRendererInputBlockHtmlElement#*
 \markdownRendererInputFencedCode#*
 \markdownRendererInputFencedCodePrototype{arg1}{arg2}#*
@@ -363,10 +379,13 @@ jekyllDataRenderers={%<keyvals%>}
 \markdownRendererLineBlockBeginPrototype#*
 \markdownRendererLineBlockEnd#*
 \markdownRendererLineBlockEndPrototype#*
-\markdownRendererLineBreak#*
-\markdownRendererLineBreakPrototype#*
+\markdownRendererHardLineBreak#*
+\markdownRendererHardLineBreakPrototype#*
 \markdownRendererLink#*
-\markdownRendererLinkPrototype#*
+\markdownRendererLinkAttributeContextBegin#*
+\markdownRendererLinkAttributeContextBeginPrototype#*
+\markdownRendererLinkAttributeContextEnd#*
+\markdownRendererLinkAttributeContextEndPrototype#*
 \markdownRendererLinkPrototype{arg1}{arg2}{arg3}{arg4}#*
 \markdownRendererNbsp#*
 \markdownRendererNbspPrototype#*
@@ -394,6 +413,10 @@ jekyllDataRenderers={%<keyvals%>}
 \markdownRendererReplacementCharacterPrototype#*
 \markdownRendererRightBrace#*
 \markdownRendererRightBracePrototype#*
+\markdownRendererSectionBegin#*
+\markdownRendererSectionBeginPrototype#*
+\markdownRendererSectionEnd#*
+\markdownRendererSectionEndPrototype#*
 \markdownRendererStrikeThrough#*
 \markdownRendererStrikeThroughPrototype#*
 \markdownRendererStrongEmphasis#*

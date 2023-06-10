@@ -1,11 +1,12 @@
 # mismath package
-# Matthew Bertucci 2023/01/06 for v2.2
+# Matthew Bertucci 2023/02/24 for v2.5
 
 #include:amsmath
+#include:mathtools
 #include:esvect
 #include:ifthen
 #include:xspace
-#include:mathtools
+#include:iftex
 
 #keyvals:\usepackage/mismath#c
 ibrackets
@@ -31,27 +32,22 @@ alignedleftspaceyesifneg
 #include:ibrackets
 #endif
 
-\enumber
-\inumber
-\jnumber
-\pinumber
-\pinumber[csname]
-
 \abs{arg}#m
 \adj#m
+\apply{arg1}{arg2}#S
 \arccot#m
 \arcosh#m
 \arcoth#m
 \arcsch#m
-\arrowvect#*
+\arrowvect
 \arsech#m
 \arsinh#m
 \artanh#m
 \Aut#m
 \bigO#m
 \bigo#m
-\boldvect{arg}#m
-\boldvectcommand{arg}#*
+\boldvect
+\boldvectcommand#*
 \C#m
 \codim#m
 \Conv#m
@@ -65,7 +61,7 @@ alignedleftspaceyesifneg
 \divg#m
 \dlim#m
 \dprod#m
-\ds#m
+\ds
 \dsum#m
 \e#m
 \E#m
@@ -89,19 +85,27 @@ alignedleftspaceyesifneg
 \lcm#m
 \lfrac{numerator}{denominator}#m
 \lito#m
+\mathbfsfit{text%plain}#m
+\MathFamily{char}{num}#*
+\MathIt{char}
+\MathNormal{chars}
+\MathNumbers{chars}
+\MathProba{chars}
 \mathset{text%plain}#*
-\mathup{arg}#m
+\MathUp{char}
+\mathup{text%plain}#m
 \mul#m
 \N#m
 \norm{arg}#m
 \oldIm#*m
-\oldi#*
-\oldj#*
+\oldi#S
+\oldj#S
 \oldRe#*m
 \P#m
-\Par#m
-\Par#m
-\PEupright#*
+\Par
+\pinormal#*m
+\pinumber#m
+\pinumber[csname]#m
 \pow{expr}{exponent}#m
 \probastyle#*
 \Q#m
@@ -134,3 +138,9 @@ alignedleftspaceyesifneg
 \end{mathcols}#m
 \changecol#/mathcols
 \bslash#*
+
+# deprecated
+\enumber#S
+\inumber#S
+\jnumber#S
+\PEupright#S

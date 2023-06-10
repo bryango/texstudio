@@ -243,10 +243,10 @@
 \ReadonlyShipoutCounter#*
 \RemoveFromHook{hook}#*
 \RemoveFromHook{hook}[label]#*
-\RenewCommandCopy{cmd}{def}#d
-\RenewDocumentCommand{cmd}{xargs}{def}#d
-\RenewDocumentEnvironment{envname}{xargs}{begdef}{enddef}#N
-\RenewExpandableDocumentCommand{cmd}{xargs}{def}#*d
+\RenewCommandCopy{cmd}{def}
+\RenewDocumentCommand{cmd}{xargs}{def}
+\RenewDocumentEnvironment{envname}{xargs}{begdef}{enddef}
+\RenewExpandableDocumentCommand{cmd}{xargs}{def}#*
 \RequirePackage[options%keyvals]{package}#*u
 \RequirePackage[options%keyvals]{package}[release]#*u
 \RequirePackage{package}#u
@@ -440,7 +440,7 @@ debug={%<options%>}
 \stockheight#*L
 \stockwidth#*L
 
-# pdftex v3.141592653-2.6-1.40.25
+# pdftex 2023-02-11
 \efcode#*
 \expanded#*
 \ifincsname#*
@@ -500,6 +500,7 @@ debug={%<options%>}
 \pdfincludechars#*
 \pdfinclusioncopyfonts#*
 \pdfinclusionerrorlevel#*
+\pdfinfo{info}
 \pdfinfoomitdate#*
 \pdfinsertht#*
 \pdfinterwordspaceoff#*
@@ -565,6 +566,7 @@ debug={%<options%>}
 \pdfsnaprefpoint#*
 \pdfsnapy#*
 \pdfsnapycomp#*
+\pdfspacefont#*
 \pdfstartlink#*
 \pdfstartthread#*
 \pdfstrcmp{string1}{string2}#*
@@ -665,9 +667,6 @@ debug={%<options%>}
 \textcompsubstdefault#*
 \TextOrMath{text content}{math content}#*
 \tmspace{arg1}{arg2}{arg3}#*
-\tracefloats#*
-\tracefloatsoff#*
-\tracefloatvals#*
 \tracingfonts#*
 \tracingnone#*
 \ttdefault#*

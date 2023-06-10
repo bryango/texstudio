@@ -83,6 +83,7 @@ public:
 
 
 	//appearance
+    bool systemUsesDarkMode(const QPalette &pal=QApplication::palette());
 	QPalette systemPalette;
 	QString interfaceStyle;
 	QString interfaceFontFamily;
@@ -349,6 +350,7 @@ private:
 	void createCommandList(QGroupBox *box, const QStringList &order, bool user, bool meta);
 	void setFirstRowMoveUpEnable(bool enable);
 	void setLastRowMoveDownEnable(bool enable);
+    bool eventFilter(QObject *obj,QEvent *event);
 private slots:
 	void browseCommand();
 	void undoCommand();

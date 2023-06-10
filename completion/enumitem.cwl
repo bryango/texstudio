@@ -42,7 +42,7 @@ i
 \begin{description}[options%keyvals]
 
 \newlist{name%envname}{type%keyvals}{max-depth}#N
-\renewlist{name%envname}{type%keyvals}{max-depth}#N
+\renewlist{name%envname}{type%keyvals}{max-depth}
 #keyvals:\newlist#c,\renewlist#c
 enumerate
 itemize
@@ -69,7 +69,7 @@ description*
 \SetEnumitemSize{name}{selector}#*
 \DrawEnumitemLabel#*
 
-#keyvals:\setlist,\SetEnumitemKey,\begin{enumerate}#c,\begin{itemize}#c,\begin{description}#c,\begin{enumerate*}#c,\begin{itemize*}#c,\begin{description*}#c
+#keyvals:\setlist,\setlist*,\SetEnumitemKey,\begin{enumerate}#c,\begin{itemize}#c,\begin{description}#c,\begin{enumerate*}#c,\begin{itemize*}#c,\begin{description*}#c
 topsep=##L
 partopsep=##L
 parsep=##L

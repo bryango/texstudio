@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2023/01/20 for v8.3.0
+# Matthew Bertucci 2023/04/07 for v8.9.0
 
 #include:ifxetex
 #include:ifluatex
@@ -79,6 +79,7 @@ airplayaudio
 airplayvideo
 airtable
 ajv
+akamai
 alacritty
 albertheijn
 alchemy
@@ -522,6 +523,7 @@ dacia
 daf
 dailymotion
 daimler
+daisyui
 dapr
 darkreader
 dart
@@ -763,6 +765,7 @@ folium
 fonoma
 fontawesome
 fontbase
+fontforge
 foodpanda
 ford
 forestry
@@ -1058,6 +1061,7 @@ istio
 itchdotio
 iterm2
 itunes
+itvx
 iveco
 jabber
 jaguar
@@ -1297,6 +1301,7 @@ medium
 meetup
 mega
 mendeley
+mercadopago
 mercedes
 merck
 mercurial
@@ -1349,6 +1354,7 @@ mlflow
 mobx
 mobxstatetree
 mocha
+modin
 modrinth
 modx
 mojangstudios
@@ -1434,11 +1440,13 @@ nodered
 nokia
 norco
 nordvpn
+normalizedotcss
 norwegian
 notepadplusplus
 notion
 notist
 nounproject
+novu
 now
 npm
 nrwl
@@ -1760,6 +1768,7 @@ redhat
 redhatopenshift
 redis
 redmine
+redox
 redux
 reduxsaga
 redwoodjs
@@ -1875,6 +1884,7 @@ semanticweb
 semaphoreci
 semver
 sencha
+sendinblue
 sennheiser
 sensu
 sentry
@@ -1997,6 +2007,7 @@ stackbit
 stackblitz
 stackedit
 stackexchange
+stackhawk
 stackoverflow
 stackpath
 stackshare
@@ -2061,6 +2072,7 @@ swift
 swiggy
 swiper
 symantec
+symbolab
 symfony
 symphony
 sympy
@@ -2145,6 +2157,7 @@ tnt
 todoist
 toggl
 tokyometro
+toml
 tomorrowland
 topcoder
 toptal
@@ -2236,6 +2249,7 @@ v2ex
 v8
 vaadin
 vagrant
+vala
 valorant
 valve
 vapor

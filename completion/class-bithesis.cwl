@@ -1,5 +1,5 @@
 # bithesis class
-# Matthew Bertucci 2023/02/02 for v3.3.0
+# Matthew Bertucci 2023/04/04 for v3.5.0
 
 #include:l3keys2e
 #include:class-ctexbook
@@ -72,6 +72,7 @@ info/studentId=%<字符串%>
 info/supervisor=%<字符串%>
 info/supervisorEn=%<字符串%>
 info/externalSupervisor=%<字符串%>
+info/class=%<字符串%>
 info/keywords={%<字符串；以全角分号分割%>}
 info/keywordsEn={%<字符串; 以分号分割%>}
 info/translationTitle=%<字符串%>
@@ -90,6 +91,9 @@ info/classifiedLevel=%<字符串%>
 style={%<键值列表%>}
 style/head=%<字符串%>
 style/bibliographyIndent#true,false
+style/pageVerticalAlign=#top,scattered
+style/mathFont=#asana,bonum,cm,concrete,dejavu,erewhon,euler,fira,garamond,gfsneohellenic,kp,libertinus,lm,newcm,pagella,schola,stix,stix2,termes,xcharter,xits,none
+style/unicodeMathOptions=%<任意选项%>
 TOC={%<键值列表%>}
 TOC/abstract#true,false
 TOC/abstractEn#true,false
@@ -101,6 +105,8 @@ appendices/TOCTitle=%<字符串%>
 publications={%<键值列表%>}
 publications/sorting#true,false
 publications/omit#true,false
+publications/maxbibnames=%<正整数%>
+publications/minbibnames=%<正整数%>
 misc={%<键值列表%>}
 misc/arialFont=%<字符串%>
 #endkeyvals
@@ -109,14 +115,14 @@ misc/arialFont=%<字符串%>
 \end{abstractEn}
 \begin{acknowledgements}
 \end{acknowledgements}
-\begin{algorithm}
-\begin{algorithm}[留数定理%text]
-\end{algorithm}
+\begin{algo}
+\begin{algo}[留数定理%text]
+\end{algo}
 \begin{appendices}
 \end{appendices}
-\begin{axiom}
-\begin{axiom}[留数定理%text]
-\end{axiom}
+\begin{axi}
+\begin{axi}[留数定理%text]
+\end{axi}
 \begin{bibprint}
 \end{bibprint}
 \begin{case}
@@ -124,36 +130,36 @@ misc/arialFont=%<字符串%>
 \end{case}
 \begin{conclusion}
 \end{conclusion}
-\begin{conjecture}
-\begin{conjecture}[留数定理%text]
-\end{conjecture}
-\begin{corollary}
-\begin{corollary}[留数定理%text]
-\end{corollary}
-\begin{definition}
-\begin{definition}[留数定理%text]
-\end{definition}
-\begin{example}
-\begin{example}[留数定理%text]
-\end{example}
-\begin{lemma}
-\begin{lemma}[留数定理%text]
-\end{lemma}
-\begin{proposition}
-\begin{proposition}[留数定理%text]
-\end{proposition}
+\begin{conj}
+\begin{conj}[留数定理%text]
+\end{conj}
+\begin{cor}
+\begin{cor}[留数定理%text]
+\end{cor}
+\begin{defn}
+\begin{defn}[留数定理%text]
+\end{defn}
+\begin{exmp}
+\begin{exmp}[留数定理%text]
+\end{exmp}
+\begin{lem}
+\begin{lem}[留数定理%text]
+\end{lem}
+\begin{prop}
+\begin{prop}[留数定理%text]
+\end{prop}
 \begin{publications}
 \end{publications}
-\begin{remark}
-\begin{remark}[留数定理%text]
-\end{remark}
+\begin{rem}
+\begin{rem}[留数定理%text]
+\end{rem}
 \begin{resume}
 \end{resume}
 \begin{symbols}
 \end{symbols}
-\begin{theorem}
-\begin{theorem}[留数定理%text]
-\end{theorem}
+\begin{them}
+\begin{them}[留数定理%text]
+\end{them}
 
 \addpub{bibid}#C
 \addpubs{bibid}#C

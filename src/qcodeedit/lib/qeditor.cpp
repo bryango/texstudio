@@ -1127,7 +1127,7 @@ bool QEditor::writeToFile(const QString &filename, const QByteArray &data) {
 */
 void QEditor::save(const QString& fn)
 {
-	if ( fileName().count() ) {
+    if ( fileName().size() ) {
 		watcher()->removeWatch(fileName(), this);
 	}
 
@@ -1503,7 +1503,7 @@ void QEditor::addAction(QAction *a, const QString& menu, const QString& toolbar)
 
 	m_actions[a->objectName()] = a;
 
-	if ( pMenu && menu.count() )
+    if ( pMenu && menu.size() )
 	{
 		pMenu->addAction(a);
 
@@ -1512,7 +1512,7 @@ void QEditor::addAction(QAction *a, const QString& menu, const QString& toolbar)
 		#endif
 	}
 
-	if ( toolbar.count() )
+    if ( toolbar.size() )
 	{
 		#ifdef _QMDI_
 		toolbars[toolbar]->addAction(a);
@@ -2375,8 +2375,8 @@ void QEditor::setLanguageDefinition(QLanguageDefinition *d)
 		m_doc->setLanguageDefinition(d);
 
 	if ( m_definition )
-	{
-		bool cuc = d->singleLineComment().count();
+    {
+        bool cuc = d->singleLineComment().size();
 
 		QCE_ENABLE_ACTION("comment", cuc)
 		QCE_ENABLE_ACTION("uncomment", cuc)
@@ -2557,7 +2557,7 @@ static bool unindent(const QDocumentCursor& cur)
 	int r = 0, n = 0, t = QDocument::tabStop();
 	QString txt = beg.text().left(beg.firstChar());
 
-	while ( txt.count() && (n < t) )
+    while ( txt.size() && (n < t) )
 	{
 		if ( txt.at(txt.length() - 1) == '\t' )
 			n += t - (n % t);
@@ -2857,22 +2857,46 @@ void QEditor::toggleCommentSelection()
 
 	QString commentMark = m_definition->singleLineComment();
 	bool allCommented = true;
+    bool cursorExpanded = false;
 
-	foreach (const QDocumentCursor &cursor, cursors()) {
+    if(cursors().size()==1 && !m_cursor.hasSelection() && m_cursor.line().hasFlag(QDocumentLine::CollapsedBlockStart)){
+        // folded block, executed at only visible line
+        // select whole block
+        int lineNr=m_cursor.lineNumber()+1;
+        int nestingLevel=1;
+        for(;lineNr<m_doc->lineCount();++lineNr){
+            QDocumentLine ln=m_doc->line(lineNr);
+            if(ln.hasFlag(QDocumentLine::CollapsedBlockEnd)){
+                --nestingLevel;
+            }
+            if(ln.hasFlag(QDocumentLine::CollapsedBlockStart)){
+                ++nestingLevel;
+            }
+            if(nestingLevel==0){
+                m_cursor.setAnchorLineNumber(lineNr);
+                m_cursor.setAnchorColumnNumber(ln.length());
+                cursorExpanded=true;
+                break;
+            }
+        }
+    }
+
+    foreach (QDocumentCursor cursor, cursors()) {
 		if (cursor.hasSelection()) {
 			QDocumentCursor cur = cursor.selectionStart();
             for (int i = cursor.startLineNumber(); i <= cursor.endLineNumber() ; ++i) {
-                if (!cur.line().startsWith(commentMark) && (i<cursor.endLineNumber() || !cur.line().text().isEmpty())) { //special treatmenat of last line if empty
+                QDocumentLine ln=m_doc->line(i);
+                if (!ln.startsWith(commentMark) && (i<cursor.endLineNumber() || !cur.line().text().isEmpty())) { //special treatmenat of last line if empty
 					allCommented = false;
 					break;
 				}
-				cur.movePosition(1, QDocumentCursor::NextLine);
 			}
 		} else {
-			if (!cursor.line().startsWith(commentMark)) {
-				allCommented = false;
-			}
-		}
+            // single line
+            if (!cursor.line().startsWith(commentMark)) {
+                allCommented = false;
+            }
+        }
 		if (!allCommented) break;
 	}
 
@@ -2881,6 +2905,9 @@ void QEditor::toggleCommentSelection()
 	} else {
 		commentSelection();
 	}
+    if(cursorExpanded){
+        m_cursor.select(m_cursor.startLineNumber(),m_cursor.startColumnNumber());
+    }
 }
 
 /*!
@@ -3045,14 +3072,17 @@ void QEditor::selectOccurence(bool backward, bool keepMirrors, bool all)
 void QEditor::setVerticalScrollBarMaximum()
 {
 	if (!m_doc) return;
-	const QSize viewportSize = viewport()->size();
-	int viewportHeight = viewportSize.height();
-	if (flag(VerticalOverScroll))
-		viewportHeight /= 2;
-    const qreal ls = m_doc->getLineSpacing();
+	const qreal ls = m_doc->getLineSpacing();
+	const int totalLines = qRound(m_doc->height() / ls);
+	const int viewLines = qFloor(viewport()->size().height() / ls);
 	QScrollBar* vsb = verticalScrollBar();
-    vsb->setMaximum(qMax(0., 1. + (m_doc->height() - viewportHeight) / ls));
-    vsb->setPageStep(qCeil(1.* viewportSize.height() / ls));
+
+	if (flag(VerticalOverScroll)) {
+		vsb->setMaximum(totalLines - 1);    // allow last line scroll to top
+	} else {
+		vsb->setMaximum(qMax(0, totalLines - viewLines));    // disallow overscroll
+	}
+    vsb->setPageStep(viewLines);
 }
 
 /*!
@@ -3061,6 +3091,17 @@ void QEditor::setVerticalScrollBarMaximum()
 bool QEditor::event(QEvent *e)
 {
 	// preparations for tooltips
+    if(e->type() == QEvent::ShortcutOverride){
+        QKeyEvent *event = static_cast<QKeyEvent *>(e);
+        if(event->matches(QKeySequence::Cancel)){
+            if(cursorMirrorCount()>0){
+                // collapse mirrors to main cursor
+                clearCursorMirrors();
+                e->accept();
+                return true;
+            }
+        }
+    }
 
 	if (e->type() == QEvent::ToolTip) {
 		QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
@@ -3622,7 +3663,7 @@ void QEditor::inputMethodEvent(QInputMethodEvent* e)
     }
 //#endif
 
-	if ( e->commitString().count() ) {
+    if ( e->commitString().size() ) {
 		m_cursor.beginEditBlock();
         if(preEditSet){
             preEditSet=false;
@@ -4257,6 +4298,7 @@ void QEditor::focusOutEvent(QFocusEvent *e)
 {
 	setFlag(CursorOn, false);
 	m_blink.stop();
+    repaintCursor();
 
 	QAbstractScrollArea::focusOutEvent(e);
 }
@@ -4363,10 +4405,10 @@ void QEditor::setFileName(const QString& f)
 
 	m_doc->setFileName_DONOTCALLTHIS(f);
 
-	if ( fileName().count() )
+    if ( fileName().size() )
 		watcher()->addWatch(fileName(), this);
 
-	setTitle(name().count() ? name() : "untitled");
+    setTitle(name().size() ? name() : "untitled");
 }
 
 /*!
@@ -4534,9 +4576,11 @@ QHash<QString, int> QEditor::getEditOperations(bool excludeDefault){
     addEditOperation(SelectCursorLeft, QKeySequence::SelectPreviousChar);
     addEditOperation(SelectCursorRight, QKeySequence::SelectNextChar);
 
-    addEditOperation(CursorStartOfLine, QKeySequence::MoveToStartOfLine);
+    addEditOperation(CursorStartOfLineText, QKeySequence::MoveToStartOfLine);
+    registerEditOperation(CursorStartOfLine);
     addEditOperation(CursorEndOfLine, QKeySequence::MoveToEndOfLine);
-    addEditOperation(SelectCursorStartOfLine, QKeySequence::SelectStartOfLine);
+    addEditOperation(SelectCursorStartOfLineText, QKeySequence::SelectStartOfLine);
+    registerEditOperation(SelectCursorStartOfLine);
     addEditOperation(SelectCursorEndOfLine, QKeySequence::SelectEndOfLine);
 
     addEditOperation(CursorStartOfDocument, QKeySequence::MoveToStartOfDocument);
@@ -4701,6 +4745,7 @@ QString QEditor::translateEditOperation(const EditOperation& op){
 	case CursorWordLeft: return tr("Move cursor left (1 word)");
 	case CursorWordRight: return tr("Move cursor right (1 word)");
 	case CursorStartOfLine: return tr("Move cursor to line start");
+    case CursorStartOfLineText: return tr("Move cursor to first character in line");
 	case CursorEndOfLine: return tr("Move cursor to line end");
 	case CursorStartOfDocument: return tr("Move cursor to document start");
 	case CursorEndOfDocument: return tr("Move cursor to document end");
@@ -4717,6 +4762,7 @@ QString QEditor::translateEditOperation(const EditOperation& op){
 	case SelectCursorWordLeft: return tr("Select left (1 word)");
 	case SelectCursorWordRight: return tr("Select right (1 word)");
 	case SelectCursorStartOfLine: return tr("Select to line start");
+    case SelectCursorStartOfLineText: return tr("Select to first character in line");
 	case SelectCursorEndOfLine: return tr("Select to line end");
 	case SelectCursorStartOfDocument: return tr("Select to document start");
 	case SelectCursorEndOfDocument: return tr("Select to document end");
@@ -4822,6 +4868,9 @@ void QEditor::cursorMoveOperation(QDocumentCursor &cursor, EditOperation eop){
 	case CursorStartOfLine: case SelectCursorStartOfLine:
 		op = QDocumentCursor::StartOfLine;
 		break;
+    case CursorStartOfLineText: case SelectCursorStartOfLineText:
+        op = QDocumentCursor::StartOfLineText;
+        break;
 	case CursorEndOfLine: case SelectCursorEndOfLine:
 		op = QDocumentCursor::EndOfLine;
 		break;
@@ -5278,7 +5327,7 @@ void QEditor::insertText(QDocumentCursor& c, const QString& text)
             if(!flag(WeakIndent)){
                 int n = 0;
 
-                while ( n < l.count() && l.at(n).isSpace() )
+                while ( n < l.size() && l.at(n).isSpace() )
                     ++n;
 
                 l.remove(0, n);
@@ -5325,6 +5374,7 @@ void QEditor::insertText(QDocumentCursor& c, const QString& text)
                     if (indentCount >= 0){
                         indent=QString(indentCount,'\t');
                     }else{
+                        if(indentCount<-1){
                         //remove indent from constIndent
                         indent.clear();
                         if(!constIndent.isEmpty()){
@@ -5336,6 +5386,7 @@ void QEditor::insertText(QDocumentCursor& c, const QString& text)
                                 // remove tabStop spaces
                                 constIndent.remove(0,m_doc->tabStop());
                             }
+                        }
                         }
                     }
 
@@ -5912,6 +5963,7 @@ void QEditor::insertFromMimeData(const QMimeData *d)
 
 		} else {
 			QString txt;
+
 
 			if ( d->hasFormat("text/plain") )
 				txt = d->text();

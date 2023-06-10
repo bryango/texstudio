@@ -20,6 +20,10 @@
 
 #include <QDomElement>
 
+#if (QT_VERSION >= 0x060500)
+#include <QStyleHints>
+#endif
+
 #if (QT_VERSION<QT_VERSION_CHECK(6,0,0))
 #include <QDesktopWidget>
 #endif
@@ -1929,9 +1933,35 @@ bool ConfigManager::execConfigDialog(QWidget *parentToDialog)
 
     showConfigMaximized=confDlg->isMaximized();
 
-	delete confDlg;
-	return executed;
+    delete confDlg;
+    return executed;
 }
+
+/*!
+ * \brief Tries to determine if the system uses dark mode
+ *
+ * This function tries to determine if a system uses "dark mode" by looking up general text color and converting it into gray-scale value.
+ * A value above 200 (scale is 0 .. 255 ) is considered as light text color on probably dark background, hence a dark mode is detected.
+ * This approach is independent on specific on different systems.
+ * \return true -> uses dark mode
+ */
+bool ConfigManager::systemUsesDarkMode(const QPalette &pal)
+{
+#if (QT_VERSION >= 0x060500) && (defined( Q_OS_WIN )||defined( Q_OS_LINUX ))
+    if(interfaceStyle=="Fusion" && interfaceStyle=="Windows"){
+        // only style Fusion and Windows work properly with stylehints
+        QStyleHints *sh=QGuiApplication::styleHints();
+        return sh->colorScheme() == Qt::ColorScheme::Dark;
+    }else{
+        QColor clr=pal.color(QPalette::Text);
+        return qGray(clr.rgb())>200;
+    }
+#else
+    QColor clr=pal.color(QPalette::Text);
+    return qGray(clr.rgb())>200;
+#endif
+}
+
 
 bool ConfigManager::addRecentFile(const QString &fileName, bool asMaster)
 {
@@ -2771,17 +2801,25 @@ void ConfigManager::treeWidgetToManagedMenuTo(QTreeWidgetItem *item)
 void ConfigManager::loadTranslations(QString locale)
 {
 	if (locale == "") {
-		locale = QString(QLocale::system().name()).left(2);
-		if (locale.length() < 2) locale = "en";
+        locale = QString(QLocale::system().name());
+        // try full locale
+        QString txsSourceFile = "texstudio_" + locale + ".qm";
+        QString txsTranslationFile = findResourceFile(txsSourceFile,false,QStringList(),{"translation"});
+        if(txsTranslationFile.isEmpty()){
+            // fallback to basic locale
+            locale = QString(QLocale::system().name()).left(2);
+        }
+        if (locale.length() < 2) locale = "en";
 	}
 	QString txsSourceFile = "texstudio_" + locale + ".qm";
-	QString txsTranslationFile = findResourceFile(txsSourceFile);
-    if (txsTranslationFile.isEmpty()) {
-        txsSourceFile = "translation/texstudio_" + locale + ".qm";
-        txsTranslationFile = findResourceFile(txsSourceFile);
-    }
+    QString txsTranslationFile = findResourceFile(txsSourceFile,false,QStringList(),{"translation"});
     QString qtSourceFile = "qt_" + locale + ".qm";
-    QString qtTranslationFile = findResourceFile(qtSourceFile);
+    QString qtTranslationFile = findResourceFile(qtSourceFile,false,QStringList(),{"translation"});
+    if(qtTranslationFile.isEmpty() && locale.length()>2){
+        // fallback to basic locale
+        qtSourceFile = "qt_" + locale.left(2) + ".qm";
+        qtTranslationFile = findResourceFile(qtSourceFile,false,QStringList(),{"translation"});
+    }
     bool result0=appTranslator->load(txsTranslationFile);
     bool result1=basicTranslator->load(qtTranslationFile);
     if(locale!="en" && (!result0 || !result1) ){
@@ -2973,6 +3011,8 @@ void ConfigManager::addCommandRow(QGridLayout *gl, const CommandInfo &cmd, int r
 		if (cmd.id == "pdflatex") pdflatexEdit = qobject_cast<QLineEdit *>(cmdWidget);
 	} else {
 		cmdWidget = new QComboBox(parent);
+        cmdWidget->setFocusPolicy(Qt::StrongFocus);
+        cmdWidget->installEventFilter(this);
 		cmdWidget->setObjectName(cmd.id);
 		if (!configShowAdvancedOptions && simpleMetaOptions.contains(cmd.id) && cmd.metaSuggestionList.contains(cmd.getPrettyCommand())) {
 			foreach (QString elem, cmd.simpleDescriptionList) {
@@ -3149,7 +3189,27 @@ void ConfigManager::setLastRowMoveDownEnable(bool enable)
 			li->widget()->setEnabled(enable);
 			break;
 		}
-	}
+    }
+}
+/*!
+ * \brief eventFilter for combobbox
+ * This filters wheel eents on unfocused combobox to avoid unwanted change on scrolling
+ * See #2977
+ * \param obj
+ * \param event
+ * \return
+ */
+bool ConfigManager::eventFilter(QObject *obj, QEvent *event)
+{
+    if ( event->type() == QEvent::Wheel) {
+        auto *wdg=qobject_cast<QWidget*>( obj );
+        if( wdg && !wdg->hasFocus() )
+        {
+            event->ignore();
+            return true;
+        }
+    }
+    return QObject::eventFilter( obj, event );
 }
 
 void ConfigManager::browseCommand()

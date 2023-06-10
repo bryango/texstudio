@@ -16,7 +16,8 @@ mkdir -p package-zip
 cp texstudio.exe package-zip/
 cd package-zip
 #cp /mingw64/bin/libicudt68.dll /mingw64/bin/icudt68.dll
-windeployqt-qt6 texstudio.exe
+# copy of translations apparently broken currently
+windeployqt-qt6  --no-qml --qmlcore --no-translations texstudio.exe
 echo "copy dlls"
 #ldd texstudio.exe | awk '{print $3}'| grep ming | xargs -I{} cp -u {} .
 ldd texstudio.exe | awk '{print $3}'| grep ucrt64 | xargs -I{} cp -u {} .
@@ -33,8 +34,9 @@ cp -r ../translation/* ./package-zip/translations
 cp -r ../templates package-zip
 mkdir -p ./package-zip/help
 cp -r ../utilities/manual/build package-zip/help
-cp ../utilities/manual/CHANGELOG.txt package-zip/help
+cp ../utilities/manual/source/CHANGELOG.md package-zip/help
 cp ../utilities/latex2e.css package-zip/help
+cp ../utilities/list.png package-zip/help
 cp ../utilities/latex2e.html package-zip/help
 cp -r ../utilities/dictionaries package-zip/dictionaries
 cp -r ../utilities/TexTablet package-zip/TexTablet

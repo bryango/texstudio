@@ -1,5 +1,5 @@
 # ProfCollege package
-# Matthew Bertucci 2023/01/28 for v0.99-z-e
+# Matthew Bertucci 2023/03/24 for v0.99-z-g
 
 #include:verbatim
 #include:mathtools
@@ -42,14 +42,16 @@
 #include:fontawesome5
 #include:pifont
 #include:nicematrix
+#include:multirow
+#include:longtable
 #include:fmtcount
 #include:environ
-#include:longtable
 #include:printlen
 #include:ifoddpage
 
 #keyvals:\usepackage/ProfCollege#c
 nonshellescape
+nonamssymb
 #endkeyvals
 
 ## L'écriture de grandeurs ##
@@ -88,6 +90,20 @@ ListeCouleurs={%<color1,color2,...%>}
 Impression#true,false
 Compact#true,false
 Unite#true,false
+#endkeyvals
+
+## Décomposition décimale ##
+\DecompositionDecimale{nombre}
+\DecompositionDecimale[clés%keyvals]{nombre}
+
+#keyvals:\DecompositionDecimale
+Parentheses#true,false
+Colore#true,false
+CouleurU=#%color
+CouleurD=#%color
+CouleurC=#%color
+Fleches#true,false
+Details#true,false
 #endkeyvals
 
 ## Écrire les nombres en lettres ##
@@ -134,6 +150,7 @@ Largeur=%<integer%>
 Hauteur=%<integer%>
 Couleur=#%color
 Seyes#true,false
+Echelle=%<nombre%>
 Millimetre#true,false
 Isometrique#true,false
 IsometriquePointe#true,false
@@ -161,6 +178,7 @@ Cube#true,false
 Capacite#true,false
 Gramme#true,false
 Litre#true,false
+Octet#true,false
 Escalier#true,false
 Entiers#true,false
 Millions#true,false
@@ -717,6 +735,7 @@ Epaisseur=%<factor%>
 Complete#true,false
 SansZero#true,false
 Remediation#true,false
+Longueur=##L
 #endkeyvals
 
 ## La simplification d’écritures fractionnaires ##
@@ -757,6 +776,7 @@ Math#true,false
 Stretch=%<factor%>
 Largeur=##L
 CouleurTab=#%color
+Simple#true,false
 #endkeyvals
 
 \FlechesPH{a}{b}{texte}
@@ -769,8 +789,10 @@ CouleurTab=#%color
 \FlecheLineaireB{a}{b}{c}{opération}
 \FlecheLineaireG{a}{b}{c}{opération}
 \FlecheLineaireD{a}{b}{c}{opération}
-\FlecheRatio{texte%plain}
-\FlecheInvRatio{texte%plain}
+\FlechePCG{a}{b}
+\FlechePCD{a}{b}
+\FlechePCH{a}{b}
+\FlechePCB{a}{b}
 
 ## Les pourcentages ##
 \Pourcentage{t}{q}
@@ -815,6 +837,9 @@ Stretch=%<factor%>
 CouleurTab=#%color
 Nom#true,false
 #endkeyvals
+
+\FlecheRatio{texte%plain}
+\FlecheInvRatio{texte%plain}
 
 ## Les statistiques ##
 \Stat{Données}
@@ -1023,6 +1048,7 @@ CouleurAide=#%color
 Cours#true,false
 Tuile#true,false
 Vide#true,false
+Reperes#true,false
 Impression#true,false
 RAZ#true,false
 Somme#true,false
@@ -1410,6 +1436,8 @@ Symboles={%<symbole1,symbole2,...%>}
 #endkeyvals
 
 \SolutionCarte{solution}{commentaires%text}
+\PfCCardsEcartH#*
+\PfCCardsEcartV#*
 
 ## Des dominos à jouer ##
 \Dominos{e q1/r1§q2/r2§...}
@@ -1590,6 +1618,8 @@ Modele=#A,B,C,D,E,F
 Etape=%<nombre%>
 Echelle=##L
 Couleur=#%color
+Solution#true,false
+Graine=%<nombre%>
 #endkeyvals
 
 ## Tectonic ##
@@ -1654,6 +1684,76 @@ Vide#true,false
 Cle="%<valeur%>"
 ListeOperations={%<opérations%>}
 ListeNombres={%<nombres%>}
+#endkeyvals
+
+## Le Futoshiki ##
+\Futoshiki{description de jeu}
+\Futoshiki[clés%keyvals]{description de jeu}
+
+#keyvals:\Futoshiki
+Largeur=##L
+Solution#true,false
+CouleurSolution=#%color
+CouleurCase=#%color
+StyleTexte=%<font commands%>
+#endkeyvals
+
+## Garam ##
+\Garam{c11/o11/O11,c12/o12/O12,...}
+\Garam[clés%keyvals]{c11/o11/O11,c12/o12/O12,...}
+
+#keyvals:\Garam
+Taille=%<nombre%>
+Largeur=##L
+Solution#true,false
+CouleurSolution=#%color
+#endkeyvals
+
+## SquarO ##
+\SquarO
+\SquarO[clés%keyvals]
+
+#keyvals:\SquarO
+Longueur=%<nombre%>
+Largeur=%<nombre%>
+Echelle=##L
+Solution#true,false
+Nom=%<nom%>
+Graine=%<nombre%>
+#endkeyvals
+
+## Grades ##
+\Grades
+\Grades[clés%keyvals]
+
+#keyvals:\Grades
+Longueur=%<nombre%>
+Largeur=%<nombre%>
+Echelle=##L
+Solution#true,false
+Graine=%<nombre%>
+#endkeyvals
+
+## MidPoint ##
+\MidPoint
+\MidPoint[clés%keyvals]
+
+#keyvals:\MidPoint
+Hard#true,false
+Solution#true,false
+Graine=%<nombre%>
+#endkeyvals
+
+## Kakurasu ##
+\Kakurasu
+\Kakurasu[clés%keyvals]
+
+#keyvals:\Kakurasu
+Longueur=%<nombre%>
+Largeur=%<nombre%>
+Echelle=##L
+Solution#true,false
+Graine=%<nombre%>
 #endkeyvals
 
 ## Bulles et cartes mentales ##
@@ -2967,3 +3067,20 @@ Teal#B
 \yyy#S
 \zzpar#S
 \zzz#S
+\BuildKakurasu#S
+\BuildMidPoint#S
+\BuildGrades#S
+\BuildSquaro#S
+\PfCSquaroNom#S
+\BuildSquaroSolution#S
+\PfCGaramHeight#S
+\PfCListeGaram#S
+\PfCListeGaramlen#S
+\PfCFutoHeight#S
+\PfCTailleFuto#S
+\ListeFuto#S
+\PfCFutoStyleTexte#S
+\PfCLongueurP#S
+\LabyLongCM#S
+\begin{MyboxJQAr}#S
+\end{MyboxJQAr}#S

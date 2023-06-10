@@ -1,5 +1,5 @@
 # Arguelles beamertheme
-# Matthew Bertucci 2022/12/10 for v2.0.0
+# Matthew Bertucci 2023/03/22 for v2.2.0
 
 #include:inputenc
 #include:fontenc
@@ -18,8 +18,14 @@
 
 #keyvals:\usetheme/Arguelles#c
 sans
+frameno
+splitnav
 mp
 #endkeyvals
+
+#ifOption:splitnav
+#include:etoolbox
+#endif
 
 #ifOption:mp
 #include:ulem

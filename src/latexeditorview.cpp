@@ -198,7 +198,7 @@ void DefaultInputBinding::checkLinkOverlay(QPoint mousePos, Qt::KeyboardModifier
 
 bool DefaultInputBinding::keyPressEvent(QKeyEvent *event, QEditor *editor)
 {
-	if (LatexEditorView::completer && LatexEditorView::completer->acceptTriggerString(event->text())
+    if (LatexEditorView::completer && LatexEditorView::completer->acceptTriggerString(event->text())
 	        && (editor->currentPlaceHolder() < 0 || editor->currentPlaceHolder() >= editor->placeHolderCount() || editor->getPlaceHolder(editor->currentPlaceHolder()).mirrors.isEmpty() ||  editor->getPlaceHolder(editor->currentPlaceHolder()).affector != BracketInvertAffector::instance())
 	        && !editor->flag(QEditor::Overwrite))  {
 		//update completer if necessary
@@ -482,7 +482,7 @@ bool DefaultInputBinding::contextMenuEvent(QContextMenuEvent *event, QEditor *ed
 		if (tk.type == Token::file) {
             Token cmdTk=Parsing::getCommandTokenFromToken(tl,tk);
             QString fn=tk.getText();
-            if(cmdTk.getText()=="\\subimport"){
+            if(cmdTk.dlh && cmdTk.getText()=="\\subimport"){
                 int i=tl.indexOf(cmdTk);
                 TokenList tl2=tl.mid(i); // in case of several cmds in one line
                 QString path=Parsing::getArg(tl,Token::definition);
@@ -1013,7 +1013,7 @@ void LatexEditorView::checkForLinkOverlay(QDocumentCursor cursor)
 		} else if (tk.type == Token::file) {
             Token cmdTk=Parsing::getCommandTokenFromToken(tl,tk);
             QString fn=tk.getText();
-            if(cmdTk.getText()=="\\subimport"){
+            if(cmdTk.dlh && cmdTk.getText()=="\\subimport"){
                 int i=tl.indexOf(cmdTk);
                 TokenList tl2=tl.mid(i); // in case of several cmds in one line
                 QString path=Parsing::getArg(tl,Token::definition);
@@ -2803,11 +2803,6 @@ bool LatexEditorView::closeElement()
 		searchReplacePanel->closeElement(config->closeSearchAndReplace);
 		return true;
 	}
-    if(editor->cursorMirrorCount()>0){
-        // collapse mirrors to main cursor
-        editor->clearCursorMirrors();
-        return true;
-    }
 	return false;
 }
 
@@ -2986,6 +2981,7 @@ QList<int> LatexEditorViewConfig::possibleEditOperations()
 		QEditor::CursorWordLeft,
 		QEditor::CursorWordRight,
 		QEditor::CursorStartOfLine,
+        QEditor::CursorStartOfLineText,
 		QEditor::CursorEndOfLine,
 		QEditor::CursorStartOfDocument,
 		QEditor::CursorEndOfDocument,
@@ -3000,6 +2996,7 @@ QList<int> LatexEditorViewConfig::possibleEditOperations()
 		QEditor::SelectCursorWordLeft,
 		QEditor::SelectCursorWordRight,
 		QEditor::SelectCursorStartOfLine,
+        QEditor::SelectCursorStartOfLineText,
 		QEditor::SelectCursorEndOfLine,
 		QEditor::SelectCursorStartOfDocument,
 		QEditor::SelectCursorEndOfDocument,

@@ -1,6 +1,6 @@
 # babel.sty
 # available from ctan
-# tbraun 4.11.2008; Matthew Bertucci 2023/01/23 for v3.85
+# tbraun 4.11.2008; Matthew Bertucci 2023/02/13 for v3.86
 
 #keyvals:\usepackage/babel#c
 %<language%>
@@ -266,6 +266,7 @@ kashida.plain
 #endif
 
 \babelsublr{text}#*
+\localerestoredirs#*
 \BabelPatchSection{section-name}#*
 \BabelFootnote{cmd}{language}{before}{after}#*d
 
@@ -302,6 +303,7 @@ kashida.plain
 bidi.mapdigits=#on,off
 bidi.mirroring=#on,off
 bidi.text=#on,off
+bidi.math=#on,off
 linebreak.sea=#on,off
 linebreak.cjk=#on,off
 justify.arabic=#on,off
@@ -2073,7 +2075,7 @@ SuppressWarning#true,false
 #repl:"> »
 #endif
 
-### greek.ldf v1.10 (and options greek.polutoniko and greek.ancient) ###
+### greek.ldf v1.12 (and options greek.polutoniko and greek.ancient) ###
 #ifOption:greek
 \captionsgreek
 \dategreek
@@ -2082,10 +2084,18 @@ SuppressWarning#true,false
 \greekscript
 \greektext
 \ensuregreek{text}
-\textgreek{text}
+\lgrfont{text}
+\textgreek{text}#*
 \greeknumeral{number}
 \Greeknumeral{number}
+\greeknumeralsix#*
+\greeknumeralSix#*
+\greeknumeralninety#*
+\greeknumeralNinety#*
 \greekfontencoding#*
+\BabelGreekRestoreFontEncoding#*
+\BabelGreekPreviousFontEncoding#*
+\EnsureStandardFontEncoding#*
 \textol{text}#*
 \outlfamily#*
 \greekhyphenmins#*
@@ -3121,7 +3131,7 @@ SuppressWarning#true,false
 reset=#none,section,chapter,page,page-resume,page-cont
 resume
 indent=#article-nosp,article-sp,hulist
-ruler=#none,one-line,fourth,choose
+rule=#none,one-line,fourth,choose
 marksize=max-normal
 mark=#arabic,stars,stars-max
 mpmark=#arabic,stars,stars-max
@@ -3211,7 +3221,7 @@ editor
 reset=#none,section,chapter,page,page-resume,page-cont
 resume
 indent=#article-nosp,article-sp,hulist
-ruler=#none,one-line,fourth,choose
+rule=#none,one-line,fourth,choose
 marksize=max-normal
 mark=#arabic,stars,stars-max
 mpmark=#arabic,stars,stars-max
